@@ -1,0 +1,265 @@
+import { createWidget } from 'discourse/widgets/widget';
+import { h } from 'virtual-dom';
+import RawHtml from 'discourse/widgets/raw-html';
+import { avatarImg } from 'discourse/widgets/post';
+import { generateMap, setupMap, addMarkersToMap, addCircleMarkersToMap } from '../lib/map-utilities';
+import DiscourseURL from 'discourse/lib/url';
+
+export default createWidget('user-map', {
+  tagName: 'div.locations-map',
+  buildKey: () => 'map',
+
+  defaultState() {
+    return {
+      mapToggle: 'expand',
+      expanded: false,
+      showAttribution: false,
+      runSetup: true,
+      showSearch: false
+    };
+  },
+
+  locationPresent(locations, location) {
+    return locations.filter((l) => {
+      return l.geo_location.lat === location.geo_location.lat &&
+        l.geo_location.lon === location.geo_location.lon;
+    }).length > 0;
+  },
+
+  addMarkers() {
+    const user = this.attrs.user;
+    const userList = this.attrs.userList;
+    const map = this.state.mapObjs.map;
+    let locations = this.attrs.locations || [];
+    let rawMarkers = [];
+    let rawCircleMarkers = [];
+
+    if (user && user.location && user.location.geo_location && !user.location.hide_marker) {
+      if (!this.locationPresent(locations, user.location)) {
+        locations.push(user.location);
+      }
+    };
+
+    if (locations && locations.length > 0) {
+      locations.forEach((l) => {
+        if (l && l.geo_location) {
+          let marker = {
+            lat: l.geo_location.lat,
+            lon: l.geo_location.lon
+          };
+          if (l.circle_marker) {
+            marker['options'] = l.circle_marker;
+            rawCircleMarkers.push(marker);
+          } else {
+            rawMarkers.push(marker);
+          };
+        }
+      });
+    }
+
+    if (userList) {
+      userList.forEach((u) => {
+        if (u.location && u.location.geo_location) {
+          rawMarkers.push({
+            lat: u.location.geo_location.lat,
+            lon: u.location.geo_location.lon,
+            options: {
+              title: t.fancy_title
+            },
+            onClick: () => DiscourseURL.routeTo("u/" + t.slug)
+          });
+        }
+      });
+    }
+
+    let markers = null;
+
+    if (rawCircleMarkers && rawCircleMarkers.length > 0) {
+      addCircleMarkersToMap(rawCircleMarkers, map, this);
+    }
+
+    if (rawMarkers && rawMarkers.length > 0) {
+      markers = addMarkersToMap(rawMarkers, map);
+    }
+
+    return markers;
+  },
+
+  setupMap() {
+    const mapObjs = this.state.mapObjs;
+    const map = mapObjs.map;
+    const markers = this.addMarkers();
+    const user = this.attrs.user;
+    const zoom = this.attrs.zoom;
+    const center = this.attrs.center;
+    let boundingbox = null;
+
+
+    if (user && user.location && user.location.geo_location
+        && user.location.geo_location.boundingbox) {
+      boundingbox = topic.location.geo_location.boundingbox;
+    }
+
+    map.invalidateSize(false);
+
+    setupMap(map, markers, boundingbox, zoom, center);
+  },
+
+  toggleAttribution() {
+    const map = this.state.mapObjs.map;
+    const attribution = this.state.mapObjs.attribution;
+
+    if (!this.state.showAttribution) {
+      map.addControl(attribution);
+    } else {
+      if ($('.locations-map .leaflet-control-attribution').is(':visible')) {
+        map.removeControl(attribution);
+      }
+    }
+
+    this.state.showAttribution = !this.state.showAttribution;
+  },
+
+  toggleSearch() {
+    Ember.run.scheduleOnce('afterRender', this, () => {
+      // resetinng the val puts the cursor at the end of the text on focus
+      const $input = $('#map-search-input');
+      const val = $input.val();
+      $input.focus();
+      $input.val('');
+      $input.val(val);
+    });
+    this.state.showSearch = !this.state.showSearch;
+  },
+
+  toggleExpand() {
+    const map = this.state.mapObjs.map;
+    const $map = $('.locations-map');
+
+    $map.toggleClass('expanded');
+    map.invalidateSize();
+
+    if ($map.hasClass('expanded')) {
+      this.state.mapToggle = "compress";
+      this.state.expanded = true;
+      map.setZoom(Discourse.SiteSettings.location_map_expanded_zoom);
+    } else {
+      this.state.mapToggle = "expand";
+      this.state.expanded = false;
+      this.setupMap();
+    }
+  },
+
+  editCategory() {
+    const appRoute = this.register.lookup('route:application');
+    appRoute.send('editCategory', this.attrs.category);
+  },
+
+  initializeMap() {
+    const center = this.attrs.center;
+    const clickable = this.attrs.clickable;
+    const zoom = this.attrs.zoom;
+    let opts = {};
+    if (zoom) opts['zoom'] = zoom;
+    if (center) opts['center'] = center;
+    if (clickable) opts['clickable'] = clickable;
+    return generateMap(opts);
+  },
+
+  html(attrs, state) {
+    const user = this.currentUser;
+
+    if (!state.mapObjs) {
+      state.mapObjs = this.initializeMap();
+    }
+
+    if (state.runSetup || attrs.runSetup) {
+      state.runSetup = false;
+
+      Ember.run.scheduleOnce('afterRender', this, () => {
+        this.setupMap();
+      });
+
+      // triggered in sidebar-container component in layouts plugin
+      this.appEvents.on('sidebars:rerender', () => {
+        state.runSetup = true;
+        state.showSearch = false;
+      });
+    }
+
+    let contents = [new RawHtml({ html: state.mapObjs.element })];
+
+    if (attrs.showAvatar && user) {
+      let size = state.expanded ? 'large' : 'medium';
+      contents.push(h('a.avatar-wrapper', {
+        attributes: { 'data-user-card': user.get('username') }
+      }, avatarImg(size, {
+        template: user.get('avatar_template'),
+        username: user.get('username')
+      })));
+    }
+
+    if (attrs.search) {
+      if (state.showSearch) {
+        let locations = attrs.locations;
+        let current = null;
+        if (attrs.category && attrs.category.location) {
+          current = attrs.category.location;
+        };
+        if (attrs.topic && attrs.topic.location) {
+          current = attrs.topic.location;
+        }
+        contents.push(
+          this.attach('map-search', {
+            locations,
+            current
+          }),
+          this.attach('button', {
+            className: 'btn btn-map hide-search',
+            action: 'toggleSearch',
+            icon: 'times'
+          })
+        );
+      } else {
+        contents.push(
+          this.attach('link', {
+            className: 'btn btn-map search',
+            action: 'toggleSearch',
+            icon: 'search'
+          })
+        );
+      }
+    }
+
+    contents.push(
+      this.attach('button', {
+        className: `btn btn-map map-expand`,
+        action: 'toggleExpand',
+        actionParam: user,
+        icon: state.mapToggle
+      }),
+      this.attach('button', {
+        className: 'btn btn-map map-attribution',
+        action: 'toggleAttribution',
+        icon: 'info'
+      })
+    );
+
+    if (user && user.can_edit) {
+      contents.push(this.attach('button', {
+        className: 'btn btn-map user-edit',
+        action: "editUser",
+        icon: 'wrench'
+      }));
+    }
+
+    if (attrs.extraWidgets) {
+      const extraWidgets = attrs.extraWidgets.map((w) => {
+        return this.attach(w.widget, w.attrs);
+      });
+      contents.push(...extraWidgets);
+    };
+
+    return contents;
+  }
+});

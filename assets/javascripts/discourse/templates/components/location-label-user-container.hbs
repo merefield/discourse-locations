@@ -1,10 +1,10 @@
 <div class="location-label" title="{{i18n 'location.label.title'}}">
   {{d-icon 'map-marker'}}
-  {{location-format topic.location}}
-    {{log topic.location}}
+  {{location-format user.custom_fields.geo_location}}
+  {{log user.custom_fields.geo_location}}
 </div>
 {{#if showMapToggle}}
-  <div class="location-topic-map">
+  <div class="location-user-map">
     <button {{action "showMap"}} class='btn btn-small btn-default'>
       {{d-icon 'map-o'}}
       {{#unless site.mobileView}}
@@ -12,7 +12,7 @@
       {{/unless}}
     </button>
     {{#if showMap}}
-      {{map-component topic=topic}}
+      {{user-map-component user=user}}
     {{/if}}
   </div>
 {{/if}}

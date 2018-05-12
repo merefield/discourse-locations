@@ -17,9 +17,67 @@ Discourse.anonymous_top_menu_items.push(:map)
 Discourse.filters.push(:map)
 Discourse.anonymous_filters.push(:map)
 
+DiscoursePluginRegistry.serialized_current_user_fields << "geo_location"
+# DiscoursePluginRegistry.serialized_current_user_fields << "vocation"
+
 gem 'geocoder', '1.4.4'
 
 after_initialize do
+
+
+  User.register_custom_field_type('geo_location', :json)
+
+
+    # I guess this should be the default @ discourse. PR maybe?
+    add_to_serializer(:user, :custom_fields, false) {
+      if object.custom_fields == nil then
+        {}
+      else
+        object.custom_fields
+      end
+    }
+
+  require_dependency 'post_serializer'
+#  require_dependency 'user_serializer'
+
+#  public_user_custom_fields_setting = SiteSetting.public_user_custom_fields
+
+#  if public_user_custom_fields_setting.empty?
+#  SiteSetting.set("public_user_custom_fields", "geo_location")
+#elsif public_user_custom_fields_setting !~ /geo_location/
+#  SiteSetting.set(
+#    "public_user_custom_fields",
+#    [SiteSetting.public_user_custom_fields, "geo_location"].join("|")
+#  )
+#end
+
+#class ::UserSerializer
+#  alias_method :_custom_fields, :custom_fields
+#  def custom_fields
+#    if !object.custom_fields["geo_location"]
+#      object.custom_fields["geo_location"] = ""
+#      object.save
+#    end
+#    _custom_fields
+# end
+#3nd
+
+class ::PostSerializer
+  attributes :user_created_at
+
+  def user_created_at
+    object.user.created_at
+  end
+end
+
+#  User.register_custom_field_type('geo_location', :json)
+#  add_to_class(:user, :geo_location) { self.custom_fields['geo_location'] }
+#  add_to_serializer(:user, :geo_location) { self.custom_fields['geo_location']}
+
+#  User.register_custom_field_type('vocation', :text)
+#  add_to_class(:user, :vocation) { self.custom_fields['vocation'] }
+#  add_to_serializer(:user, :vocation) { self.custom_fields['vocation']}
+
 
   if defined?(CustomWizard) == 'constant' && CustomWizard.class == Module
     CustomWizard::Field.add_assets('location', 'discourse-locations', ['components', 'helpers', 'lib', 'stylesheets'])

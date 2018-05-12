@@ -1,0 +1,8 @@
+<h2>Geo-location</h2>
+{{#if model.custom_fields.geo_location}}
+    {{location-label-user-container user=model}}
+    {{log "got here"}}
+{{else}}
+  {{add-user-location-controls location=model.custom_fields.geo_location userId=model.UserId}}
+  {{log "not here"}}
+{{/if}}
