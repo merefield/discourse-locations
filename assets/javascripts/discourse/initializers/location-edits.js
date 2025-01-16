@@ -246,7 +246,7 @@ export default {
         ) {
           const url = topic.get("url");
           results.push({
-            icon: "map-marker-alt",
+            icon: "location-dot",
             title: I18n.t(`topic_statuses.location.help`),
             href: url,
             openTag: "a href",
