@@ -7,7 +7,6 @@ import DButton from "discourse/components/d-button";
 import AddLocationComponent from "../components/modal/add-location";
 import { locationFormat } from "../lib/location-utilities";
 
-
 export default class AddLocationControlsComponent extends Component {
   @service modal;
   @service siteSettings;
@@ -15,10 +14,7 @@ export default class AddLocationControlsComponent extends Component {
 
   @action
   didInsert() {
-    $(".title-and-category").toggleClass(
-      "location-add-no-text",
-      this.iconOnly
-    );
+    $(".title-and-category").toggleClass("location-add-no-text", this.iconOnly);
   }
 
   get iconOnly() {
