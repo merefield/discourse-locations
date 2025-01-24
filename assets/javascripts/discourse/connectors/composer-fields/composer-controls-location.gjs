@@ -1,9 +1,8 @@
 import Component from "@glimmer/component";
 import { action } from "@ember/object";
-import AddLocationControls from  "../../components/location-label-container";
+import AddLocationControls from "../../components/location-label-container";
 
 export default class ComposerControlsLocation extends Component {
-
   @action
   updateLocation(location) {
     this.model.location = location;

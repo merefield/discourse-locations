@@ -119,7 +119,7 @@ let locationFormat = function (
 
   if (location.name) {
     display += location.name;
-    if (location_short_names) { 
+    if (location_short_names) {
       return display;
     }
   }
