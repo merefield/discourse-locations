@@ -10,7 +10,6 @@ export default class UserCustomPrefsMapLocation extends Component {
   @service siteSettings;
   @tracked error = null;
 
-
   @action
   searchError(error) {
     this.error = error;
