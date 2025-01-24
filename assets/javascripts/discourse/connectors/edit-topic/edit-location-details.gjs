@@ -1,7 +1,6 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
-import { action } from "@ember/object";
-import { get } from "@ember/object";
+import { action, get } from "@ember/object";
 import AddLocationControls from "../../components/add-location-controls";
 
 export default class EditLocationDetails extends Component {
