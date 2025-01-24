@@ -1,6 +1,6 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
-import { action, get } from "@ember/object";
+import { action, get, set } from "@ember/object";
 import AddLocationControls from "../../components/add-location-controls";
 
 export default class EditLocationDetails extends Component {
@@ -8,10 +8,7 @@ export default class EditLocationDetails extends Component {
 
   @action
   updateLocation(location) {
-    this.args.outletArgs.buffered.buffer = {
-      location,
-    };
-    this.args.outletArgs.buffered.hasBufferedChanges = true;
+    set(this.args.outletArgs.buffered, "location", location);
     this.location = location;
   }
 
