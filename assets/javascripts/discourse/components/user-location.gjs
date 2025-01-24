@@ -80,7 +80,7 @@ export default class LocationMapComponent extends Component {
       {{willDestroy this.unbindClick}}
       class="user-location-widget"
     >
-      {{icon "map-marker-alt"}}
+      {{icon "location-dot"}}
       <div class="location-label">
         {{this.userLocation}}
       </div>

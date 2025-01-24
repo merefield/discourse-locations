@@ -1,6 +1,6 @@
-{{#if model.showLocationControls}}
+{{#if this.model.showLocationControls}}
   {{add-location-controls
-    location=buffered.location
-    categoryId=buffered.category.id
+    location=this.buffered.location
+    categoryId=this.buffered.category.id
   }}
 {{/if}}

@@ -108,6 +108,7 @@ let locationFormat = function (
   country_codes,
   location_input_fields_enabled,
   location_input_fields,
+  location_short_names,
   opts = {}
 ) {
   if (!location) {
@@ -118,6 +119,9 @@ let locationFormat = function (
 
   if (location.name) {
     display += location.name;
+    if (location_short_names) { 
+      return display;
+    }
   }
 
   if (location_input_fields_enabled && (!opts.attrs || !opts.attrs.length)) {

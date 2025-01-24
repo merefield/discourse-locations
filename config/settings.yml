@@ -144,6 +144,9 @@ plugins:
   location_hide_labels:
     default: false
     client: true
+  location_short_names:
+    default: false
+    client: true
   location_add_no_text:
     default: false
     client: true

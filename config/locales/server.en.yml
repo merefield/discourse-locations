@@ -42,6 +42,7 @@ en:
     location_users_map_limit: "Maximum number of users to show on the users map at one time."
     location_users_map_default: "Default to users map when navigating to 'Users'."
     location_hide_labels: "Hide tooltip labels on location markers."
+    location_short_names: "Show only location name."
     location_add_no_text: "No text on add location buttons."
     location_country_default: "Default country for country input field."
     location_country_default_apply_to_all_searches: "Apply default country to all searches"

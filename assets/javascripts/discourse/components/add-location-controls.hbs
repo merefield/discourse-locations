@@ -4,11 +4,11 @@
     @title="location.label.add"
     @action={{action "showAddLocation"}}
     @translatedLabel={{this.valueLabel}}
-    @icon="map-marker-alt"
+    @icon="location-dot"
   />
   {{#unless this.noText}}
     <DButton
-      @icon="times"
+      @icon="xmark"
       @action={{action "removeLocation"}}
       @class="remove"
     />
@@ -17,14 +17,14 @@
   {{#if this.iconOnly}}
     <DButton
       @class="add-location-btn"
-      @icon="map-marker-alt"
+      @icon="location-dot"
       @action={{action "showAddLocation"}}
       @title={{this.addLabel}}
     />
   {{else}}
     <DButton
       @class="add-location-btn"
-      @icon="map-marker-alt"
+      @icon="location-dot"
       @label={{this.addLabel}}
       @action={{action "showAddLocation"}}
       @title={{this.addLabel}}

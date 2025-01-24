@@ -1,8 +1,13 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import { Input } from "@ember/component";
 import { action, computed } from "@ember/object";
 import { inject as service } from "@ember/service";
+import DButton from "discourse/components/d-button";
+import DModal from "discourse/components/d-modal";
+import { i18n } from "discourse-i18n";
 import I18n from "I18n";
+import LocationForm from "./../location-form";
 
 export default class AddLocationComponent extends Component {
   @service siteSettings;
@@ -133,4 +138,55 @@ export default class AddLocationComponent extends Component {
   searchError(error) {
     this.flash = error;
   }
+
+  <template>
+    <DModal
+      @closeModal={{@closeModal}}
+      @flash={{this.flash}}
+      class="add-location add-location-modal"
+      @title={{this.title}}
+    >
+      <LocationForm
+        @street={{this.street}}
+        @neighbourhood={{this.neighbourhood}}
+        @postalcode={{this.postalcode}}
+        @city={{this.city}}
+        @state={{this.state}}
+        @countrycode={{this.countrycode}}
+        @geoLocation={{this.geoLocation}}
+        @rawLocation={{this.rawLocation}}
+        @inputFields={{this.inputFields}}
+        @searchOnInit={{this.searchOnInit}}
+        @setGeoLocation={{this.setGeoLocation}}
+        @searchError={{this.searchError}}
+      />
+      <hr />
+      <div class="control-group">
+        <label class="control-label">{{i18n "location.name.title"}}</label>
+        <div class="controls">
+          <Input
+            @type="text"
+            @value={{this.name}}
+            class="input-xxlarge input-location location-name"
+          />
+        </div>
+        <div class="instructions">{{i18n "location.name.desc"}}</div>
+      </div>
+      <div class="modal-footer">
+        <DButton
+          id="save-location"
+          @action={{action "submit"}}
+          @label="location.done"
+          @class="btn-primary"
+          @disabled={{this.submitDisabled}}
+        />
+        <DButton
+          id="clear-location"
+          @class="clear"
+          @action={{action "clear"}}
+          @label="location.clear"
+        />
+      </div>
+    </DModal>
+  </template>
 }

@@ -231,33 +231,6 @@ export default {
       });
     });
 
-    TopicStatus.reopen({
-      @discourseComputed
-      statuses() {
-        const topic = this.get("topic");
-        const category = this.get("parent.parentView.category");
-        let results = this._super(...arguments);
-
-        if (
-          (this.siteSettings.location_topic_status_icon ||
-            (category &&
-              category.get("custom_fields.location_topic_status"))) &&
-          topic.get("location")
-        ) {
-          const url = topic.get("url");
-          results.push({
-            icon: "map-marker-alt",
-            title: I18n.t(`topic_statuses.location.help`),
-            href: url,
-            openTag: "a href",
-            closeTag: "a",
-          });
-        }
-
-        return results;
-      },
-    });
-
     Composer.serializeOnCreate("location");
     Composer.serializeToTopic("location", "topic.location");
 
