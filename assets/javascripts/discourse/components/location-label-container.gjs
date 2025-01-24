@@ -19,15 +19,6 @@ export default class LocationLableContainerComponent extends Component {
   @tracked geoAttrs = [];
   @tracked showMap = false;
 
-  @action
-  showTopicMapModal() {
-    this.modal.show(LocationsTopicMapModal, {
-      model: {
-        topic: this.args.topic,
-      },
-    });
-  }
-
   outsideClick = (e) => {
     if (
       !this.isDestroying &&
@@ -41,6 +32,16 @@ export default class LocationLableContainerComponent extends Component {
       this.showMap = false;
     }
   };
+
+  @action
+  showTopicMapModal() {
+    this.modal.show(LocationsTopicMapModal, {
+      model: {
+        topic: this.args.topic,
+      },
+    });
+  }
+
   get mapButtonLabel() {
     return `location.geo.${this.showMap ? "hide" : "show"}_map`;
   }
@@ -51,7 +52,7 @@ export default class LocationLableContainerComponent extends Component {
 
   get showMapToggle() {
     return (
-      this.args.topic.location.geo_location &&
+      this.args?.topic?.location?.geo_location &&
       this.siteSettings.location_topic_map &&
       this.args.parent !== "topic-list"
     );
@@ -91,17 +92,16 @@ export default class LocationLableContainerComponent extends Component {
     >
       <div class="location-label" title={{i18n "location.label.title"}}>
         <span class="location-text">
-          {{#unless this.showMapToggle}}
+          {{#if this.showMapToggle}}
+            {{icon "location-dot"}}{{locationFormat @topic.location this.opts}}
+          {{else}}
             <DButton
               @action={{this.showTopicMapModal}}
               @icon="location-dot"
               class="btn btn-small btn-transparent"
-            >
-              {{locationFormat @topic.location this.opts}}
+            >{{locationFormat @topic.location this.opts}}
             </DButton>
-          {{else}}
-            {{icon "location-dot"}}{{locationFormat @topic.location this.opts}}
-          {{/unless}}
+          {{/if}}
         </span>
       </div>
 
