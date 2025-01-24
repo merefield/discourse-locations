@@ -18,6 +18,6 @@ export default class ComposerControlsLocation extends Component {
         @editing={{true}}
         @updateLocation={{this.updateLocation}}
       />
-    {{/if}} 
+    {{/if}}
   </template>
 }

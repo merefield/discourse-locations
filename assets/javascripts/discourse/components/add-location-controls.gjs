@@ -67,7 +67,7 @@ export default class AddLocationControlsComponent extends Component {
 
   <template>
     <div class="location-label" {{didInsert this.didInsert}}>
-      {{#if this.args.location}}
+      {{#if @location}}
         <DButton
           @class={{this.valueClasses}}
           @title="location.label.add"
@@ -75,7 +75,7 @@ export default class AddLocationControlsComponent extends Component {
           @translatedLabel={{this.valueLabel}}
           @icon="location-dot"
         />
-        {{#unless this.args.noText}}
+        {{#unless @noText}}
           <DButton
             @icon="xmark"
             @action={{action "removeLocation"}}
