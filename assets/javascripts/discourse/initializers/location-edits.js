@@ -2,7 +2,6 @@ import { scheduleOnce } from "@ember/runloop";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
-import TopicStatus from "discourse/raw-views/topic-status";
 import {
   default as discourseComputed,
   observes,
