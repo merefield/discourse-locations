@@ -357,7 +357,7 @@ export default class LocationForm extends Component {
                 {{#if this.showGeoLocation}}
                   <LocationSelector
                     @location={{this.geoLocation}}
-                    @onChange={{this.updateGeoLocation}}
+                    @onChangeCallback={{this.updateGeoLocation}}
                     class="input-xxlarge location-selector"
                     @searchError={{@searchError}}
                     @context={{this.context}}

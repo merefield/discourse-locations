@@ -90,7 +90,7 @@ export default TextField.extend({
 
         transformComplete: function (l) {
           if (typeof l === "object") {
-            self.set("location", l);
+            self.onChangeCallback(l);
             const geoAttrs = self.get("geoAttrs");
             return geoLocationFormat(l, self.site.country_codes, { geoAttrs });
           } else {
