@@ -158,6 +158,7 @@ export default class AddLocationComponent extends Component {
           @data={{this.formData}}
           as |form transientData|
         >
+        {{log this.showAddress}}
           {{#if this.showAddress}}
             <div class="address">
               {{#if this.showInputFields}}
@@ -370,20 +371,20 @@ export default class AddLocationComponent extends Component {
           <form.Reset />
           <form.Cancel />
         </Form> 
-      {{!-- <div class="modal-footer">
-        <DButton
-          id="save-location"
-          @action={{action "submit"}}
-          @label="location.done"
-          @class="btn-primary"
-          @disabled={{this.submitDisabled}}
-        />
-        <DButton
-          id="clear-location"
-          @class="clear"
-          @action={{action "clear"}}
-          @label="location.clear"
-        /> --}}
+        {{!-- <div class="modal-footer">
+          <DButton
+            id="save-location"
+            @action={{action "submit"}}
+            @label="location.done"
+            @class="btn-primary"
+            @disabled={{this.submitDisabled}}
+          />
+          <DButton
+            id="clear-location"
+            @class="clear"
+            @action={{action "clear"}}
+            @label="location.clear"
+          /> --}}
       </div>
     </DModal>
   </template>
