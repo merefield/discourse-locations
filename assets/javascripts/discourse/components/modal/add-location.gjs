@@ -7,7 +7,13 @@ import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
 import { i18n } from "discourse-i18n";
 import I18n from "I18n";
-import LocationForm from "./../location-form";
+import { htmlSafe } from "@ember/template";
+import Form from "discourse/components/form";
+import LocationSelector from "./../location-selector";
+import ConditionalLoadingSpinner from "discourse/components/conditional-loading-spinner";
+import GeoLocationResult from "./../geo-location-result";
+// import LocationForm from "./../location-form";
+
 
 export default class AddLocationComponent extends Component {
   @service siteSettings;
@@ -152,117 +158,116 @@ export default class AddLocationComponent extends Component {
           @data={{this.formData}}
           as |form transientData|
         >
-        {{#if this.showAddress}}
-          <div class="address">
-            {{#if this.showInputFields}}
-              {{#if this.showTitle}}
-                <div class="title">
-                  {{i18n "location.address"}}
-                </div>
-              {{/if}}
-              {{#if this.showStreet}}
+          {{#if this.showAddress}}
+            <div class="address">
+              {{#if this.showInputFields}}
+                {{#if this.showTitle}}
+                  <div class="title">
+                    {{i18n "location.address"}}
+                  </div>
+                {{/if}}
+                {{#if this.showStreet}}
+                  <form.Field
+                    @name="formStreet"
+                    @title={{i18n "location.street.title"}}
+                    @format="large"
+                    @validation=""
+                    @description={{i18n "location.street.desc"}}
+                    @disabled={{this.streetDisabled}}
+                    as |field|
+                  >
+                    <field.Input
+                    />
+                  </form.Field>
+                {{/if}}
+                {{#if this.showNeighbourhood}}
+                  <form.Field
+                    @name="formNeighbourhood"
+                    @title={{i18n "location.neighbourhood.title"}}
+                    @format="large"
+                    @validation=""
+                    @description={{i18n "location.neighbourhood.desc"}}
+                    @disabled={{this.neighbourhoodDisabled}}
+                    as |field|
+                  >
+                    <field.Input
+                    />
+                  </form.Field>
+                {{/if}}
+                {{#if this.showPostalcode}}
+                  <form.Field
+                    @name="formPostalcode"
+                    @title={{i18n "location.postalcode.title"}}
+                    @format="small"
+                    @validation=""
+                    @description={{i18n "location.postalcode.desc"}}
+                    @disabled={{this.postalcodeDisabled}}
+                    as |field|
+                  >
+                    <field.Input
+                    />
+                  </form.Field>
+                {{/if}}
+                {{#if this.showCity}}
+                  <form.Field
+                    @name="formCity"
+                    @title={{i18n "location.city.title"}}
+                    @format="large"
+                    @validation=""
+                    @description={{i18n "location.city.desc"}}
+                    @disabled={{this.cityDisabled}}
+                    as |field|
+                  >
+                    <field.Input
+                    />
+                  </form.Field>
+                {{/if}}
+                {{#if this.showState}}
+                  <form.Field
+                    @name="formState"
+                    @title={{i18n "location.state.title"}}
+                    @format="large"
+                    @validation=""
+                    @description={{i18n "location.state.desc"}}
+                    @disabled={{this.stateDisabled}}
+                    as |field|
+                  >
+                    <field.Input
+                    />
+                  </form.Field>
+                {{/if}}
+                {{#if this.showCountrycode}}
+                  <form.Field
+                    @name="formCountrycode"
+                    @title={{i18n "location.country_code.title"}}
+                    @format="small"
+                    @validation=""
+                    @placeholder={{i18n "location.country_code.placeholder"}}
+                    @description={{i18n "location.country_code.desc"}}
+                    @disabled={{this.countryDisabled}}
+                    as |field|
+                  > 
+                    <field.Select as |select|>
+                      {{#each this.countrycodes as |country|}}
+                        <select.Option
+                          @value={{country.code}}
+                        >
+                          {{country.name}}
+                        </select.Option>
+                      {{/each}}
+                    </field.Select>
+                  </form.Field>
+                {{/if}}
+              {{else}}
                 <form.Field
-                  @name="formStreet"
-                  @title={{i18n "location.street.title"}}
+                  @name="formRawLocation"
+                  @title={{i18n "location.query.title"}}
                   @format="large"
                   @validation=""
-                  @description={{i18n "location.street.desc"}}
-                  @disabled={{this.streetDisabled}}
+                  @description={{i18n "location.query.desc"}}
+                  @disabled={{this.rawLocationDisabled}}
                   as |field|
                 >
-                  <field.Input
-                  />
-                </form.Field>
-              {{/if}}
-              {{#if this.showNeighbourhood}}
-                <form.Field
-                  @name="formNeighbourhood"
-                  @title={{i18n "location.neighbourhood.title"}}
-                  @format="large"
-                  @validation=""
-                  @description={{i18n "location.neighbourhood.desc"}}
-                  @disabled={{this.neighbourhoodDisabled}}
-                  as |field|
-                >
-                  <field.Input
-                  />
-                </form.Field>
-              {{/if}}
-              {{#if this.showPostalcode}}
-                <form.Field
-                  @name="formPostalcode"
-                  @title={{i18n "location.postalcode.title"}}
-                  @format="small"
-                  @validation=""
-                  @description={{i18n "location.postalcode.desc"}}
-                  @disabled={{this.postalcodeDisabled}}
-                  as |field|
-                >
-                  <field.Input
-                  />
-                </form.Field>
-              {{/if}}
-              {{#if this.showCity}}
-                <form.Field
-                  @name="formCity"
-                  @title={{i18n "location.city.title"}}
-                  @format="large"
-                  @validation=""
-                  @description={{i18n "location.city.desc"}}
-                  @disabled={{this.cityDisabled}}
-                  as |field|
-                >
-                  <field.Input
-                  />
-                </form.Field>
-              {{/if}}
-              {{#if this.showState}}
-                <form.Field
-                  @name="formState"
-                  @title={{i18n "location.state.title"}}
-                  @format="large"
-                  @validation=""
-                  @description={{i18n "location.state.desc"}}
-                  @disabled={{this.stateDisabled}}
-                  as |field|
-                >
-                  <field.Input
-                  />
-                </form.Field>
-              {{/if}}
-              {{#if this.showCountrycode}}
-                <form.Field
-                  @name="formCountrycode"
-                  @title={{i18n "location.country_code.title"}}
-                  @format="small"
-                  @validation=""
-                  @placeholder={{i18n "location.country_code.placeholder"}}
-                  @description={{i18n "location.country_code.desc"}}
-                  @disabled={{this.countryDisabled}}
-                  as |field|
-                > 
-                  <field.Select as |select|>
-                    {{#each this.countrycodes as |country|}}
-                      <select.Option
-                        @value={{country.code}}
-                        @selected={{country.code === this.formCountrycode}}
-                      >
-                        {{country.name}}
-                      </select.Option>
-                    {{/each}}
-                  </field.Select>
-                </form.Field>
-              {{/if}}
-            {{else}}
-              <Form.Field
-                @name="formRawLocation"
-                @title={{i18n "location.query.title"}}
-                @format="large"
-                @validation=""
-                @description={{i18n "location.query.desc"}}
-                @disabled={{this.rawLocationDisabled}}
-                as |field|
-              >
                   {{#if this.showGeoLocation}}
                     <field.Custom>
                       <LocationSelector
@@ -284,82 +289,88 @@ export default class AddLocationComponent extends Component {
                     <field.Input
                     />
                   {{/if}}
-                </div>
-                <div class="instructions">
-                  {{i18n "location.query.desc"}}
-                </div>
-              </div>
-            {{/if}}
-            {{#if this.showGeoLocation}}
-              {{#if this.showInputFields}}
-                <button
-                  class="btn btn-default wizard-btn location-search"
-                  onclick={{this.locationSearch}}
-                  disabled={{this.searchDisabled}}
-                  type="button"
-                >
-                  {{i18n "location.geo.btn.label"}}
-                </button>
-                {{#if this.showLocationResults}}
-                  <div class="location-results">
-                    <h4>{{i18n "location.geo.results"}}</h4>
-                    <ul>
-                      {{#if this.hasSearched}}
-                        <ConditionalLoadingSpinner
-                          @condition={{this.loadingLocations}}
-                        >
-                          {{#each this.geoLocationOptions as |l|}}
-                            <GeoLocationResult
-                              @updateGeoLocation={{this.updateGeoLocation}}
-                              @location={{l}}
-                              @geoAttrs={{this.geoAttrs}}
-                            />
-                          {{else}}
-                            <li class="no-results">{{i18n
-                                "location.geo.no_results"
-                              }}</li>
-                          {{/each}}
-                        </ConditionalLoadingSpinner>
-                      {{/if}}
-                    </ul>
-                  </div>
-                  {{#if this.showProvider}}
-                    <div class="location-form-instructions">{{htmlSafe
-                        (i18n "location.geo.desc" provider=this.providerDetails)
-                      }}</div>
+                </form.Field>
+                  {{!-- </div>
+                  <div class="instructions">
+                    {{i18n "location.query.desc"}}
+                  </div> --}}
+                {{!-- </div> --}}
+              {{/if}}
+              {{#if this.showGeoLocation}}
+                {{#if this.showInputFields}}
+                  <button
+                    class="btn btn-default wizard-btn location-search"
+                    onclick={{this.locationSearch}}
+                    disabled={{this.searchDisabled}}
+                    type="button"
+                  >
+                    {{i18n "location.geo.btn.label"}}
+                  </button>
+                  {{#if this.showLocationResults}}
+                    <div class="location-results">
+                      <h4>{{i18n "location.geo.results"}}</h4>
+                      <ul>
+                        {{#if this.hasSearched}}
+                          <ConditionalLoadingSpinner
+                            @condition={{this.loadingLocations}}
+                          >
+                            {{#each this.geoLocationOptions as |l|}}
+                              <GeoLocationResult
+                                @updateGeoLocation={{this.updateGeoLocation}}
+                                @location={{l}}
+                                @geoAttrs={{this.geoAttrs}}
+                              />
+                            {{else}}
+                              <li class="no-results">{{i18n
+                                  "location.geo.no_results"
+                                }}</li>
+                            {{/each}}
+                          </ConditionalLoadingSpinner>
+                        {{/if}}
+                      </ul>
+                    </div>
+                    {{#if this.showProvider}}
+                      <div class="location-form-instructions">{{htmlSafe
+                          (i18n "location.geo.desc" provider=this.providerDetails)
+                        }}</div>
+                    {{/if}}
                   {{/if}}
                 {{/if}}
               {{/if}}
-            {{/if}}
-          </div>
-        {{/if}}
-      <LocationForm
-        @street={{this.street}}
-        @neighbourhood={{this.neighbourhood}}
-        @postalcode={{this.postalcode}}
-        @city={{this.city}}
-        @state={{this.state}}
-        @countrycode={{this.countrycode}}
-        @geoLocation={{this.geoLocation}}
-        @rawLocation={{this.rawLocation}}
-        @inputFields={{this.inputFields}}
-        @searchOnInit={{this.searchOnInit}}
-        @setGeoLocation={{this.setGeoLocation}}
-        @searchError={{this.searchError}}
-      />
-      <hr />
-      <div class="control-group">
-        <label class="control-label">{{i18n "location.name.title"}}</label>
-        <div class="controls">
-          <Input
-            @type="text"
-            @value={{this.name}}
-            class="input-xxlarge input-location location-name"
-          />
-        </div>
-        <div class="instructions">{{i18n "location.name.desc"}}</div>
-      </div>
-      <div class="modal-footer">
+            </div>
+          {{/if}}
+          {{!-- <LocationForm
+            @street={{this.street}}
+            @neighbourhood={{this.neighbourhood}}
+            @postalcode={{this.postalcode}}
+            @city={{this.city}}
+            @state={{this.state}}
+            @countrycode={{this.countrycode}}
+            @geoLocation={{this.geoLocation}}
+            @rawLocation={{this.rawLocation}}
+            @inputFields={{this.inputFields}}
+            @searchOnInit={{this.searchOnInit}}
+            @setGeoLocation={{this.setGeoLocation}}
+            @searchError={{this.searchError}}
+          /> --}}
+          <hr />
+          <form.Field
+            @name="formName"
+            @title={{i18n "location.name.title"}}
+            @format="large"
+            @validation=""
+            @description={{i18n "location.name.desc"}}
+            @disabled={{this.nameDisabled}}
+            as |field|
+          >
+            <field.Input
+            />
+          </form.Field>
+          <form.Submit />
+          <form.Reset />
+          <form.Cancel />
+        </Form> 
+      {{!-- <div class="modal-footer">
         <DButton
           id="save-location"
           @action={{action "submit"}}
@@ -372,7 +383,7 @@ export default class AddLocationComponent extends Component {
           @class="clear"
           @action={{action "clear"}}
           @label="location.clear"
-        />
+        /> --}}
       </div>
     </DModal>
   </template>
