@@ -89,9 +89,11 @@ export default TextField.extend({
         },
 
         transformComplete: function (l) {
+          debugger;
           if (typeof l === "object") {
             self.set("location", l);
             const geoAttrs = self.get("geoAttrs");
+            debugger;
             return geoLocationFormat(l, self.site.country_codes, { geoAttrs });
           } else {
             // hack to get around the split autocomplete performs on strings
@@ -105,11 +107,13 @@ export default TextField.extend({
               .forEach((element) => {
                 element.remove();
               });
+            debugger;
             return self.element.value;
           }
         },
 
         onChangeItems: function (items) {
+          debugger;
           if (items[0] == null) {
             self.set("location", "{}");
           }
@@ -133,6 +137,7 @@ export default TextField.extend({
   },
 
   willDestroyElement() {
+    debugger;
     this._super();
     $(this.element).autocomplete("destroy");
   },

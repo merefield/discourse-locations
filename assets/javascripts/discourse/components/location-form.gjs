@@ -138,6 +138,7 @@ export default class LocationForm extends Component {
 
   @action
   updateGeoLocation(gl, force_coords) {
+    debugger;
     if (!this.showInputFields) {
       gl = this.geoLocation;
     }
