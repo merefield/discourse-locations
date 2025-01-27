@@ -12,7 +12,7 @@ import siteFixtures from "../fixtures/site-fixtures";
 import topicFixtures from "../fixtures/topic-fixtures";
 
 acceptance(
-  "Topic - Show Correct Location after entering location with Input Fields Disabled",
+  "Topic - Show Correct Location with Input Fields Disabled and Short Names setting",
   function (needs) {
     needs.user({
       username: "demetria_gutmann",
@@ -22,7 +22,7 @@ acceptance(
       location_enabled: true,
       location_input_fields_enabled: false,
       location_auto_infer_street_from_address_data: false,
-      location_short_names: false,
+      location_short_names: true,
     });
     needs.site(cloneJSON(siteFixtures["site.json"]));
     needs.pretender((server, helper) => {
@@ -51,6 +51,12 @@ acceptance(
       assert.equal(
         query("button.add-location-btn span.d-button-label").innerText,
         "Home Sweet Home, L3 1EG, Liverpool, United Kingdom"
+      );
+
+      await click("button.submit-edit");
+      assert.equal(
+        query(".location-label-container .location-text").innerText,
+        "Home Sweet Home"
       );
     });
   }
