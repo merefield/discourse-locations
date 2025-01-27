@@ -13,6 +13,7 @@ export default TextField.extend({
   autocapitalize: false,
   classNames: "location-selector",
   context: null,
+  size: 400,
 
   didInsertElement() {
     this._super();
