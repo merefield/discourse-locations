@@ -124,7 +124,7 @@ let locationFormat = function (
     }
   }
 
-  if (location_input_fields_enabled && (!opts.attrs || !opts.attrs.length)) {
+  if (!opts.attrs || !opts.attrs.length) {
     let possibleFields = location_input_fields.split("|");
     let attrs = possibleFields.filter((f) => location[f]);
 

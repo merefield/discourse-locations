@@ -138,10 +138,6 @@ export default class LocationForm extends Component {
 
   @action
   updateGeoLocation(gl, force_coords) {
-    if (!this.showInputFields) {
-      gl = this.geoLocation;
-    }
-
     gl["zoomTo"] = true;
 
     if (force_coords) {
