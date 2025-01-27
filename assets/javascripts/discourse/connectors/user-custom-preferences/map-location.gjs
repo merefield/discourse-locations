@@ -15,6 +15,12 @@ export default class UserCustomPrefsMapLocation extends Component {
     this.error = error;
   }
 
+  @action
+  updateLocation(location) {
+    this.error = null;
+    this.args.outletArgs.model.custom_fields.geo_location = location;
+  }
+
   <template>
     {{#if this.siteSettings.location_users_map}}
       <div class="user-location-selector">
@@ -25,6 +31,7 @@ export default class UserCustomPrefsMapLocation extends Component {
           <div class="controls location-selector-container">
             <LocationSelector
               @location={{@outletArgs.model.custom_fields.geo_location}}
+              @onChangeCallback={{this.updateLocation}}
               class="input-xxlarge location-selector"
               @searchError={{this.searchError}}
               @context={{this.context}}
