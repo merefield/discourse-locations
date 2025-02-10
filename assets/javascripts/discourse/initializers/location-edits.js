@@ -9,6 +9,8 @@ import {
 import I18n from "I18n";
 import { geoLocationFormat } from "../lib/location-utilities";
 
+const NEW_TOPIC_KEY = "new_topic";
+
 export default {
   name: "location-edits",
   initialize(container) {
@@ -80,7 +82,7 @@ export default {
 
         @observes("draftKey")
         _setupDefaultLocation() {
-          if (this.draftKey === "new_topic") {
+          if (this.draftKey.startsWith(NEW_TOPIC_KEY)) {
             const topicDefaultLocation =
               this.siteSettings.location_topic_default;
             // NB: we can't use the siteSettings, nor currentUser values set in the initialiser here
