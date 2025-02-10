@@ -62,7 +62,7 @@ export default class AddLocationControlsComponent extends Component {
   @action
   removeLocation() {
     this.location = null;
-    this.args.updateLocation(location);
+    this.args.updateLocation(null);
   }
 
   <template>
