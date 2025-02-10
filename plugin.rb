@@ -4,7 +4,7 @@
 # version: 6.8.1
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: development@pavilion.tech
-# url: https://github.com/angusmcleod/discourse-locations
+# url: https://github.com/merefield/discourse-locations
 
 enabled_site_setting :location_enabled
 
