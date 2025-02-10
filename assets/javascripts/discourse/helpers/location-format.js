@@ -12,6 +12,7 @@ export default function _locationFormat(location, opts) {
       Site.currentProp("country_codes"),
       siteSettings.location_input_fields_enabled,
       siteSettings.location_input_fields,
+      siteSettings.location_short_names,
       { ...opts }
     )
   );

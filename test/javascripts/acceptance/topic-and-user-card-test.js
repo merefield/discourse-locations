@@ -36,7 +36,6 @@ acceptance(
 
     test("topic title location, post user & user card location - shows correct format", async function (assert) {
       await visit("/t/online-learning/51/1");
-
       assert.equal(
         query("span.location-text").innerText,
         "Pompidou, Paris, France"

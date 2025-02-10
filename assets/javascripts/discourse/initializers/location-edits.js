@@ -2,13 +2,14 @@ import { scheduleOnce } from "@ember/runloop";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
-import TopicStatus from "discourse/raw-views/topic-status";
 import {
   default as discourseComputed,
   observes,
 } from "discourse-common/utils/decorators";
 import I18n from "I18n";
 import { geoLocationFormat } from "../lib/location-utilities";
+
+const NEW_TOPIC_KEY = "new_topic";
 
 export default {
   name: "location-edits",
@@ -81,7 +82,7 @@ export default {
 
         @observes("draftKey")
         _setupDefaultLocation() {
-          if (this.draftKey === "new_topic") {
+          if (this.draftKey.startsWith(NEW_TOPIC_KEY)) {
             const topicDefaultLocation =
               this.siteSettings.location_topic_default;
             // NB: we can't use the siteSettings, nor currentUser values set in the initialiser here
@@ -192,20 +193,6 @@ export default {
         },
       });
 
-      const mapRoutes = [`Map`, `MapCategory`, `MapCategoryNone`];
-
-      mapRoutes.forEach(function (route) {
-        api.modifyClass(`route:discovery.${route}`, {
-          pluginId: "locations-plugin",
-
-          afterModel() {
-            this.templateName = "discovery/map";
-
-            return this._super(...arguments);
-          },
-        });
-      });
-
       const categoryRoutes = ["category", "categoryNone"];
 
       categoryRoutes.forEach(function (route) {
@@ -229,33 +216,6 @@ export default {
           },
         });
       });
-    });
-
-    TopicStatus.reopen({
-      @discourseComputed
-      statuses() {
-        const topic = this.get("topic");
-        const category = this.get("parent.parentView.category");
-        let results = this._super(...arguments);
-
-        if (
-          (this.siteSettings.location_topic_status_icon ||
-            (category &&
-              category.get("custom_fields.location_topic_status"))) &&
-          topic.get("location")
-        ) {
-          const url = topic.get("url");
-          results.push({
-            icon: "map-marker-alt",
-            title: I18n.t(`topic_statuses.location.help`),
-            href: url,
-            openTag: "a href",
-            closeTag: "a",
-          });
-        }
-
-        return results;
-      },
     });
 
     Composer.serializeOnCreate("location");

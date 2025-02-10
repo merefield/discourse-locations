@@ -138,8 +138,8 @@ export default class LocationMapComponent extends Component {
       });
     }
 
-    if (this.addTopicMarker(this.topic, this.locations)) {
-      this.filteredLocations.push(this.topicMarker(this.topic));
+    if (this.addTopicMarker(this.args.topic, this.locations)) {
+      this.filteredLocations.push(this.topicMarker(this.args.topic));
     }
 
     if (
@@ -403,7 +403,7 @@ export default class LocationMapComponent extends Component {
     const mapObjs = this.mapObjs;
     const map = mapObjs.map;
     this.markers = this.addMarkers();
-    const topic = this.topic;
+    // const topic = this.args.topic;
     const category = this.args.category;
     const zoom = this.zoom;
     const center = this.args.center;
@@ -419,12 +419,12 @@ export default class LocationMapComponent extends Component {
     }
 
     if (
-      topic &&
-      topic.location &&
-      topic.location.geo_location &&
-      topic.location.geo_location.boundingbox
+      this.args.topic &&
+      this.args.topic.location &&
+      this.args.topic.location.geo_location &&
+      this.args.topic.location.geo_location.boundingbox
     ) {
-      boundingbox = topic.location.geo_location.boundingbox;
+      boundingbox = this.args.topic.location.geo_location.boundingbox;
     }
 
     map.invalidateSize(false);

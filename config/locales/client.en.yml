@@ -71,6 +71,8 @@ en:
         city: "City"
         address: "Address"
         street: "Street"
+      topic_modal:
+        label: "Topic Location: %{topic_title}"
     topic_statuses:
       location:
         help: "This topic has a location."

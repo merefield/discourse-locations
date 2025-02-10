@@ -1,7 +1,8 @@
-{{#if model.showLocationControls}}
+{{#if this.model.showLocationControls}}
   {{add-location-controls
-    location=model.location
-    category=model.category
-    noText=site.mobileView
+    location=this.model.location
+    category=this.model.category
+    noText=this.site.mobileView
+    updateLocation=this.updateLocation
   }}
 {{/if}}

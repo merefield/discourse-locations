@@ -138,10 +138,6 @@ export default class LocationForm extends Component {
 
   @action
   updateGeoLocation(gl, force_coords) {
-    if (!this.showInputFields) {
-      gl = this.geoLocation;
-    }
-
     gl["zoomTo"] = true;
 
     if (force_coords) {
@@ -357,7 +353,7 @@ export default class LocationForm extends Component {
                 {{#if this.showGeoLocation}}
                   <LocationSelector
                     @location={{this.geoLocation}}
-                    @onChange={{this.updateGeoLocation}}
+                    @onChangeCallback={{this.updateGeoLocation}}
                     class="input-xxlarge location-selector"
                     @searchError={{@searchError}}
                     @context={{this.context}}

@@ -329,18 +329,33 @@
   }
 }
 
+.d-modal__body .locations-map {
+  height: 550px;
+}
+
 .topic-list-item {
   span.location-after-title {
     margin-left: 10px;
   }
 
-  .d-icon-map-marker-alt {
+  .d-icon-location-dot {
     color: var(--primary);
   }
 }
 
-.topic-list-item.visited .d-icon-map-marker-alt {
+.topic-list-item.visited .d-icon-location-dot {
   color: var(--primary-medium);
+}
+
+.topic-list-item .location-text {
+  .btn-transparent {
+    margin-left: 0px;
+    padding-left: 0px;
+    text-align: left;
+    svg {
+      margin-right: 5px;
+    }
+  }
 }
 
 .nav-container .locations-map:not(.expanded) {

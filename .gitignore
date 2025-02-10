@@ -1,10 +1,2 @@
-coverage/*
-!coverage/.last_run.json
-gems/*
-.bundle/
-auto_generated
-.DS_Store
+gems/
 node_modules/
-vendor/*
-.yarn/*
-.yarnrc

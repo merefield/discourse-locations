@@ -28,57 +28,6 @@ export default {
         });
       }
 
-      // api.modifyClass("route:users", {
-      //   pluginId: PLUGIN_ID,
-
-      //   refreshQueryWithoutTransition: false,
-
-      //   beforeModel(transition) {
-      //     this.handleMapTransition(transition);
-      //     this._super(transition);
-      //   },
-
-      //   handleMapTransition(transition) {
-      //     const intent = transition.intent;
-      //     const name = transition.targetName;
-      //     const queryParams = intent.router.activeTransition.to.queryParams;
-
-      //     if (intent.url === "/u" && siteSettings.location_users_map_default) {
-      //       return this.replaceWith("users.user-map");
-      //     }
-
-      //     if (name === "users.user-map") {
-      //       if (!queryParams.period || queryParams.period !== "location") {
-      //         this.changePeriod(transition, "location");
-      //       }
-      //     } else if (name === "users.index") {
-      //       if (queryParams.period === "location") {
-      //         this.changePeriod(transition, "weekly");
-      //       }
-      //     }
-      //   },
-
-      //   changePeriod(transition, period) {
-      //     // abort is necessary here because of https://github.com/emberjs/ember.js/issues/12169
-      //     transition.abort();
-
-      //     return this.replaceWith(transition.targetName, {
-      //       queryParams: { period },
-      //     });
-      //   },
-
-      //   renderTemplate() {
-      //     this.render("users");
-      //   },
-
-      //   actions: {
-      //     willTransition(transition) {
-      //       this.handleMapTransition(transition);
-      //       this._super(transition);
-      //     },
-      //   },
-      // });
-
       api.modifyClass("component:user-card-contents", {
         pluginId: PLUGIN_ID,
 
