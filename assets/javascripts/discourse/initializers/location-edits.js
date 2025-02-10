@@ -193,6 +193,20 @@ export default {
         },
       });
 
+      const mapRoutes = [`Map`, `MapCategory`, `MapCategoryNone`];
+
+      mapRoutes.forEach(function (route) {
+        api.modifyClass(`route:discovery.${route}`, {
+          pluginId: "locations-plugin",
+
+          afterModel() {
+            this.templateName = "discovery/map";
+
+            return this._super(...arguments);
+          },
+        });
+      });
+
       const categoryRoutes = ["category", "categoryNone"];
 
       categoryRoutes.forEach(function (route) {
