@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 6.8.1
+# version: 6.8.2
 # authors: Robert Barrow, Angus McLeod
-# contact_emails: development@pavilion.tech
+# contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
 
 enabled_site_setting :location_enabled
