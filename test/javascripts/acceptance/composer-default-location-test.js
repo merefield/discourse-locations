@@ -84,6 +84,12 @@ acceptance(
         query(".composer-controls-location span.d-button-label").innerText,
         "London, Greater London, England, United Kingdom"
       );
+
+      await click(".composer-controls-location .remove");
+      assert.equal(
+        query(".composer-controls-location span.d-button-label").innerText,
+        "Add Location"
+      );
     });
   }
 );
