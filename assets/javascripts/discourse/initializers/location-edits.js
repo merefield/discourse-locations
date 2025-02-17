@@ -68,7 +68,7 @@ export default {
           }
           if (categoryId) {
             const category = this.site.categories.findBy("id", categoryId);
-            if (category && category.custom_fields.location_enabled) {
+            if (category && category.custom_fields?.location_enabled) {
               return true;
             }
           }
