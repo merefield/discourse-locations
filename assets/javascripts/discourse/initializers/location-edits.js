@@ -243,7 +243,7 @@ export default {
         if (
           typeof category !== "undefined" &&
           category &&
-          category.custom_fields.location_enabled &&
+          category.custom_fields?.location_enabled &&
           category.siteSettings.location_category_map_filter
         ) {
           items.push(NavItem.fromText("map", args)); // Show category level "/map" instead
