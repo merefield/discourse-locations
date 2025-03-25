@@ -20,7 +20,6 @@ acceptance(
 
     test("topic on topic list location - shows correct format", async function (assert) {
       await visit("/latest");
-      debugger;
       assert.ok(
         exists(
           'tr[data-topic-id="142"] span.location-after-title .location-text'
