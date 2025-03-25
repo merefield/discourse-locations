@@ -2,7 +2,6 @@ import { visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import {
   acceptance,
-  exists,
   query,
 } from "discourse/tests/helpers/qunit-helpers";
 import { cloneJSON } from "discourse-common/lib/object";
@@ -24,7 +23,9 @@ acceptance("Topic List- Show Correct Topic Location Format", function (needs) {
     await visit("/latest");
 
     assert.equal(
-      query('tr[data-topic-id="36"] span.location-after-title .location-text .label-text').innerText,
+      query(
+        'tr[data-topic-id="36"] span.location-after-title .location-text .label-text'
+      ).innerText,
       "Pompidou, Paris, France"
     );
   });
