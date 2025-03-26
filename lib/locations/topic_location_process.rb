@@ -3,15 +3,13 @@
 module ::Locations
   class TopicLocationProcess
 
-    def self.upsert(topic_id)
-      topic = Topic.find_by(id: topic_id)
-
+    def self.upsert(topic)
       return if topic.nil? || !topic.custom_fields['location'].present? ||
         topic.custom_fields['location']['geo_location'].blank? || !topic.custom_fields['location']['geo_location']['lat'].present? ||
         !topic.custom_fields['location']['geo_location']['lon'].present?
 
       ::Locations::TopicLocation.upsert({
-          topic_id: topic_id,
+          topic_id: topic.id,
           latitude: topic.custom_fields['location']['geo_location']['lat'],
           longitude: topic.custom_fields['location']['geo_location']['lon'],
           name: topic.custom_fields['location']['name'] || nil,
