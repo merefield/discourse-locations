@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 6.8.7
+# version: 6.8.8
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -152,7 +152,7 @@ after_initialize do
       tc.topic.custom_fields['location'] = location
       tc.topic.custom_fields['has_geo_location'] = location['geo_location'].present?
 
-      Locations::TopicLocationProcess.upsert(tc.topic.id)
+      Locations::TopicLocationProcess.upsert(tc.topic)
     else
       tc.topic.custom_fields['location'] = {}
       tc.topic.custom_fields['has_geo_location'] = false
@@ -168,7 +168,7 @@ after_initialize do
       topic.custom_fields['location'] = location
       topic.custom_fields['has_geo_location'] = location['geo_location'].present?
       topic.save!
-      Locations::TopicLocationProcess.upsert(topic.id)
+      Locations::TopicLocationProcess.upsert(topic)
     end
   end
 

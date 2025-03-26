@@ -86,7 +86,7 @@ def refresh_topic_location_table(args)
         .limit(batch)
         .each do |topic|
           if !missing_only.to_i.zero? && ::Locations::TopicLocation.find_by(topic_id: topic.id).nil? || missing_only.to_i.zero?
-            Locations::TopicLocationProcess.upsert(topic.id)
+            Locations::TopicLocationProcess.upsert(topic)
             sleep(delay) if delay
           end
           print_status(refreshed += 1, total)
