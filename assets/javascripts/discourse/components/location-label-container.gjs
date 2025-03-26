@@ -99,7 +99,10 @@ export default class LocationLableContainerComponent extends Component {
               @action={{this.showTopicMapModal}}
               @icon="location-dot"
               class="btn btn-small btn-transparent"
-            >{{locationFormat @topic.location this.opts}}
+            ><span class="label-text">{{locationFormat
+                  @topic.location
+                  this.opts
+                }}</span>
             </DButton>
           {{/if}}
         </span>

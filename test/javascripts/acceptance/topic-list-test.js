@@ -1,10 +1,6 @@
 import { visit } from "@ember/test-helpers";
 import { test } from "qunit";
-import {
-  acceptance,
-  exists,
-  query,
-} from "discourse/tests/helpers/qunit-helpers";
+import { acceptance, query } from "discourse/tests/helpers/qunit-helpers";
 import { cloneJSON } from "discourse-common/lib/object";
 import siteFixtures from "../fixtures/site-fixtures";
 import topicListFixtures from "../fixtures/topic-list-with-location";
@@ -23,8 +19,10 @@ acceptance("Topic List- Show Correct Topic Location Format", function (needs) {
   test("topic on topic list location - shows correct format", async function (assert) {
     await visit("/latest");
 
-    assert.ok(
-      exists('tr[data-topic-id="36"] span.location-after-title'),
+    assert.equal(
+      query(
+        'tr[data-topic-id="36"] span.location-after-title .location-text .label-text'
+      ).innerText,
       "Pompidou, Paris, France"
     );
   });
