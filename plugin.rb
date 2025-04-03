@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 6.8.10
+# version: 6.8.11
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -141,7 +141,7 @@ after_initialize do
   end
 
   public_user_custom_fields = SiteSetting.public_user_custom_fields.split('|')
-  public_user_custom_fields.push('geo_location') unless public_user_custom_fields.include?('geo_location')
+  public_user_custom_fields.push('geo_location') if public_user_custom_fields.exclude?('geo_location')
   SiteSetting.public_user_custom_fields = public_user_custom_fields.join('|')
 
   PostRevisor.track_topic_field(:location) do |tc, location|

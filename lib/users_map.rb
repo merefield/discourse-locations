@@ -3,6 +3,8 @@ module DirectoryItemsControllerExtension
   def index
     if params[:period] === 'location'
       raise Discourse::InvalidAccess.new(:enable_user_directory) unless SiteSetting.enable_user_directory?
+      raise Discourse::InvalidAccess.new(:location_users_map) unless SiteSetting.location_users_map?
+      raise Discourse::InvalidAccess.new(:hide_user_profiles_from_public) if SiteSetting.hide_user_profiles_from_public? && !current_user
 
       limit = SiteSetting.location_users_map_limit.to_i
 

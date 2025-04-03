@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe UsersController do
-  fab!(:user) { Fabricate(:user) }
+  fab!(:user)
   user_field = Fabricate(:user_field, editable: true)
   before do
     sign_in(user)
