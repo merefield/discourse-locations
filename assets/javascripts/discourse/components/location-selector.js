@@ -1,7 +1,8 @@
 import $ from "jquery";
 import TextField from "discourse/components/text-field";
-import { findRawTemplate } from "discourse-common/lib/raw-templates";
-import { observes } from "discourse-common/utils/decorators";
+import { observes } from "discourse/lib/decorators";
+import { escapeExpression } from "discourse/lib/utilities";
+import { i18n } from "discourse-i18n";
 import {
   geoLocationFormat,
   geoLocationSearch,
@@ -28,7 +29,7 @@ export default TextField.extend({
     $(self.element)
       .val(val)
       .autocomplete({
-        template: findRawTemplate("javascripts/location-autocomplete"),
+        template: locationAutocompleteTemplate,
         single: true,
         updateData: false,
 
@@ -138,3 +139,26 @@ export default TextField.extend({
     $(this.element).autocomplete("destroy");
   },
 });
+
+function locationAutocompleteTemplate(context) {
+  const optionHtml = context.options.map((o) => {
+    if (o.no_results) {
+      return `<div class="no-results">${i18n("location.geo.no_results")}</div>`;
+    } else if (o.provider) {
+      return `<label>${i18n("location.geo.desc", {
+        provider: o.provider,
+      })}</label>`;
+    } else {
+      const typeHtml = o.showType
+        ? `<div class="location-type">${escapeExpression(o.type)}</div>`
+        : "";
+
+      return `
+        <li class="location-form-result">
+          <label>${escapeExpression(o.address)}</label>
+          ${typeHtml}
+        </li>`;
+    }
+  });
+  return `<div class="autocomplete"><ul>${optionHtml.join("")}</ul></div>`;
+}
