@@ -9,6 +9,7 @@ export default {
   initialize(container) {
     withPluginApi("0.8.12", (api) => {
       const siteSettings = container.lookup("site-settings:main");
+      const currentUser = container.lookup("service:current-user");
 
       if (siteSettings.location_sidebar_menu_map_link) {
         api.addCommunitySectionLink({
@@ -19,7 +20,11 @@ export default {
         });
       }
 
-      if (siteSettings.location_users_map) {
+      if (
+        siteSettings.location_users_map &&
+        siteSettings.enable_user_directory &&
+        !(!currentUser && siteSettings.hide_user_profiles_from_public)
+      ) {
         api.addCommunitySectionLink({
           name: "users map",
           route: "locations.users-map",
