@@ -1,7 +1,8 @@
+import { test } from "qunit";
+import sinon from "sinon";
 import { click, visit } from "@ember/test-helpers";
 import {
   acceptance,
-  exists,
   query,
   visible,
 } from "discourse/tests/helpers/qunit-helpers";
@@ -9,8 +10,6 @@ import { cloneJSON } from "discourse-common/lib/object";
 import locationFixtures from "../fixtures/location-fixtures";
 import siteFixtures from "../fixtures/site-fixtures";
 import topicFixtures from "../fixtures/topic-fixtures";
-import { test } from "qunit";
-import sinon from "sinon";
 
 acceptance(
   "Topic - Set Location using Current Location Button",

@@ -182,7 +182,7 @@ export default class LocationForm extends Component {
   @action
   useCurrentLocation() {
     if (!navigator.geolocation) {
-      this.flash = I18n.t("location.geo.error.unsupported");
+      this.flash = "location.geo.error.unsupported";
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -192,8 +192,8 @@ export default class LocationForm extends Component {
         this.formLongitude = longitude;
         this.updateGeoLocation(this.geoLocation, true);
       },
-      (error) => {
-        this.flash = I18n.t("location.geo.error.permission");
+      () => {
+        this.flash = "location.geo.error.permission";
       }
     );
   }
