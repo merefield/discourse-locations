@@ -54,8 +54,9 @@ export default class LocationForm extends Component {
       this.searchDisabled = true;
 
       this.internalInputFields.forEach((f) => {
-        this[`show${f.charAt(0).toUpperCase() + f.substr(1).toLowerCase()}`] =
-          true;
+        this[
+          `show${f.charAt(0).toUpperCase() + f.substr(1).toLowerCase()}`
+        ] = true;
         this[`form${f.charAt(0).toUpperCase() + f.substr(1).toLowerCase()}`] =
           this.args[f];
 
