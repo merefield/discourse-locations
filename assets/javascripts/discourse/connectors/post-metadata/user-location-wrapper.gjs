@@ -7,9 +7,9 @@ export default class LocationMapComponent extends Component {
   @service site;
 
   get locationText() {
-    let model = this.args.post.user;
+    let model = this.args.post;
 
-    if (model.custom_fields && model.custom_fields["geo_location"]) {
+    if (model.user_custom_fields && model.user_custom_fields["geo_location"]) {
       let format = this.siteSettings.location_user_post_format.split("|");
       let opts = {};
 
@@ -18,7 +18,7 @@ export default class LocationMapComponent extends Component {
       }
 
       return geoLocationFormat(
-        model.custom_fields["geo_location"],
+        model.user_custom_fields["geo_location"],
         this.site.country_codes,
         opts
       );
