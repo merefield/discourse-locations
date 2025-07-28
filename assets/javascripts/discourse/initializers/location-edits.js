@@ -13,9 +13,6 @@ const NEW_TOPIC_KEY = "new_topic";
 export default {
   name: "location-edits",
   initialize(container) {
-    const siteSettings = container.lookup("site-settings:main");
-    const site = container.lookup("site:main");
-
     withPluginApi("0.8.23", (api) => {
       api.modifyClass("controller:users", {
         pluginId: "locations-plugin",
