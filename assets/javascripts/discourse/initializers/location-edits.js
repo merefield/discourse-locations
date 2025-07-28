@@ -7,7 +7,6 @@ import {
   observes,
 } from "discourse-common/utils/decorators";
 import I18n from "I18n";
-import { geoLocationFormat } from "../lib/location-utilities";
 
 const NEW_TOPIC_KEY = "new_topic";
 
