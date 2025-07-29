@@ -35,7 +35,7 @@ acceptance(
 
     test("enter Topic location via dialogue", async function (assert) {
       await visit("/t/online-learning/51/1");
-      await click("a.edit-topic");
+      await click("a.fancy-title");
       await click("button.add-location-btn");
       assert.ok(visible(".add-location-modal"), "add location modal is shown");
       await selectKit(".input-location.country-code").expand();
@@ -68,7 +68,7 @@ acceptance(
 
     test("enter Topic location via dialogue using coordinates", async function (assert) {
       await visit("/t/online-learning/51/1");
-      await click("a.edit-topic");
+      await click("a.fancy-title");
       await click("button.add-location-btn");
       assert.ok(visible(".add-location-modal"), "add location modal is shown");
       await fillIn(

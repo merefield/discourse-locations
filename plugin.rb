@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 6.8.12
+# version: 6.8.13
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -186,6 +186,7 @@ after_initialize do
     if params &&
       params[:custom_fields] &&
       params[:custom_fields][:geo_location]
+      result[:custom_fields] ||= {}
       result[:custom_fields][:geo_location] = params[:custom_fields][:geo_location]
     end
 

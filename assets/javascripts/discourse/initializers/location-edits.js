@@ -7,38 +7,13 @@ import {
   observes,
 } from "discourse-common/utils/decorators";
 import I18n from "I18n";
-import { geoLocationFormat } from "../lib/location-utilities";
 
 const NEW_TOPIC_KEY = "new_topic";
 
 export default {
   name: "location-edits",
-  initialize(container) {
-    const siteSettings = container.lookup("site-settings:main");
-    const site = container.lookup("site:main");
-
+  initialize() {
     withPluginApi("0.8.23", (api) => {
-      api.decorateWidget("post-body:after-meta-data", (helper) => {
-        const model = helper.getModel();
-        if (
-          siteSettings.location_user_post &&
-          model.user_custom_fields &&
-          model.user_custom_fields["geo_location"]
-        ) {
-          let format = siteSettings.location_user_post_format.split("|");
-          let opts = {};
-          if (format.length) {
-            opts["geoAttrs"] = format;
-          }
-          let locationText = geoLocationFormat(
-            model.user_custom_fields["geo_location"],
-            site.country_codes,
-            opts
-          );
-          return helper.h("div.user-location", locationText);
-        }
-      });
-
       api.modifyClass("controller:users", {
         pluginId: "locations-plugin",
 

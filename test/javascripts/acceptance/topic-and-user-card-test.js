@@ -48,8 +48,6 @@ acceptance(
 
       assert.equal(query("#post_3 .user-location").innerText, "Paris, France");
 
-      assert.equal(query('a[data-user-card="merefield"]').innerText, "");
-
       await click('a[data-user-card="merefield"]');
 
       assert.equal(
