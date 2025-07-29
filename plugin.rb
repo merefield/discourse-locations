@@ -186,6 +186,7 @@ after_initialize do
     if params &&
       params[:custom_fields] &&
       params[:custom_fields][:geo_location]
+      result[:custom_fields] ||= {}
       result[:custom_fields][:geo_location] = params[:custom_fields][:geo_location]
     end
 
