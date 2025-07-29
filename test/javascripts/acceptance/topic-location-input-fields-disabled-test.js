@@ -34,7 +34,7 @@ acceptance(
 
     test("enter Topic location via dialogue without address fields", async function (assert) {
       await visit("/t/online-learning/51/1");
-      await click("a.edit-topic");
+      await click("a.fancy-title");
       await click("button.add-location-btn");
       assert.ok(visible(".add-location-modal"), "add location modal is shown");
       await simulateKeys(query(".location-selector"), "liver building");
