@@ -181,6 +181,25 @@ export default class LocationForm extends Component {
   }
 
   @action
+  useCurrentLocation() {
+    if (!navigator.geolocation) {
+      this.flash = "location.geo.error.unsupported";
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        this.formLatitude = latitude;
+        this.formLongitude = longitude;
+        this.updateGeoLocation(this.geoLocation, true);
+      },
+      () => {
+        this.flash = "location.geo.error.permission";
+      }
+    );
+  }
+
+  @action
   locationSearch() {
     let request = {};
 
@@ -469,6 +488,15 @@ export default class LocationForm extends Component {
             <div class="instructions">
               {{i18n "location.lon.desc"}}
             </div>
+          </div>
+          <div style="margin-top: 1em;">
+            <button
+              type="button"
+              class="btn btn-default location-current-btn"
+              onclick={{this.useCurrentLocation}}
+            >
+              Current Location
+            </button>
           </div>
         </div>
       {{/if}}

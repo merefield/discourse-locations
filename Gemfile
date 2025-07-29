@@ -6,3 +6,5 @@ group :development do
   gem 'rubocop-discourse'
   gem "racc"
 end
+
+gem "racc"
