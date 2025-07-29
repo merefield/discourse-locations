@@ -24,22 +24,22 @@ end
 # Table name: locations_topic
 #
 #  id                 :bigint           not null, primary key
-#  topic_id           :integer          not null
-#  latitude           :float            not null
-#  longitude          :float            not null
-#  name               :string
-#  street             :string
-#  district           :string
+#  boundingbox        :float            is an Array
 #  city               :string
-#  state              :string
-#  postalcode         :string
 #  country            :string
 #  countrycode        :string
+#  district           :string
 #  international_code :string
+#  latitude           :float            not null
 #  locationtype       :string
-#  boundingbox        :float            is an Array
+#  longitude          :float            not null
+#  name               :string
+#  postalcode         :string
+#  state              :string
+#  street             :string
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
+#  topic_id           :integer          not null
 #
 # Indexes
 #
