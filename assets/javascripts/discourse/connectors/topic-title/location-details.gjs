@@ -1,12 +1,12 @@
 import LocationLabelContainer from "./../../components/location-label-container";
 
 <template>
-  {{#unless this.model.editingTopic}}
-    {{#if this.model.location}}
+  {{#unless @model.editingTopic}}
+    {{#if @model.location}}
       {{#unless this.model.location.hide_marker}}
         <LocationLabelContainer
-          @topic={{this.model}}
-          @location={{this.model.location}}
+          @topic={{@model}}
+          @location={{@model.location}}
         />
       {{/unless}}
     {{/if}}

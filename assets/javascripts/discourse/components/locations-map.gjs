@@ -4,7 +4,7 @@ import { on } from "@ember/modifier";
 import { action, computed } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import didUpdate from "@ember/render-modifiers/modifiers/did-update";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 import $ from "jquery";
 import { ajax } from "discourse/lib/ajax";
 import { findOrResetCachedTopicList } from "discourse/lib/cached-topic-list";
