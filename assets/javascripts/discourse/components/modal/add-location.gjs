@@ -175,7 +175,7 @@ export default class AddLocationComponent extends Component {
       <div class="modal-footer">
         <DButton
           id="save-location"
-          @action={{action "submit"}}
+          @action={{this.submit}}
           @label="location.done"
           @class="btn-primary"
           @disabled={{this.submitDisabled}}
@@ -183,7 +183,7 @@ export default class AddLocationComponent extends Component {
         <DButton
           id="clear-location"
           @class="clear"
-          @action={{action "clear"}}
+          @action={{this.clear}}
           @label="location.clear"
         />
       </div>

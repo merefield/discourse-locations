@@ -71,14 +71,14 @@ export default class AddLocationControlsComponent extends Component {
         <DButton
           @class={{this.valueClasses}}
           @title="location.label.add"
-          @action={{action "showAddLocation"}}
+          @action={{this.showAddLocation}}
           @translatedLabel={{this.valueLabel}}
           @icon="location-dot"
         />
         {{#unless @noText}}
           <DButton
             @icon="xmark"
-            @action={{action "removeLocation"}}
+            @action={{this.removeLocation}}
             @class="remove"
           />
         {{/unless}}
@@ -87,7 +87,7 @@ export default class AddLocationControlsComponent extends Component {
           <DButton
             @class="add-location-btn"
             @icon="location-dot"
-            @action={{action "showAddLocation"}}
+            @action={{this.showAddLocation}}
             @title={{this.addLabel}}
           />
         {{else}}
@@ -95,7 +95,7 @@ export default class AddLocationControlsComponent extends Component {
             @class="add-location-btn"
             @icon="location-dot"
             @label={{this.addLabel}}
-            @action={{action "showAddLocation"}}
+            @action={{this.showAddLocation}}
             @title={{this.addLabel}}
           />
         {{/if}}
