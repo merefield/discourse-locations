@@ -1,4 +1,4 @@
-import LocationLabelContainer from './../../components/location-label-container';
+import LocationLabelContainer from "./../../components/location-label-container";
 
 <template>
   {{#unless this.model.editingTopic}}
