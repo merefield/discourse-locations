@@ -1,5 +1,6 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import { array } from "@ember/helper";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import icon from "discourse-common/helpers/d-icon";
@@ -35,6 +36,8 @@ export default class UserCustomPrefsMapLocation extends Component {
               class="input-xxlarge location-selector"
               @searchError={{this.searchError}}
               @context={{this.context}}
+              @geoAttrs={{array}}
+              @showType={{false}}
             />
           </div>
           <div class="user-location-warning">

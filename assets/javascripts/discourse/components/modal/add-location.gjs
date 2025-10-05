@@ -1,6 +1,7 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { Input } from "@ember/component";
+import { array } from "@ember/helper";
 import { action, computed } from "@ember/object";
 import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
@@ -159,6 +160,8 @@ export default class AddLocationComponent extends Component {
         @searchOnInit={{this.searchOnInit}}
         @setGeoLocation={{this.setGeoLocation}}
         @searchError={{this.searchError}}
+        @geoAttrs={{array}}
+        @showType={{false}}
       />
       <hr />
       <div class="control-group">

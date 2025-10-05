@@ -357,6 +357,8 @@ export default class LocationForm extends Component {
                     class="input-xxlarge location-selector"
                     @searchError={{@searchError}}
                     @context={{this.context}}
+                    @geoAttrs={{@geoAttrs}}
+                    @showType={{@showType}}
                   />
                 {{else}}
                   <Input

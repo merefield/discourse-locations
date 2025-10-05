@@ -120,25 +120,31 @@ div.input-location {
   }
 }
 
+.location-selector-wrapper {
+  .d-multi-select-trigger {
+    width: 100%;
+  }
+}
+
 .location-form-result {
   cursor: pointer;
-  background-color: var(--secondary);
   display: flex;
+  align-items: center;
 
-  &:hover,
-  &.selected {
-    background-color: var(--tertiary);
-    color: white;
-
-    label {
-      color: white;
-    }
-  }
-
-  label {
+  label, span {
     flex: 1 1 auto;
     margin-bottom: 0;
     cursor: pointer;
+  }
+
+  .location-type {
+    flex: 0 0 auto;
+    margin-left: 0.5em;
+    padding: 0.125em 0.375em;
+    font-size: 0.875em;
+    color: var(--primary-medium);
+    border-radius: 0.2em;
+    white-space: nowrap;
   }
 
   i {
