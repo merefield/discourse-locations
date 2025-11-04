@@ -150,6 +150,7 @@ export default class LocationSelector extends Component {
     return a.id === b.id || a.address === b.address;
   }
 
+  @action
   getDisplayText(location) {
     if (!location) {
       return "";
