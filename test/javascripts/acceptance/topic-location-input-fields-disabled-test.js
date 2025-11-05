@@ -1,9 +1,6 @@
 import { click, fillIn, visit } from "@ember/test-helpers";
 import { test } from "qunit";
-import {
-  acceptance,
-  visible,
-} from "discourse/tests/helpers/qunit-helpers";
+import { acceptance, visible } from "discourse/tests/helpers/qunit-helpers";
 import { cloneJSON } from "discourse-common/lib/object";
 import locationFixtures from "../fixtures/location-fixtures";
 import siteFixtures from "../fixtures/site-fixtures";
@@ -39,16 +36,18 @@ acceptance(
       await fillIn(".d-multi-select__search-input", "liver building");
       await click(".location-form-result:first-child label");
 
-      assert.dom(".location-selector .d-multi-select-trigger__selection-label").hasText(
-        "Royal Liver Building, Water Street, Ropewalks, Liverpool, Liverpool City Region, England, L3 1EG, United Kingdom"
-      );
+      assert
+        .dom(".location-selector .d-multi-select-trigger__selection-label")
+        .hasText(
+          "Royal Liver Building, Water Street, Ropewalks, Liverpool, Liverpool City Region, England, L3 1EG, United Kingdom"
+        );
 
       await fillIn(".location-name", "Home Sweet Home");
       await click("#save-location");
 
-      assert.dom("button.add-location-btn span.d-button-label").hasText(
-        "Home Sweet Home, L3 1EG, Liverpool, United Kingdom"
-      );
+      assert
+        .dom("button.add-location-btn span.d-button-label")
+        .hasText("Home Sweet Home, L3 1EG, Liverpool, United Kingdom");
     });
   }
 );
