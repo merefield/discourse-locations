@@ -1,5 +1,6 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import { array } from "@ember/helper";
 import { action, computed } from "@ember/object";
 import { service } from "@ember/service";
 import I18n from "I18n";
@@ -19,7 +20,6 @@ export default class CustomWizardFieldLocationComponent extends Component {
   includeGeoLocation = true;
   inputFieldsEnabled = true;
   layoutName = "javascripts/wizard/templates/components/wizard-field-location";
-  showType = true;
 
   constructor() {
     super(...arguments);
@@ -141,6 +141,8 @@ export default class CustomWizardFieldLocationComponent extends Component {
       @searchOnInit={{this.searchOnInit}}
       @setGeoLocation={{this.setGeoLocation}}
       @searchError={{this.searchError}}
+      @geoAttrs={{array}}
+      @showType={{true}}
     />
   </template>
 }
