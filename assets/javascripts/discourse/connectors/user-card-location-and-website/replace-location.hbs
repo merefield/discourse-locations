@@ -1,21 +1,21 @@
 {{! template-lint-disable link-rel-noopener  }}
 
-{{#if showUserLocation}}
+{{#if this.showUserLocation}}
   <span class="location">
-    <UserLocation @user={{user}} @formFactor="card" />
+    <UserLocation @user={{this.user}} @formFactor="card" />
   </span>
 {{/if}}
-{{#if user.website_name}}
+{{#if this.user.website_name}}
   <span class="website-name">
     {{d-icon "globe"}}
-    {{#if linkWebsite}}
+    {{#if this.linkWebsite}}
       <a
-        href={{user.website}}
-        rel={{unless removeNoFollow "nofollow ugc noopener"}}
+        href={{this.user.website}}
+        rel={{unless this.removeNoFollow "nofollow ugc noopener"}}
         target="_blank"
-      >{{user.website_name}}</a>
+      >{{this.user.website_name}}</a>
     {{else}}
-      <span title={{user.website}}>{{user.website_name}}</span>
+      <span title={{this.user.website}}>{{this.user.website_name}}</span>
     {{/if}}
   </span>
 {{/if}}
