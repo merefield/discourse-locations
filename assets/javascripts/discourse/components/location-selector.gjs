@@ -124,14 +124,12 @@ export default class LocationSelector extends Component {
     const location = selectedLocations?.[selectedLocations.length - 1];
 
     if (!location) {
-      this.selectedLocation = null;
-      // Don't call onChangeCallback with null - original implementation
-      // only called callback when selecting valid location objects
-      return;
+      this.selectedLocation = {};
+      // Call onChangeCallback with emtpy object to clear location, undefined won't stick.
     }
 
     // Don't select special items (a location with provider prop is there for display only)
-    if (location.provider) {
+    if (location?.provider) {
       return;
     }
 

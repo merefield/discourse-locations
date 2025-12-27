@@ -35,23 +35,49 @@ export default class LocationMapComponent extends Component {
     return this.args.formFactor !== "card" && !this.site.mobileView;
   }
 
-  get userLocation() {
-    let locationText = "";
-    if (this.args.user && this.args.user.geo_location) {
-      let format = this.siteSettings.location_user_profile_format.split("|");
-      let opts = {};
+  get parsedGeoLocation() {
+    const raw = this.args.user?.geo_location;
 
-      if (format.length && format[0]) {
-        opts["geoAttrs"] = format;
-        locationText = geoLocationFormat(
-          this.args.user.geo_location,
-          this.site.country_codes,
-          opts
-        );
-      } else {
-        locationText = this.args.user.geo_location.address;
+    if (!raw || raw === "{}") {
+      return null;
+    }
+
+    if (typeof raw === "object") {
+      return Object.keys(raw).length ? raw : null;
+    }
+
+    if (typeof raw === "string") {
+      try {
+        const parsed = JSON.parse(raw);
+        return parsed &&
+          typeof parsed === "object" &&
+          Object.keys(parsed).length
+          ? parsed
+          : null;
+      } catch {
+        return null;
       }
     }
+
+    return null;
+  }
+
+  get userLocation() {
+    const geo = this.parsedGeoLocation;
+    let locationText = "";
+
+    if (geo) {
+      const format = this.siteSettings.location_user_profile_format.split("|");
+      const opts = {};
+
+      if (format.length && format[0]) {
+        opts.geoAttrs = format;
+        locationText = geoLocationFormat(geo, this.site.country_codes, opts);
+      } else {
+        locationText = geo.address;
+      }
+    }
+
     return locationText;
   }
 

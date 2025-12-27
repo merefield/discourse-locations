@@ -283,8 +283,34 @@ export default class LocationMapComponent extends Component {
     return true;
   }
 
+  parseGeoLocation(geoLocation) {
+    if (!geoLocation || geoLocation === "{}") {
+      return null;
+    }
+
+    if (typeof geoLocation === "object") {
+      return Object.keys(geoLocation).length ? geoLocation : null;
+    }
+
+    if (typeof geoLocation === "string") {
+      try {
+        const parsed = JSON.parse(geoLocation);
+        return parsed &&
+          typeof parsed === "object" &&
+          Object.keys(parsed).length
+          ? parsed
+          : null;
+      } catch {
+        return null;
+      }
+    }
+
+    return null;
+  }
+
   validGeoLocation(geoLocation) {
-    return geoLocation && geoLocation.lat && geoLocation.lon;
+    const geo = this.parseGeoLocation(geoLocation);
+    return !!(geo && geo.lat && geo.lon);
   }
 
   topicMarker(topic) {
@@ -322,7 +348,7 @@ export default class LocationMapComponent extends Component {
 
     location["user_id"] = user.id;
 
-    location["geo_location"] = user.geo_location;
+    location["geo_location"] = this.parseGeoLocation(user.geo_location);
 
     return location;
   }
@@ -330,7 +356,7 @@ export default class LocationMapComponent extends Component {
   locationPresent(locations, location) {
     return (
       locations.filter((l) => {
-        if (location.geo_location) {
+        if (!location.geo_location) {
           return false;
         }
         if (location.geo_location.lat && location.geo_location.lon) {
@@ -358,9 +384,14 @@ export default class LocationMapComponent extends Component {
     if (filteredLocations && filteredLocations.length > 0) {
       filteredLocations.forEach((l) => {
         if (l && l.geo_location) {
+          const geo = this.parseGeoLocation(l.geo_location);
+          if (!geo) {
+            return;
+          }
+
           let marker = {
-            lat: l.geo_location.lat,
-            lon: l.geo_location.lon,
+            lat: geo.lat,
+            lon: geo.lon,
             options: {},
           };
 
