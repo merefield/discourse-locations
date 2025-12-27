@@ -122,7 +122,9 @@ export default class GeoDMultiSelect extends Component {
 
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      if (!this.availableOptions?.length) {return;}
+      if (!this.availableOptions?.length) {
+        return;
+      }
 
       if (this.preselectedItem === null) {
         this.preselectedItem = this.availableOptions[0];
@@ -138,7 +140,9 @@ export default class GeoDMultiSelect extends Component {
 
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      if (!this.availableOptions?.length) {return;}
+      if (!this.availableOptions?.length) {
+        return;
+      }
 
       if (this.preselectedItem === null) {
         this.preselectedItem = this.availableOptions[0];
@@ -226,7 +230,9 @@ export default class GeoDMultiSelect extends Component {
 
     return Promise.resolve(loadFn?.(term))
       .then((val) => {
-        if (requestId !== this._requestId) {return;}
+        if (requestId !== this._requestId) {
+          return;
+        }
 
         this.value = val;
         this.isResolved = true;
@@ -235,14 +241,18 @@ export default class GeoDMultiSelect extends Component {
         this.#autoPickIfNeeded();
       })
       .catch((e) => {
-        if (requestId !== this._requestId) {return;}
+        if (requestId !== this._requestId) {
+          return;
+        }
         this.error = e;
         this.isRejected = true;
         // no auto-pick on error
         this.autoPickNextResult = false;
       })
       .finally(() => {
-        if (requestId !== this._requestId) {return;}
+        if (requestId !== this._requestId) {
+          return;
+        }
         this.isPending = false;
       });
   }
