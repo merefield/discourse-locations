@@ -28,7 +28,7 @@ Discourse.anonymous_top_menu_items.push(:map)
 Discourse.filters.push(:map)
 Discourse.anonymous_filters.push(:map)
 
-gem "geocoder", "1.8.3"
+gem "geocoder", "1.8.6"
 
 if respond_to?(:register_svg_icon)
   register_svg_icon "far-map"
