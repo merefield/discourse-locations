@@ -5,11 +5,21 @@
   .website-name {
     display: none;
   }
+
+  .replace-location .location,
+  .replace-location .website-name {
+    display: block;
+  }
 }
 
 .user-profile-location,
 .user-profile-website {
   display: none;
+}
+
+.replace-location .user-profile-location,
+.replace-location .user-profile-website {
+  display: block;
 }
 
 .user-preferences .location-selector-container {
