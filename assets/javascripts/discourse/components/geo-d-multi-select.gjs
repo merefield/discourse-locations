@@ -286,42 +286,47 @@ export default class GeoDMultiSelect extends Component {
       @matchTriggerWidth={{@matchTriggerWidth}}
       ...attributes
     >
-      <:trigger>
-        {{#if @selection}}
-          <div class="d-multi-select-trigger__selection">
-            {{#each @selection as |item|}}
-              <button
-                class="d-multi-select-trigger__selected-item"
-                {{on "click" (fn this.remove item)}}
-                title={{this.getDisplayText item}}
-              >
-                <span class="d-multi-select-trigger__selection-label">
-                  {{yield item to="selection"}}
-                </span>
-                {{icon
-                  "xmark"
-                  class="d-multi-select-trigger__remove-selection-icon"
-                }}
-              </button>
-            {{/each}}
-          </div>
-        {{else}}
-          <span class="d-multi-select-trigger__label">{{this.label}}</span>
-        {{/if}}
+<:trigger>
+  <div class="geo-d-multi-select-trigger">
+    <div class="geo-d-multi-select-trigger__content">
+      {{#if @selection}}
+        <div class="d-multi-select-trigger__selection">
+          {{#each @selection as |item|}}
+            <button
+              class="d-multi-select-trigger__selected-item"
+              {{on "click" (fn this.remove item)}}
+              title={{this.getDisplayText item}}
+            >
+              <span class="d-multi-select-trigger__selection-label">
+                {{yield item to="selection"}}
+              </span>
+              {{icon
+                "xmark"
+                class="d-multi-select-trigger__remove-selection-icon"
+              }}
+            </button>
+          {{/each}}
+        </div>
+      {{else}}
+        <span class="d-multi-select-trigger__label">{{this.label}}</span>
+      {{/if}}
+    </div>
 
-        {{!-- bullseye: auto-picks first result from coords --}}
-        <DButton
-          @icon="bullseye"
-          class="btn btn-default location-current-btn"
-          @action={{this.useCurrentLocation}}
-        />
+    <div class="geo-d-multi-select-trigger__actions">
+      <DButton
+        @icon="bullseye"
+        class="btn btn-default location-current-btn"
+        @action={{this.useCurrentLocation}}
+      />
+      <DButton
+        @icon="angle-down"
+        class="d-multi-select-trigger__expand-btn btn-transparent"
+        @action={{@componentArgs.show}}
+      />
+    </div>
+  </div>
+</:trigger>
 
-        <DButton
-          @icon="angle-down"
-          class="d-multi-select-trigger__expand-btn btn-transparent"
-          @action={{@componentArgs.show}}
-        />
-      </:trigger>
 
       <:content>
         <DropdownMenu class="d-multi-select__content" as |menu|>
