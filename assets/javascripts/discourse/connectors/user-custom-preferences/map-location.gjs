@@ -27,7 +27,9 @@ export default class UserCustomPrefsMapLocation extends Component {
     if (typeof raw === "string") {
       try {
         const parsed = JSON.parse(raw);
-        return parsed && typeof parsed === "object" && Object.keys(parsed).length
+        return parsed &&
+          typeof parsed === "object" &&
+          Object.keys(parsed).length
           ? parsed
           : null;
       } catch {
@@ -58,7 +60,8 @@ export default class UserCustomPrefsMapLocation extends Component {
     }
 
     // Store as JSON string (server-friendly)
-    const value = typeof location === "string" ? location : JSON.stringify(location);
+    const value =
+      typeof location === "string" ? location : JSON.stringify(location);
     set(this.args.model, "custom_fields.geo_location", value);
   }
 
@@ -66,7 +69,9 @@ export default class UserCustomPrefsMapLocation extends Component {
     {{#if this.siteSettings.location_users_map}}
       <div class="user-location-selector">
         <div class="control-group">
-          <label class="control-label">{{i18n "user.map_location.title"}}</label>
+          <label class="control-label">{{i18n
+              "user.map_location.title"
+            }}</label>
           <div class="controls location-selector-container">
             <LocationSelector
               @location={{this.parsedGeoLocation}}

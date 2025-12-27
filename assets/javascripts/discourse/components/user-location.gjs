@@ -49,7 +49,9 @@ export default class LocationMapComponent extends Component {
     if (typeof raw === "string") {
       try {
         const parsed = JSON.parse(raw);
-        return parsed && typeof parsed === "object" && Object.keys(parsed).length
+        return parsed &&
+          typeof parsed === "object" &&
+          Object.keys(parsed).length
           ? parsed
           : null;
       } catch {

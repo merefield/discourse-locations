@@ -295,7 +295,9 @@ export default class LocationMapComponent extends Component {
     if (typeof geoLocation === "string") {
       try {
         const parsed = JSON.parse(geoLocation);
-        return parsed && typeof parsed === "object" && Object.keys(parsed).length
+        return parsed &&
+          typeof parsed === "object" &&
+          Object.keys(parsed).length
           ? parsed
           : null;
       } catch {
@@ -381,17 +383,17 @@ export default class LocationMapComponent extends Component {
 
     if (filteredLocations && filteredLocations.length > 0) {
       filteredLocations.forEach((l) => {
-      if (l && l.geo_location) {
-        const geo = this.parseGeoLocation(l.geo_location);
-        if (!geo) {
-          return;
-        }
+        if (l && l.geo_location) {
+          const geo = this.parseGeoLocation(l.geo_location);
+          if (!geo) {
+            return;
+          }
 
-        let marker = {
-          lat: geo.lat,
-          lon: geo.lon,
-          options: {},
-        };
+          let marker = {
+            lat: geo.lat,
+            lon: geo.lon,
+            options: {},
+          };
 
           if (l.marker) {
             marker["options"] = l.marker;
