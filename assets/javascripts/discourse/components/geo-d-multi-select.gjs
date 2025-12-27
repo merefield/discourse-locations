@@ -1,3 +1,4 @@
+// plugins/discourse-locations/assets/javascripts/discourse/components/geo-d-multi-select.gjs
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { fn } from "@ember/helper";
@@ -38,12 +39,15 @@ export default class GeoDMultiSelect extends Component {
   @tracked searchTerm = "";
   @tracked preselectedItem = null;
 
-  // async state (plugin-safe replacement for TrackedAsyncData)
+  // async state (plugin-safe)
   @tracked isPending = false;
   @tracked isResolved = false;
   @tracked isRejected = false;
   @tracked value = null;
   @tracked error = null;
+
+  // when true, the next resolved search will auto-pick first result
+  @tracked autoPickNextResult = false;
 
   compareKey = "id";
   _requestId = 0;
@@ -68,11 +72,20 @@ export default class GeoDMultiSelect extends Component {
   }
 
   #debouncedSearch() {
-    discourseDebounce(this, this.#performSearch, this.args.loadFn, this.searchTerm, INPUT_DELAY);
+    discourseDebounce(
+      this,
+      this.#performSearch,
+      this.args.loadFn,
+      this.searchTerm,
+      INPUT_DELAY
+    );
   }
 
   @action
   search(event) {
+    // normal typing path: DO NOT auto-pick
+    this.autoPickNextResult = false;
+
     this.preselectedItem = null;
     this.searchTerm = event.target.value;
     this.#debouncedSearch();
@@ -101,7 +114,9 @@ export default class GeoDMultiSelect extends Component {
 
       if (
         this.preselectedItem &&
-        this.availableOptions?.some((item) => this.compare(item, this.preselectedItem))
+        this.availableOptions?.some((item) =>
+          this.compare(item, this.preselectedItem)
+        )
       ) {
         this.toggle(this.preselectedItem, event);
       }
@@ -176,6 +191,33 @@ export default class GeoDMultiSelect extends Component {
     return item?.name;
   }
 
+  // Choose the first "real" location result:
+  // - skip provider/footer item (your code adds { provider: ... })
+  // - skip anything falsy
+  // - skip anything already selected (availableOptions already filters selection, but keep safe)
+  #firstSelectableResult() {
+    const opts = this.availableOptions || [];
+    return opts.find((r) => r && !r.provider);
+  }
+
+  #autoPickIfNeeded() {
+    if (!this.autoPickNextResult) {
+      return;
+    }
+
+    // only auto-pick once
+    this.autoPickNextResult = false;
+
+    const first = this.#firstSelectableResult();
+    if (!first) {
+      return;
+    }
+
+    // mimic a click selection
+    const currentSelection = makeArray(this.args.selection);
+    this.args.onChange?.(currentSelection.concat(first));
+  }
+
   #performSearch(loadFn, term) {
     const requestId = ++this._requestId;
 
@@ -187,13 +229,19 @@ export default class GeoDMultiSelect extends Component {
     return Promise.resolve(loadFn?.(term))
       .then((val) => {
         if (requestId !== this._requestId) return;
+
         this.value = val;
         this.isResolved = true;
+
+        // if bullseye triggered the search, auto-select the first result
+        this.#autoPickIfNeeded();
       })
       .catch((e) => {
         if (requestId !== this._requestId) return;
         this.error = e;
         this.isRejected = true;
+        // no auto-pick on error
+        this.autoPickNextResult = false;
       })
       .finally(() => {
         if (requestId !== this._requestId) return;
@@ -202,23 +250,25 @@ export default class GeoDMultiSelect extends Component {
   }
 
   @action
-  useCurrentLocation(showMenu, event) {
-    event?.stopPropagation?.();
-    showMenu?.();
-
+  useCurrentLocation() {
     if (!navigator.geolocation) {
       return;
     }
+
+    // next search (coords) should auto-pick
+    this.autoPickNextResult = true;
 
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         const term = `${coords.latitude}, ${coords.longitude}`;
         this.preselectedItem = null;
         this.searchTerm = term;
-        this.#debouncedSearch(); // goes through SAME path as typing
+
+        // run immediately (debounced is fine too, but immediate makes UX snappier)
+        this.#performSearch(this.args.loadFn, term);
       },
       () => {
-        // optional: set an error state or flash
+        this.autoPickNextResult = false;
       }
     );
   }
@@ -248,7 +298,10 @@ export default class GeoDMultiSelect extends Component {
                 <span class="d-multi-select-trigger__selection-label">
                   {{yield item to="selection"}}
                 </span>
-                {{icon "xmark" class="d-multi-select-trigger__remove-selection-icon"}}
+                {{icon
+                  "xmark"
+                  class="d-multi-select-trigger__remove-selection-icon"
+                }}
               </button>
             {{/each}}
           </div>
@@ -256,11 +309,11 @@ export default class GeoDMultiSelect extends Component {
           <span class="d-multi-select-trigger__label">{{this.label}}</span>
         {{/if}}
 
-        {{!-- NEW: bullseye --}}
+        {{!-- bullseye: auto-picks first result from coords --}}
         <DButton
           @icon="bullseye"
           class="btn btn-default location-current-btn"
-          @action={{fn this.useCurrentLocation @componentArgs.show}}
+          @action={{this.useCurrentLocation}}
         />
 
         <DButton
