@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
-import { geoLocationFormat } from "../../lib/location-utilities";
 import NationalFlag from "../../components/national-flag";
+import { geoLocationFormat } from "../../lib/location-utilities";
 
 export default class LocationMapComponent extends Component {
   @service siteSettings;
@@ -37,10 +37,7 @@ export default class LocationMapComponent extends Component {
   }
 
   get showFlag() {
-    return (
-      this.siteSettings.location_user_country_flag &&
-      this.countryCode
-    );
+    return this.siteSettings.location_user_country_flag && this.countryCode;
   }
 
   <template>
@@ -48,9 +45,9 @@ export default class LocationMapComponent extends Component {
     <div class="location-summary">
       <div class="user-location">{{this.locationText}}</div>
       <div class="location-flag">
-      {{#if this.showFlag}}
-        <NationalFlag @countryCode={{this.countryCode}} />
-      {{/if}}
+        {{#if this.showFlag}}
+          <NationalFlag @countryCode={{this.countryCode}} />
+        {{/if}}
       </div>
     </div>
   </template>

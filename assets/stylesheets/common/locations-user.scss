@@ -57,90 +57,46 @@
   margin-top: 5px;
 }
 
-// User location in profile and user-card //
-
-// .btn-show-map.no-text {
-//   padding: 6px 8px !important;
-//   margin-bottom: 0;
-
-//   .d-icon {
-//     margin-right: 0 !important;
-//     width: 1em !important;
-//     height: 1em !important;
-//   }
-// }
-
-.user-profile__featured-topic, .user-profile__location-and-website {
+.user-profile__featured-topic,
+.user-profile__location-and-website {
   font-size: var(--font-0);
   white-space: normal;
 }
 
-// .location-and-website.map-location-enabled {
-  .user-location-widget {
-    border: 1px solid var(--primary-low);
-    display: flex;
-    width: 100%;
+.user-location-widget {
+  border: 1px solid var(--primary-low);
+  display: flex;
+  width: 100%;
 
-    // .d-icon {
-    //   margin-right: 10px;
-    // }
-
-    .location-label {
-      margin: 0 5px 0 5px;
-      color: var(--primary);
-      text-align: left;
-    }
-    
-    .location-flag img {
-      height: 30px;
-      width: auto;
-    }
-    
-
-    .d-icon-location-dot {
-      margin-top: 4px;
-      margin-right: 5px;
-    }
-
-    .map-wrapper {
-      position: relative;
-      // margin-left: 5px;
-    }
-
-    .map-container.small {
-      position: absolute;
-      z-index: 9999;
-      top: 100%;
-      left: 0;
-      max-width: 100%;
-      // height: 250px;
-      // top: 30px;
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
-    }
-
-    // .map-container {
-    //   width: 330px;
-    // }
+  .location-label {
+    margin: 0 5px 0 5px;
+    color: var(--primary);
+    text-align: left;
   }
-    //}
 
-// .user-card .location-and-website.map-location-enabled {
-//   .location,
-//   .website-name {
-//     display: none;
-//   }
+  .location-flag img {
+    height: 30px;
+    width: auto;
+  }
 
-//   .replace-location .location,
-//   .replace-location .website-name {
-//     display: block;
-//     overflow: visible;
-//     margin-right: 0;
-//   }
+  .d-icon-location-dot {
+    margin-top: 4px;
+    margin-right: 5px;
+  }
 
-//   .locations-map .location .d-icon {
-//     margin-right: 0;
-//   }
-// }
+  .map-wrapper {
+    position: relative;
+  }
+
+  .map-container.small {
+    position: absolute;
+    z-index: 9999;
+    top: 100%;
+    left: 0;
+    max-width: 100%;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  }
+}
 
 #topic {
   .row .location-summary {
@@ -155,62 +111,6 @@
     img {
       width: 24px;
       height: auto;
-   }
+    }
   }
-}
-
-body {
-  // .location-and-website {
-  //   overflow: initial;
-  //   display: flex;
-  //   flex-direction: row;
-
-  //   // > span {
-  //   //   max-width: 80%;
-  //   //   flex: 1;
-  //   // }
-
-  //   .user-profile-location,
-  //   .user-profile-website {
-  //     display: none;
-  //   }
-
-  //   .replace-location .user-profile-location,
-  //   .replace-location .user-profile-website {
-  //     display: block;
-  //     margin-right: 0;
-  //   }
-
-  //   .replace-location .user-profile-location {
-  //     .user-location-widget {
-  //       display: flex;
-  //       flex-direction: row;
-  //       .location-label {
-  //         // : flex-start;
-  //         align-self: left;
-  //         max-width: 100%;
-  //         white-space: initial;
-  //       }
-  //       svg {
-  //         padding-top: 5px;
-  //       }
-  //       .map-wrapper {
-  //         min-width: 110px;
-  //         text-align: right;
-  //         .map-container.small {
-  //           z-index: 290;
-  //           width: 300px;
-  //           right: initial;
-  //           top: initial;
-  //           transform: translate(-190px, 0);
-  //           .avatar {
-  //             margin-right: 10px;
-  //             width: 30px;
-  //             height: 30px;
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
 }

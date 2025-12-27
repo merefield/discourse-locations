@@ -6,7 +6,6 @@ import willDestroy from "@ember/render-modifiers/modifiers/will-destroy";
 import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
 import icon from "discourse-common/helpers/d-icon";
-import { and } from "@ember/object/computed";
 import { geoLocationFormat } from "../lib/location-utilities";
 import LocationsMap from "./locations-map";
 import NationalFlag from "./national-flag";
@@ -103,7 +102,7 @@ export default class LocationMapComponent extends Component {
       {{willDestroy this.unbindClick}}
       class="user-location-widget"
     >
-          {{#if this.showMap}}
+      {{#if this.showMap}}
         <div class="map-container small">
           <LocationsMap @mapType="user" @user={{@user}} />
         </div>
@@ -122,8 +121,8 @@ export default class LocationMapComponent extends Component {
               <NationalFlag @countryCode={{@user.geo_location.countrycode}} />
             {{/if}}
           </div>
-          </DButton>
-        </div>
+        </DButton>
+      </div>
     </div>
   </template>
 }
