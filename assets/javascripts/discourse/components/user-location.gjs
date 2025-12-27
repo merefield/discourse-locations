@@ -8,6 +8,7 @@ import DButton from "discourse/components/d-button";
 import icon from "discourse-common/helpers/d-icon";
 import { geoLocationFormat } from "../lib/location-utilities";
 import LocationsMap from "./locations-map";
+import NationalFlag from "./national-flag";
 
 export default class LocationMapComponent extends Component {
   @service siteSettings;
@@ -46,19 +47,6 @@ export default class LocationMapComponent extends Component {
       return Object.keys(raw).length ? raw : null;
     }
 
-    if (typeof raw === "string") {
-      try {
-        const parsed = JSON.parse(raw);
-        return parsed &&
-          typeof parsed === "object" &&
-          Object.keys(parsed).length
-          ? parsed
-          : null;
-      } catch {
-        return null;
-      }
-    }
-
     return null;
   }
 
@@ -85,6 +73,14 @@ export default class LocationMapComponent extends Component {
     return !document.querySelector(".leaflet-container");
   }
 
+  get showFlag() {
+    return (
+      this.siteSettings.location_user_country_flag &&
+      this.parsedGeoLocation &&
+      this.parsedGeoLocation.countrycode
+    );
+  }
+
   @action
   bindClick() {
     document.addEventListener("click", this.outsideClick);
@@ -106,25 +102,27 @@ export default class LocationMapComponent extends Component {
       {{willDestroy this.unbindClick}}
       class="user-location-widget"
     >
-      {{icon "location-dot"}}
-      <div class="location-label">
-        {{this.userLocation}}
-      </div>
-      {{#if this.canShowMap}}
-        <div class="map-wrapper">
-          <DButton
-            class="widget-button btn btn-default btn-show-map btn-small btn-icon-text"
-            @action={{this.toggleMap}}
-            @icon="far-map"
-            @label={{if this.showMapButtonLabel this.mapButtonLabel}}
-          />
-          {{#if this.showMap}}
-            <div class="map-container small">
-              <LocationsMap @mapType="user" @user={{@user}} />
-            </div>
-          {{/if}}
+      {{#if this.showMap}}
+        <div class="map-container small">
+          <LocationsMap @mapType="user" @user={{@user}} />
         </div>
       {{/if}}
+      <div class="map-wrapper">
+        <DButton
+          class="widget-button btn btn-default btn-show-map btn-small btn-icon-text btn-transparent"
+          @action={{this.toggleMap}}
+        >
+          {{icon "location-dot"}}
+          <div class="location-label">
+            {{this.userLocation}}
+          </div>
+          <div class="location-flag">
+            {{#if this.showFlag}}
+              <NationalFlag @countryCode={{@user.geo_location.countrycode}} />
+            {{/if}}
+          </div>
+        </DButton>
+      </div>
     </div>
   </template>
 }

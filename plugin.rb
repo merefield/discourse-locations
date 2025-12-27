@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 6.8.17
+# version: 6.9.0
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -48,6 +48,19 @@ after_initialize do
     ../app/controllers/locations/users_map_controller.rb
     ../lib/users_map.rb
   ].each { |path| load File.expand_path(path, __FILE__) }
+
+  def Locations.parse_geo_location(val)
+    return nil if val.blank? || val == "{}"
+    return val if val.is_a?(Hash)
+
+    if val.is_a?(String)
+      JSON.parse(val)
+    else
+      nil
+    end
+  rescue JSON::ParserError
+    nil
+  end
 
   Category.register_custom_field_type("location", :json)
   Category.register_custom_field_type("location_enabled", :boolean)
@@ -123,17 +136,20 @@ after_initialize do
   if User.respond_to? :preloaded_custom_fields
     User.preloaded_custom_fields << "geo_location"
   end
+
   add_to_serializer(:user, :geo_location, respect_plugin_enabled: false) do
-    object.custom_fields["geo_location"]
+    Locations.parse_geo_location(object.custom_fields["geo_location"])
   end
+
   add_to_serializer(
-    :user_card,
-    :geo_location,
-    include_condition: -> do
-      object.custom_fields["geo_location"].present? &&
-        object.custom_fields["geo_location"] != "{}"
-    end
-  ) { object.custom_fields["geo_location"] }
+  :user_card,
+  :geo_location,
+  include_condition: -> do
+    Locations.parse_geo_location(object.custom_fields["geo_location"]).present?
+  end,
+) do
+  Locations.parse_geo_location(object.custom_fields["geo_location"])
+end
 
   require_dependency "directory_item_serializer"
   class ::DirectoryItemSerializer::UserSerializer

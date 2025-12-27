@@ -1,5 +1,6 @@
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
+import NationalFlag from "../../components/national-flag";
 import { geoLocationFormat } from "../../lib/location-utilities";
 
 export default class LocationMapComponent extends Component {
@@ -26,8 +27,28 @@ export default class LocationMapComponent extends Component {
     return "";
   }
 
+  get countryCode() {
+    let model = this.args.post;
+
+    if (model.user_custom_fields && model.user_custom_fields["geo_location"]) {
+      return model.user_custom_fields["geo_location"].countrycode;
+    }
+    return null;
+  }
+
+  get showFlag() {
+    return this.siteSettings.location_user_country_flag && this.countryCode;
+  }
+
   <template>
     {{yield}}
-    <div class="user-location">{{this.locationText}}</div>
+    <div class="location-summary">
+      <div class="user-location">{{this.locationText}}</div>
+      <div class="location-flag">
+        {{#if this.showFlag}}
+          <NationalFlag @countryCode={{this.countryCode}} />
+        {{/if}}
+      </div>
+    </div>
   </template>
 }

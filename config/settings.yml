@@ -130,6 +130,9 @@ plugins:
   location_user_post:
     default: false
     client: true
+  location_user_country_flag:
+    default: true
+    client: true
   location_user_post_format:
     type: list
     default: ''
