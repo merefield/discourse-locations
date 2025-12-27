@@ -1,5 +1,12 @@
 // User location selection //
 
+.user-card .location-and-website.map-location-enabled {
+  .location,
+  .website-name {
+    display: none;
+  }
+}
+
 .user-preferences .location-selector-container {
   max-width: 552px;
 
