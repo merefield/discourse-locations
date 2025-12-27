@@ -3,7 +3,6 @@ import { tracked } from "@glimmer/tracking";
 import { array } from "@ember/helper";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import DMultiSelect from "discourse/components/d-multi-select";
 import { escapeExpression } from "discourse/lib/utilities";
 import { i18n } from "discourse-i18n";
 import {
@@ -11,9 +10,7 @@ import {
   geoLocationSearch,
   providerDetails,
 } from "../lib/location-utilities";
-import DButton from "discourse/components/d-button";
 import GeoDMultiSelect from "./geo-d-multi-select";
-
 
 /**
  * Location selector component using DMultiSelect for autocomplete functionality
@@ -63,7 +60,6 @@ export default class LocationSelector extends Component {
       }
 
       this.loading = true;
-
 
       try {
         const result = await geoLocationSearch(
@@ -122,7 +118,7 @@ export default class LocationSelector extends Component {
     };
   }
 
-    @action
+  @action
   useCurrentLocation() {
     if (!navigator.geolocation) {
       this.flash = "location.geo.error.unsupported";
@@ -132,7 +128,7 @@ export default class LocationSelector extends Component {
       (position) => {
         const { latitude, longitude } = position.coords;
         const term = `${latitude}, ${longitude}`;
-       const load = this.loadFn;
+        const load = this.loadFn;
         load(term);
       },
       () => {
@@ -192,41 +188,45 @@ export default class LocationSelector extends Component {
           <div class="spinner small"></div>
         </span>
       {{/if}}
-<GeoDMultiSelect
-  @selection={{if this.selectedLocation (array this.selectedLocation) (array)}}
-  @loadFn={{this.loadFn}}
-  @onChange={{this.handleSelectionChange}}
-  @label={{@placeholder}}
-  @compareFn={{this.compareLocations}}
-  @placement="bottom-start"
-  @allowedPlacements={{array "top-start" "bottom-start"}}
-  @matchTriggerWidth={{true}}
-  @matchTriggerMinWidth={{true}}
-  class="location-selector"
->
-  <:selection as |location|>
-    {{this.getDisplayText location}}
-  </:selection>
+      <GeoDMultiSelect
+        @selection={{if
+          this.selectedLocation
+          (array this.selectedLocation)
+          (array)
+        }}
+        @loadFn={{this.loadFn}}
+        @onChange={{this.handleSelectionChange}}
+        @label={{@placeholder}}
+        @compareFn={{this.compareLocations}}
+        @placement="bottom-start"
+        @allowedPlacements={{array "top-start" "bottom-start"}}
+        @matchTriggerWidth={{true}}
+        @matchTriggerMinWidth={{true}}
+        class="location-selector"
+      >
+        <:selection as |location|>
+          {{this.getDisplayText location}}
+        </:selection>
 
-  <:result as |location|>
-    {{#if location.provider}}
-      <div class="location-provider">
-        <label>{{{location.address}}}</label>
-      </div>
-    {{else}}
-      <div class="location-form-result">
-        <label>{{escapeExpression location.address}}</label>
-        {{#if location.showType}}
-          {{#if location.type}}
-            <div class="location-type">{{escapeExpression
-                location.type
-              }}</div>
+        <:result as |location|>
+          {{#if location.provider}}
+            <div class="location-provider">
+              <label>{{{location.address}}}</label>
+            </div>
+          {{else}}
+            <div class="location-form-result">
+              <label>{{escapeExpression location.address}}</label>
+              {{#if location.showType}}
+                {{#if location.type}}
+                  <div class="location-type">{{escapeExpression
+                      location.type
+                    }}</div>
+                {{/if}}
+              {{/if}}
+            </div>
           {{/if}}
-        {{/if}}
-      </div>
-    {{/if}}
-  </:result>
-  </GeoDMultiSelect>
+        </:result>
+      </GeoDMultiSelect>
 
     </div>
   </template>

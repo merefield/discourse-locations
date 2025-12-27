@@ -155,8 +155,8 @@
 /* Text side MUST be allowed to shrink */
 .geo-d-multi-select-trigger__content {
   flex: 1 1 auto;
-  min-width: 0;        /* key flexbox rule */
-  overflow: hidden;    /* key for ellipsis */
+  min-width: 0; /* key flexbox rule */
+  overflow: hidden; /* key for ellipsis */
 }
 
 /* Buttons side never shrinks */

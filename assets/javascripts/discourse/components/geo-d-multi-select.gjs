@@ -6,12 +6,10 @@ import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import { htmlSafe } from "@ember/template";
-
 import DButton from "discourse/components/d-button";
 import DropdownMenu from "discourse/components/dropdown-menu";
 import TextField from "discourse/components/text-field";
 import DMenu from "discourse/float-kit/components/d-menu";
-
 import concatClass from "discourse/helpers/concat-class";
 import icon from "discourse/helpers/d-icon";
 import element from "discourse/helpers/element";
@@ -124,7 +122,7 @@ export default class GeoDMultiSelect extends Component {
 
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      if (!this.availableOptions?.length) return;
+      if (!this.availableOptions?.length) {return;}
 
       if (this.preselectedItem === null) {
         this.preselectedItem = this.availableOptions[0];
@@ -140,7 +138,7 @@ export default class GeoDMultiSelect extends Component {
 
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      if (!this.availableOptions?.length) return;
+      if (!this.availableOptions?.length) {return;}
 
       if (this.preselectedItem === null) {
         this.preselectedItem = this.availableOptions[0];
@@ -228,7 +226,7 @@ export default class GeoDMultiSelect extends Component {
 
     return Promise.resolve(loadFn?.(term))
       .then((val) => {
-        if (requestId !== this._requestId) return;
+        if (requestId !== this._requestId) {return;}
 
         this.value = val;
         this.isResolved = true;
@@ -237,14 +235,14 @@ export default class GeoDMultiSelect extends Component {
         this.#autoPickIfNeeded();
       })
       .catch((e) => {
-        if (requestId !== this._requestId) return;
+        if (requestId !== this._requestId) {return;}
         this.error = e;
         this.isRejected = true;
         // no auto-pick on error
         this.autoPickNextResult = false;
       })
       .finally(() => {
-        if (requestId !== this._requestId) return;
+        if (requestId !== this._requestId) {return;}
         this.isPending = false;
       });
   }
@@ -286,47 +284,46 @@ export default class GeoDMultiSelect extends Component {
       @matchTriggerWidth={{@matchTriggerWidth}}
       ...attributes
     >
-<:trigger>
-  <div class="geo-d-multi-select-trigger">
-    <div class="geo-d-multi-select-trigger__content">
-      {{#if @selection}}
-        <div class="d-multi-select-trigger__selection">
-          {{#each @selection as |item|}}
-            <button
-              class="d-multi-select-trigger__selected-item"
-              {{on "click" (fn this.remove item)}}
-              title={{this.getDisplayText item}}
-            >
-              <span class="d-multi-select-trigger__selection-label">
-                {{yield item to="selection"}}
-              </span>
-              {{icon
-                "xmark"
-                class="d-multi-select-trigger__remove-selection-icon"
-              }}
-            </button>
-          {{/each}}
+      <:trigger>
+        <div class="geo-d-multi-select-trigger">
+          <div class="geo-d-multi-select-trigger__content">
+            {{#if @selection}}
+              <div class="d-multi-select-trigger__selection">
+                {{#each @selection as |item|}}
+                  <button
+                    class="d-multi-select-trigger__selected-item"
+                    {{on "click" (fn this.remove item)}}
+                    title={{this.getDisplayText item}}
+                  >
+                    <span class="d-multi-select-trigger__selection-label">
+                      {{yield item to="selection"}}
+                    </span>
+                    {{icon
+                      "xmark"
+                      class="d-multi-select-trigger__remove-selection-icon"
+                    }}
+                  </button>
+                {{/each}}
+              </div>
+            {{else}}
+              <span class="d-multi-select-trigger__label">{{this.label}}</span>
+            {{/if}}
+          </div>
+
+          <div class="geo-d-multi-select-trigger__actions">
+            <DButton
+              @icon="bullseye"
+              class="btn btn-default location-current-btn"
+              @action={{this.useCurrentLocation}}
+            />
+            <DButton
+              @icon="angle-down"
+              class="d-multi-select-trigger__expand-btn btn-transparent"
+              @action={{@componentArgs.show}}
+            />
+          </div>
         </div>
-      {{else}}
-        <span class="d-multi-select-trigger__label">{{this.label}}</span>
-      {{/if}}
-    </div>
-
-    <div class="geo-d-multi-select-trigger__actions">
-      <DButton
-        @icon="bullseye"
-        class="btn btn-default location-current-btn"
-        @action={{this.useCurrentLocation}}
-      />
-      <DButton
-        @icon="angle-down"
-        class="d-multi-select-trigger__expand-btn btn-transparent"
-        @action={{@componentArgs.show}}
-      />
-    </div>
-  </div>
-</:trigger>
-
+      </:trigger>
 
       <:content>
         <DropdownMenu class="d-multi-select__content" as |menu|>
