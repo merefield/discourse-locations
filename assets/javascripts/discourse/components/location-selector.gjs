@@ -3,7 +3,6 @@ import { tracked } from "@glimmer/tracking";
 import { array } from "@ember/helper";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import DMultiSelect from "discourse/components/d-multi-select";
 import { escapeExpression } from "discourse/lib/utilities";
 import { i18n } from "discourse-i18n";
 import {
@@ -11,6 +10,7 @@ import {
   geoLocationSearch,
   providerDetails,
 } from "../lib/location-utilities";
+import GeoDMultiSelect from "./geo-d-multi-select";
 
 /**
  * Location selector component using DMultiSelect for autocomplete functionality
@@ -119,6 +119,25 @@ export default class LocationSelector extends Component {
   }
 
   @action
+  useCurrentLocation() {
+    if (!navigator.geolocation) {
+      this.flash = "location.geo.error.unsupported";
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const term = `${latitude}, ${longitude}`;
+        const load = this.loadFn;
+        load(term);
+      },
+      () => {
+        this.flash = "location.geo.error.permission";
+      }
+    );
+  }
+
+  @action
   handleSelectionChange(selectedLocations) {
     // Only handle single selection
     const location = selectedLocations?.[selectedLocations.length - 1];
@@ -169,8 +188,7 @@ export default class LocationSelector extends Component {
           <div class="spinner small"></div>
         </span>
       {{/if}}
-
-      <DMultiSelect
+      <GeoDMultiSelect
         @selection={{if
           this.selectedLocation
           (array this.selectedLocation)
@@ -208,8 +226,8 @@ export default class LocationSelector extends Component {
             </div>
           {{/if}}
         </:result>
+      </GeoDMultiSelect>
 
-      </DMultiSelect>
     </div>
   </template>
 }

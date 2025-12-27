@@ -136,3 +136,62 @@
     }
   }
 }
+
+/* Make sure the bordered trigger has a real width constraint */
+.location-selector-wrapper .d-multi-select-trigger {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Our inner layout */
+.geo-d-multi-select-trigger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden; /* key: clip anything that still tries to escape */
+}
+
+/* Text side MUST be allowed to shrink */
+.geo-d-multi-select-trigger__content {
+  flex: 1 1 auto;
+  min-width: 0; /* key flexbox rule */
+  overflow: hidden; /* key for ellipsis */
+}
+
+/* Buttons side never shrinks */
+.geo-d-multi-select-trigger__actions {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+}
+
+/* Label (no selection) truncation */
+.d-multi-select-trigger__label {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Selection container must also shrink */
+.d-multi-select-trigger__selection {
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Selected item + its text must truncate */
+.d-multi-select-trigger__selected-item {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.d-multi-select-trigger__selection-label {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
