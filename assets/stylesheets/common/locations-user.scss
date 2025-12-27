@@ -6,6 +6,25 @@
   .ac-wrap {
     width: 100% !important;
   }
+
+  .d-multi-select-trigger__selection {
+    min-width: 0;
+  }
+
+  .d-multi-select-trigger__selected-item {
+    width: 100%;
+    min-width: 0; /* allow shrinking inside flex */
+  }
+
+  .d-multi-select-trigger__selection-label {
+    flex: 1 1 auto; /* take remaining space */
+    min-width: 0; /* allow shrinking inside flex */
+    max-width: 100%; /* (optional) cap to container */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: block; /* makes width behavior predictable */
+  }
 }
 
 .user-location-warning {

@@ -2,18 +2,18 @@
 module ::Locations
   class GeoLocationSerializer < ::ApplicationSerializer
     attributes :lat,
-              :lon,
-              :address,
-              :countrycode,
-              :international_code,
-              :city,
-              :district,
-              :state,
-              :country,
-              :postalcode,
-              :boundingbox,
-              :type,
-              :name
+               :lon,
+               :address,
+               :countrycode,
+               :international_code,
+               :city,
+               :district,
+               :state,
+               :country,
+               :postalcode,
+               :boundingbox,
+               :type,
+               :name
 
     def lat
       object.latitude
@@ -69,14 +69,6 @@ module ::Locations
 
     def include_town?
       object.respond_to?(:town)
-    end
-
-    def city
-      object.city
-    end
-
-    def include_city?
-      object.respond_to?(:city)
     end
 
     def city
