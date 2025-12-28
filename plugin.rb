@@ -147,7 +147,11 @@ after_initialize do
     end
   ) { Locations.parse_geo_location(object.custom_fields["geo_location"]) }
 
-  add_to_serializer(:post, :user_custom_fields, respect_plugin_enabled: false) do
+  add_to_serializer(
+    :post,
+    :user_custom_fields,
+    respect_plugin_enabled: false
+  ) do
     public_keys = SiteSetting.public_user_custom_fields.split("|")
     user_fields = object.user&.custom_fields || {}
 
