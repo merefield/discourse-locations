@@ -1,4 +1,5 @@
 @import "locations-user";
+@import "locations-selector";
 @import "locations-form";
 @import "locations-layouts";
 
@@ -343,12 +344,17 @@
   color: var(--primary-medium);
 }
 
-.topic-list-item .location-text {
-  .btn-transparent {
-    margin-left: 0px;
+.topic-list-item .location-text, #topic-title .location-text {
+  svg {
+    margin-right: 5px;
+  }
+  .btn-transparent.no-text {
     padding-left: 0px;
     text-align: left;
-    svg {
+    .d-icon {
+      margin-left: 0px;
+      padding-left: 0px;
+      text-align: left;
       margin-right: 5px;
     }
   }
@@ -471,10 +477,6 @@
   #map-search-input {
     height: 28px;
   }
-}
-
-.topic-body .user-location {
-  padding: 0 11px 0.25em 11px;
 }
 
 .location-details {
