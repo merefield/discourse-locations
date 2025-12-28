@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 6.9.3
+# version: 6.9.4
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -146,6 +146,23 @@ after_initialize do
       ).present?
     end
   ) { Locations.parse_geo_location(object.custom_fields["geo_location"]) }
+
+  add_to_serializer(
+    :post,
+    :user_custom_fields,
+    respect_plugin_enabled: false
+  ) do
+    public_keys = SiteSetting.public_user_custom_fields.split("|")
+    user_fields = object.user&.custom_fields || {}
+
+    out = {}
+    public_keys.each do |k|
+      v = user_fields[k]
+      out[k] = (k == "geo_location" ? Locations.parse_geo_location(v) : v)
+    end
+
+    out
+  end
 
   require_dependency "directory_item_serializer"
   class ::DirectoryItemSerializer::UserSerializer
