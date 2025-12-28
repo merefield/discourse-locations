@@ -128,7 +128,7 @@ after_initialize do
   if defined?(register_editable_user_custom_field)
     register_editable_user_custom_field("geo_location")
   end
-  # User.register_custom_field_type("geo_location", :json)
+
   if User.respond_to? :preloaded_custom_fields
     User.preloaded_custom_fields << "geo_location"
   end
