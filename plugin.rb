@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 6.9.2
+# version: 6.9.3
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -53,11 +53,7 @@ after_initialize do
     return nil if val.blank? || val == "{}"
     return val if val.is_a?(Hash)
 
-    if val.is_a?(String)
-      JSON.parse(val)
-    else
-      nil
-    end
+    val.is_a?(String) ? JSON.parse(val) : nil
   rescue JSON::ParserError
     nil
   end
@@ -132,7 +128,7 @@ after_initialize do
   if defined?(register_editable_user_custom_field)
     register_editable_user_custom_field("geo_location")
   end
-  User.register_custom_field_type("geo_location", :json)
+  # User.register_custom_field_type("geo_location", :json)
   if User.respond_to? :preloaded_custom_fields
     User.preloaded_custom_fields << "geo_location"
   end
@@ -142,14 +138,14 @@ after_initialize do
   end
 
   add_to_serializer(
-  :user_card,
-  :geo_location,
-  include_condition: -> do
-    Locations.parse_geo_location(object.custom_fields["geo_location"]).present?
-  end,
-) do
-  Locations.parse_geo_location(object.custom_fields["geo_location"])
-end
+    :user_card,
+    :geo_location,
+    include_condition: -> do
+      Locations.parse_geo_location(
+        object.custom_fields["geo_location"]
+      ).present?
+    end
+  ) { Locations.parse_geo_location(object.custom_fields["geo_location"]) }
 
   require_dependency "directory_item_serializer"
   class ::DirectoryItemSerializer::UserSerializer
@@ -203,50 +199,39 @@ end
   register_modifier(
     :users_controller_update_user_params
   ) do |result, current_user, params|
-    # Prefer permitted payload; fall back to raw params if needed
-    raw =
-      result.dig(:custom_fields, :geo_location) ||
-        result.dig("custom_fields", "geo_location") ||
-        params.dig(:custom_fields, :geo_location) ||
-        params.dig("custom_fields", "geo_location")
-
-    # If the client didn't send anything, do nothing (don't clear implicitly)
+    raw = params.dig(:custom_fields, :geo_location)
     next result if raw.nil?
 
-    # Normalize "clear" values (support legacy "{}" and empty object)
-    if raw == {} || raw == "{}" || raw.blank?
+    # Clear
+    if raw.blank? || raw == {} || raw == "{}"
       result[:custom_fields] ||= {}
-      # keep minimal behavioral change: store blank string to mean "cleared"
       result[:custom_fields][:geo_location] = ""
       next result
     end
 
-    # Normalize to a Hash for validation
-    value_hash =
+    json_string =
       case raw
       when String
-        begin
-          parsed = JSON.parse(raw)
-          parsed.is_a?(Hash) ? parsed : nil
-        rescue JSON::ParserError
-          nil
-        end
-      when ActionController::Parameters
-        raw.to_unsafe_h
-      when Hash
         raw
+      when Hash, ActionController::Parameters
+        raw.to_h.to_json
       else
-        nil
+        raw.to_s
       end
 
-    if !value_hash.is_a?(Hash) || value_hash["lat"].blank? ||
-         value_hash["lon"].blank?
+    value_hash =
+      begin
+        JSON.parse(json_string)
+      rescue StandardError
+        nil
+      end
+    unless value_hash.is_a?(Hash) && value_hash["lat"].present? &&
+             value_hash["lon"].present?
       raise Discourse::InvalidParameters.new, I18n.t("location.errors.invalid")
     end
 
-    # Store consistently as JSON string (matches your existing DB/test expectations)
     result[:custom_fields] ||= {}
-    result[:custom_fields][:geo_location] = value_hash.to_json
+    result[:custom_fields][:geo_location] = json_string
 
     result
   end
