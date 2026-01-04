@@ -4,7 +4,7 @@ export default class NationalFlagComponent extends Component {
   get fileName() {
     return (
       "/plugins/discourse-locations/images/nationalflags/" +
-      this.args.countryCode +
+      this.args.countryCode.toLowerCase() +
       ".png"
     );
   }
