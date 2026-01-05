@@ -88,10 +88,12 @@
 .user-location-widget {
   border: 1px solid var(--primary-low);
   display: flex;
+  flex-direction: row;
+  align-items: center;
   width: 100%;
 
   .location-label {
-    margin: 0 5px 0 5px;
+    margin: 0 11px 0 5px;
     color: var(--primary);
     text-align: left;
   }
@@ -124,15 +126,29 @@
   .row .location-summary {
     display: flex;
     flex-direction: row;
+    align-items: center;
     .user-location {
-      padding: 0 11px 0.25em 11px;
+      padding: 0 11px 0 11px;
     }
     .location-flag {
-      padding: 0 11px 0.25em 0;
+      padding: 0 11px 0 0;
+      display: flex;
+      align-items: center;
     }
     img {
       width: 24px;
       height: auto;
+    }
+  }
+}
+
+// mobile adjustments
+@media (max-width: 40rem) {
+  #topic {
+    .row .location-summary {
+      .user-location {
+        padding: 0 11px 0 0;
+      }
     }
   }
 }
