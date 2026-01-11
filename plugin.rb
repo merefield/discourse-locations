@@ -49,6 +49,11 @@ after_initialize do
     ../lib/users_map.rb
   ].each { |path| load File.expand_path(path, __FILE__) }
 
+  reloadable_patch do
+    ListController.prepend(Locations::ListControllerExtension)
+    TopicQuery.prepend(Locations::TopicQueryExtension)
+  end
+
   def Locations.parse_geo_location(val)
     return nil if val.blank? || val == "{}"
     return val if val.is_a?(Hash)
@@ -57,6 +62,9 @@ after_initialize do
   rescue JSON::ParserError
     nil
   end
+
+  Discourse.top_menu_items.push(:nearby)
+  Discourse.filters.push(:nearby)
 
   Category.register_custom_field_type("location", :json)
   Category.register_custom_field_type("location_enabled", :boolean)
@@ -109,6 +117,7 @@ after_initialize do
   Topic.register_custom_field_type("location", :json)
   Topic.register_custom_field_type("has_geo_location", :boolean)
   add_to_class(:topic, :location) { self.custom_fields["location"] }
+  add_preloaded_topic_list_custom_field("location")
 
   add_to_serializer(
     :topic_view,

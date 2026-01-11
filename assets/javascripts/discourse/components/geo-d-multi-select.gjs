@@ -81,6 +81,7 @@ export default class GeoDMultiSelect extends Component {
 
   @action
   search(event) {
+    debugger;
     // normal typing path: DO NOT auto-pick
     this.autoPickNextResult = false;
 
@@ -102,6 +103,7 @@ export default class GeoDMultiSelect extends Component {
 
   @action
   handleKeydown(event) {
+    debugger;
     if (!this.isResolved) {
       return;
     }
@@ -292,6 +294,7 @@ export default class GeoDMultiSelect extends Component {
       @offset={{@offset}}
       @matchTriggerMinWidth={{@matchTriggerMinWidth}}
       @matchTriggerWidth={{@matchTriggerWidth}}
+      @renderInPlace={{true}}
       ...attributes
     >
       <:trigger>

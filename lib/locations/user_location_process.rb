@@ -3,6 +3,8 @@
 module ::Locations
   class UserLocationProcess
 
+    # require 'byebug'
+
     def self.upsert(user_id)
       user = User.find_by(id: user_id)
 
@@ -10,20 +12,23 @@ module ::Locations
         user.custom_fields['geo_location'].blank? || !user.custom_fields['geo_location']['lat'].present? ||
         !user.custom_fields['geo_location']['lon'].present?
 
+      geo_location = JSON.parse(user.custom_fields['geo_location'])
+      # byebug
+
       ::Locations::UserLocation.upsert({
           user_id: user_id,
-          latitude: user.custom_fields['geo_location']['lat'],
-          longitude: user.custom_fields['geo_location']['lon'],
-          street: user.custom_fields['geo_location']['street'] || nil,
-          district: user.custom_fields['geo_location']['district'] || nil,
-          city: user.custom_fields['geo_location']['city'] || nil,
-          state: user.custom_fields['geo_location']['state'] || nil,
-          postalcode: user.custom_fields['geo_location']['postalcode'] || nil,
-          country: user.custom_fields['geo_location']['country'] || nil,
-          countrycode: user.custom_fields['geo_location']['countrycode'] || nil,
-          international_code: user.custom_fields['geo_location']['international_code'] || nil,
-          locationtype: user.custom_fields['geo_location']['type'] || nil,
-          boundingbox: user.custom_fields['geo_location']['boundingbox'] || nil,
+          latitude: geo_location['lat'],
+          longitude: geo_location['lon'],
+          street: geo_location['street'] || nil,
+          district: geo_location['district'] || nil,
+          city: geo_location['city'] || nil,
+          state: geo_location['state'] || nil,
+          postalcode: geo_location['postalcode'] || nil,
+          country: geo_location['country'] || nil,
+          countrycode: geo_location['countrycode'] || nil,
+          international_code: geo_location['international_code'] || nil,
+          locationtype: geo_location['type'] || nil,
+          boundingbox: geo_location['boundingbox'] || nil,
         },
         on_duplicate: :update, unique_by: :user_id
       )

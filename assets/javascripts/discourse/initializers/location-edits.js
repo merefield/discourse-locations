@@ -2,6 +2,7 @@ import { scheduleOnce } from "@ember/runloop";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
+import { action, computed } from "@ember/object";
 import {
   default as discourseComputed,
   observes,
@@ -14,27 +15,32 @@ export default {
   name: "location-edits",
   initialize() {
     withPluginApi("0.8.23", (api) => {
-      api.modifyClass("controller:users", {
-        pluginId: "locations-plugin",
-
+      api.addNavigationBarItem({
+        name: "nearby",
+        href: "/nearby",
+      });
+      api.modifyClass("controller:users", Superclass => class extends Superclass {
         loadUsers(params) {
           if (params !== undefined && params.period === "location") {
             return;
           }
           this._super(params);
-        },
+        }
       });
-
-      api.modifyClass("model:composer", {
-        pluginId: "locations-plugin",
-
-        @discourseComputed(
+      api.modifyClass("model:composer", Superclass => class extends Superclass {
+        @computed(
           "subtype",
           "categoryId",
           "topicFirstPost",
           "forceLocationControls"
         )
-        showLocationControls(subtype, categoryId, topicFirstPost, force) {
+        get showLocationControls() {
+          const subtype = this.get("subtype");
+          const categoryId = this.get("categoryId");
+          const topicFirstPost = this.get("topicFirstPost");
+          const force = this.get("forceLocationControls");
+
+          //(subtype, categoryId, topicFirstPost, force)
           if (!topicFirstPost) {
             return false;
           }
@@ -48,12 +54,12 @@ export default {
             }
           }
           return false;
-        },
+        }
 
         clearState() {
           this._super(...arguments);
           this.set("location", null);
-        },
+        }
 
         @observes("draftKey")
         _setupDefaultLocation() {
@@ -79,16 +85,14 @@ export default {
               });
             }
           }
-        },
+        }
       });
 
-      api.modifyClass("component:composer-body", {
-        pluginId: "locations-plugin",
-
+      api.modifyClass("component:composer-body", Superclass => class extends Superclass {
         @observes("composer.location")
-        resizeWhenLocationAdded: function () {
+        resizeWhenLocationAdded() {
           this._triggerComposerResized();
-        },
+        }
 
         @observes("composer.showLocationControls", "composer.composeState")
         applyLocationInlineClass() {
@@ -127,34 +131,32 @@ export default {
           };
 
           scheduleOnce("afterRender", this, applyClasses);
-        },
+        }
       });
 
       const subtypeShowLocation = ["event", "question", "general"];
-      api.modifyClass("model:topic", {
-        pluginId: "locations-plugin",
-
-        @discourseComputed("subtype", "category.custom_fields.location_enabled")
-        showLocationControls(subtype, categoryEnabled) {
+      api.modifyClass("model:topic", Superclass => class extends Superclass {
+        // @computed("subtype", "category.custom_fields.location_enabled")
+        get showLocationControls() {
+          const subtype = this.get("subtype");
+          const categoryEnabled =
+            this.get("category.custom_fields.location_enabled");
           return subtypeShowLocation.indexOf(subtype) > -1 || categoryEnabled;
-        },
+        }
       });
 
       // necessary because topic-title plugin outlet only recieves model
-      api.modifyClass("controller:topic", {
-        pluginId: "locations-plugin",
-
+      api.modifyClass("controller:topic", Superclass => class extends Superclass {
         @observes("editingTopic")
         setEditingTopicOnModel() {
           this.set("model.editingTopic", this.get("editingTopic"));
-        },
+        }
       });
 
-      api.modifyClass("component:edit-category-settings", {
-        pluginId: "locations-plugin",
-
-        @discourseComputed("category")
-        availableViews(category) {
+      api.modifyClass("component:edit-category-settings", Superclass => class extends Superclass {
+        @discourseComputed("category.id", "category.custom_fields")
+        availableViews(categoryId, customFields) {
+          //category
           let views = this._super(...arguments);
 
           if (
@@ -165,29 +167,25 @@ export default {
           }
 
           return views;
-        },
+        }
       });
 
       const mapRoutes = [`Map`, `MapCategory`, `MapCategoryNone`];
 
       mapRoutes.forEach(function (route) {
-        api.modifyClass(`route:discovery.${route}`, {
-          pluginId: "locations-plugin",
-
+        api.modifyClass(`route:discovery.${route}`, Superclass => class extends Superclass {
           afterModel() {
             this.templateName = "discovery/map";
 
             return this._super(...arguments);
-          },
+          }
         });
       });
 
       const categoryRoutes = ["category", "categoryNone"];
 
       categoryRoutes.forEach(function (route) {
-        api.modifyClass(`route:discovery.${route}`, {
-          pluginId: "locations-plugin",
-
+        api.modifyClass(`route:discovery.${route}`, Superclass => class extends Superclass {
           afterModel(model, transition) {
             if (
               this.filter(model.category) === "map" &&
@@ -202,7 +200,7 @@ export default {
             } else {
               return this._super(...arguments);
             }
-          },
+          }
         });
       });
     });

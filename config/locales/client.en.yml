@@ -63,6 +63,10 @@ en:
         title: "Map"
         label: "Map"
         help: "Mark topics with locations in this category on a map."
+      nearby:
+        title: "Nearby"
+        label: "Nearby"
+        help: "topics near your location"
     map:
       search_placeholder: "Search"
       search:
