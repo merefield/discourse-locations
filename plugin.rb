@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 6.9.6
+# version: 6.10.0
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -49,6 +49,11 @@ after_initialize do
     ../lib/users_map.rb
   ].each { |path| load File.expand_path(path, __FILE__) }
 
+  reloadable_patch do
+    ListController.prepend(Locations::ListControllerExtension)
+    TopicQuery.prepend(Locations::TopicQueryExtension)
+  end
+
   def Locations.parse_geo_location(val)
     return nil if val.blank? || val == "{}"
     return val if val.is_a?(Hash)
@@ -57,6 +62,9 @@ after_initialize do
   rescue JSON::ParserError
     nil
   end
+
+  Discourse.top_menu_items.push(:nearby)
+  Discourse.filters.push(:nearby)
 
   Category.register_custom_field_type("location", :json)
   Category.register_custom_field_type("location_enabled", :boolean)
@@ -109,6 +117,7 @@ after_initialize do
   Topic.register_custom_field_type("location", :json)
   Topic.register_custom_field_type("has_geo_location", :boolean)
   add_to_class(:topic, :location) { self.custom_fields["location"] }
+  add_preloaded_topic_list_custom_field("location")
 
   add_to_serializer(
     :topic_view,
@@ -119,11 +128,32 @@ after_initialize do
   if TopicList.respond_to? :preloaded_custom_fields
     TopicList.preloaded_custom_fields << "location"
   end
+
+  add_to_class(:topic, :distance) { self[:distance] }
+
+  add_to_class(:topic, :distance=) { |val| self[:distance] = val }
+
+  add_to_class(:topic, :bearing) { self[:bearing] }
+
+  add_to_class(:topic, :bearing=) { |val| self[:bearing] = val }
+
   add_to_serializer(
     :topic_list_item,
     :location,
     include_condition: -> { object.location.present? }
   ) { object.location }
+
+  add_to_serializer(
+    :topic_list_item,
+    :bearing,
+    include_condition: -> { object.bearing.present? }
+  ) { object.bearing.to_f % 360 }
+
+  add_to_serializer(
+    :topic_list_item,
+    :distance,
+    include_condition: -> { object.distance.present? }
+  ) { object.distance.to_f }
 
   if defined?(register_editable_user_custom_field)
     register_editable_user_custom_field("geo_location")

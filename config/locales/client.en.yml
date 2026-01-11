@@ -1,5 +1,6 @@
 en:
   js:
+    distance: "Distance (km)"
     category:
       location_settings_label: "Locations"
       location_enabled: "Allow locations to be added to topics in this category"
@@ -63,6 +64,10 @@ en:
         title: "Map"
         label: "Map"
         help: "Mark topics with locations in this category on a map."
+      nearby:
+        title: "Nearby"
+        label: "Nearby"
+        help: "topics near your location"
     map:
       search_placeholder: "Search"
       search:

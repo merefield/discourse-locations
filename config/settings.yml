@@ -168,3 +168,6 @@ plugins:
     choices:
       - none
       - user
+  location_nearby_list_max_distance_km:
+    default: 0
+    client: true
