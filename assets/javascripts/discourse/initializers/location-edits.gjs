@@ -1,6 +1,6 @@
 import { computed } from "@ember/object";
-import { observes } from "@ember-decorators/object";
 import { next, scheduleOnce } from "@ember/runloop";
+import { observes } from "@ember-decorators/object";
 import SortableColumn from "discourse/components/topic-list/header/sortable-column";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
