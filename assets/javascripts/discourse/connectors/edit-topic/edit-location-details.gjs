@@ -13,7 +13,6 @@ export default class EditLocationDetails extends Component {
   }
 
   <template>
-    {{log @model}}
     {{#if @outletArgs.model.showLocationControls}}
       <AddLocationControls
         @location={{this.location}}
