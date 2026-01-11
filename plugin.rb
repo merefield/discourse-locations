@@ -128,22 +128,14 @@ after_initialize do
   if TopicList.respond_to? :preloaded_custom_fields
     TopicList.preloaded_custom_fields << "location"
   end
-  
-  add_to_class(:topic, :distance) do
-    self[:distance]
-  end
 
-  add_to_class(:topic, :distance=) do |val|
-    self[:distance] = val
-  end
+  add_to_class(:topic, :distance) { self[:distance] }
 
-  add_to_class(:topic, :bearing) do
-    self[:bearing]
-  end
+  add_to_class(:topic, :distance=) { |val| self[:distance] = val }
 
-  add_to_class(:topic, :bearing=) do |val|
-    self[:bearing] = val
-  end
+  add_to_class(:topic, :bearing) { self[:bearing] }
+
+  add_to_class(:topic, :bearing=) { |val| self[:bearing] = val }
 
   add_to_serializer(
     :topic_list_item,

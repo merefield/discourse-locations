@@ -1,11 +1,9 @@
 import { computed } from "@ember/object";
 import { scheduleOnce } from "@ember/runloop";
+import SortableColumn from "discourse/components/topic-list/header/sortable-column";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
-import { concat } from "@ember/helper";
-import { number } from "discourse/lib/formatter";
-import SortableColumn from "discourse/components/topic-list/header/sortable-column";
 import {
   default as discourseComputed,
   observes,
@@ -40,7 +38,7 @@ const locationsDistanceHeader = <template>
 
 const locationsDistanceCell = <template>
   <td class="distance">
-      {{#if @topic.distance}}
+    {{#if @topic.distance}}
       {{formatDistance @topic.distance}}
     {{/if}}
   </td>
@@ -52,7 +50,7 @@ export default {
     withPluginApi("0.8.23", (api) => {
       const router = container.lookup("service:router");
       const siteSettings = container.lookup("service:site-settings");
-      
+
       if (!siteSettings.location_enabled) {
         return;
       }
