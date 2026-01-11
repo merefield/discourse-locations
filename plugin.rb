@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 6.9.6
+# version: 6.10.0
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -128,11 +128,40 @@ after_initialize do
   if TopicList.respond_to? :preloaded_custom_fields
     TopicList.preloaded_custom_fields << "location"
   end
+  
+  add_to_class(:topic, :distance) do
+    self[:distance]
+  end
+
+  add_to_class(:topic, :distance=) do |val|
+    self[:distance] = val
+  end
+
+  add_to_class(:topic, :bearing) do
+    self[:bearing]
+  end
+
+  add_to_class(:topic, :bearing=) do |val|
+    self[:bearing] = val
+  end
+
   add_to_serializer(
     :topic_list_item,
     :location,
     include_condition: -> { object.location.present? }
   ) { object.location }
+
+  add_to_serializer(
+    :topic_list_item,
+    :bearing,
+    include_condition: -> { object.bearing.present? }
+  ) { object.bearing.to_f % 360 }
+
+  add_to_serializer(
+    :topic_list_item,
+    :distance,
+    include_condition: -> { object.distance.present? }
+  ) { object.distance.to_f }
 
   if defined?(register_editable_user_custom_field)
     register_editable_user_custom_field("geo_location")

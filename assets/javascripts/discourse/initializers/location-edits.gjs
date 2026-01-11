@@ -3,6 +3,9 @@ import { scheduleOnce } from "@ember/runloop";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
+import { concat } from "@ember/helper";
+import { number } from "discourse/lib/formatter";
+import SortableColumn from "discourse/components/topic-list/header/sortable-column";
 import {
   default as discourseComputed,
   observes,
@@ -10,15 +13,78 @@ import {
 import I18n from "I18n";
 
 const NEW_TOPIC_KEY = "new_topic";
+const LOCATIONS_LIST_ROUTES = ["discovery.nearby"];
+
+function formatDistance(distance) {
+  if (!Number.isFinite(distance)) {
+    return "";
+  }
+
+  return I18n.toNumber(distance, {
+    precision: 2,
+    strip_insignificant_zeros: false,
+  });
+}
+
+const locationsDistanceHeader = <template>
+  <SortableColumn
+    @sortable={{@sortable}}
+    @number="false"
+    @order="distance"
+    @activeOrder={{@activeOrder}}
+    @changeSort={{@changeSort}}
+    @ascending={{@ascending}}
+    @name="distance"
+  />
+</template>;
+
+const locationsDistanceCell = <template>
+  <td class="distance">
+      {{#if @topic.distance}}
+      {{formatDistance @topic.distance}}
+    {{/if}}
+  </td>
+</template>;
 
 export default {
   name: "location-edits",
-  initialize() {
+  initialize(container) {
     withPluginApi("0.8.23", (api) => {
-      api.addNavigationBarItem({
-        name: "nearby",
-        href: "/nearby",
-      });
+      const router = container.lookup("service:router");
+      const siteSettings = container.lookup("service:site-settings");
+      
+      if (!siteSettings.location_enabled) {
+        return;
+      }
+
+      if (siteSettings.location_nearby_list_max_distance_km > 0) {
+        api.addNavigationBarItem({
+          name: "nearby",
+          href: "/nearby",
+        });
+
+        api.registerValueTransformer("topic-list-item-class", ({ value }) => {
+          if (LOCATIONS_LIST_ROUTES.includes(router.currentRouteName)) {
+            value.push("locations-list");
+          }
+          return value;
+        });
+
+        api.registerValueTransformer(
+          "topic-list-columns",
+          ({ value: columns }) => {
+            if (LOCATIONS_LIST_ROUTES.includes(router.currentRouteName)) {
+              columns.add("distance", {
+                header: locationsDistanceHeader,
+                item: locationsDistanceCell,
+                after: "activity",
+              });
+            }
+            return columns;
+          }
+        );
+      }
+
       api.modifyClass(
         "controller:users",
         (Superclass) =>

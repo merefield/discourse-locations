@@ -70,12 +70,15 @@ module ::Locations
       TopicLocation.near([user_location.latitude, user_location.longitude], distance, units: :km, select_distance: false, select_bearing: false).joins(:topic).pluck(:topic_id)
     end
 
-    def self.search_users_from_topic_location(topic_id, distance)
-      topic_location = TopicLocation.find_by(user_id: topic_id)
+    def self.list_topics_near_user_location(user_id, distance)
+      user_location = UserLocation.find_by(user_id: user_id)
 
-      return [] if !topic_location || !topic_location.geocoded?
+      return [] if !user_location || !user_location.geocoded?
 
-      UserLocation.near([topic_location.latitude, topic_location.longitude], distance, units: :km, select_distance: false, select_bearing: false).joins(:user).pluck(:user_id)
+    TopicLocation
+      .near([user_location.latitude, user_location.longitude], distance, units: :km)
+      .joins(:topic)
+      .map { |tl| [tl.topic_id, tl.distance, tl.bearing] }
     end
   end
 end

@@ -15,6 +15,7 @@ module Locations
       list = TopicQuery.new(user, list_opts).public_send("list_nearby")
       list.more_topics_url = url_for(construct_url_with(:next, list_opts))
       list.prev_topics_url = url_for(construct_url_with(:prev, list_opts))
+
       respond_with_list(list)
     end
 

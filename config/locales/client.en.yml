@@ -1,5 +1,6 @@
 en:
   js:
+    distance: "Distance (km)"
     category:
       location_settings_label: "Locations"
       location_enabled: "Allow locations to be added to topics in this category"
