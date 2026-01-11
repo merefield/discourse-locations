@@ -1,13 +1,11 @@
 import { computed } from "@ember/object";
-import { scheduleOnce } from "@ember/runloop";
+import { observes } from "@ember-decorators/object";
+import { next, scheduleOnce } from "@ember/runloop";
 import SortableColumn from "discourse/components/topic-list/header/sortable-column";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
-import {
-  default as discourseComputed,
-  observes,
-} from "discourse-common/utils/decorators";
+import discourseComputed from "discourse-common/utils/decorators";
 import I18n from "I18n";
 
 const NEW_TOPIC_KEY = "new_topic";
@@ -112,7 +110,9 @@ export default {
                 return true;
               }
               if (categoryId) {
-                const category = this.site.categories.findBy("id", categoryId);
+                const category = this.site.categories.find(
+                  (item) => item.id === categoryId
+                );
                 if (category && category.custom_fields?.location_enabled) {
                   return true;
                 }
@@ -125,9 +125,20 @@ export default {
               this.set("location", null);
             }
 
-            @observes("draftKey")
-            _setupDefaultLocation() {
-              if (this.draftKey.startsWith(NEW_TOPIC_KEY)) {
+            init() {
+              super.init(...arguments);
+              this._maybeSetupDefaultLocation();
+            }
+
+            @observes("composeState", "draftKey")
+            _maybeSetupDefaultLocation() {
+              const draftKey = this.draftKey;
+              if (!draftKey) {
+                next(this, this._maybeSetupDefaultLocation);
+                return;
+              }
+
+              if (draftKey.startsWith(NEW_TOPIC_KEY)) {
                 const topicDefaultLocation =
                   this.siteSettings.location_topic_default;
                 // NB: we can't use the siteSettings, nor currentUser values set in the initialiser here
