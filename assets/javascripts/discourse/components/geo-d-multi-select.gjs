@@ -13,11 +13,12 @@ import DMenu from "discourse/float-kit/components/d-menu";
 import concatClass from "discourse/helpers/concat-class";
 import icon from "discourse/helpers/d-icon";
 import element from "discourse/helpers/element";
+import uniqueId from "discourse/helpers/unique-id";
 import discourseDebounce from "discourse/lib/debounce";
 import { INPUT_DELAY } from "discourse/lib/environment";
 import { makeArray } from "discourse/lib/helpers";
 import scrollIntoView from "discourse/modifiers/scroll-into-view";
-import { eq } from "discourse/truth-helpers";
+import { and, eq, not } from "discourse/truth-helpers";
 import { i18n } from "discourse-i18n";
 
 class Skeleton extends Component {
@@ -44,11 +45,19 @@ export default class GeoDMultiSelect extends Component {
   @tracked value = null;
   @tracked error = null;
 
+  // Float-kit: override portal outlet (so modals can trap focus correctly)
+  @tracked portalOutletElement = null;
+  @tracked inModal = false;
+
   // when true, the next resolved search will auto-pick first result
   @tracked autoPickNextResult = false;
 
   compareKey = "id";
   _requestId = 0;
+
+  get identifier() {
+    return `geo-d-multi-select-${uniqueId()}`;
+  }
 
   get hasSelection() {
     return (this.args.selection?.length ?? 0) > 0;
@@ -68,6 +77,33 @@ export default class GeoDMultiSelect extends Component {
         !this.args.selection?.some((selected) => this.compare(item, selected))
     );
   }
+  @action
+  setPortalOutlet(triggerEl) {
+    const modalRoot =
+      triggerEl.closest(
+        ".d-modal__container, .d-modal, .modal, .bootbox.modal, .fk-modal"
+      ) || null;
+
+    this.inModal = !!modalRoot;
+
+    if (!modalRoot) {
+      this.portalOutletElement = null;
+      return;
+    }
+
+    let outlet =
+      modalRoot.querySelector("#location-modal-menu-portals") ||
+      modalRoot.querySelector(".location-modal-menu-portals");
+
+    if (!outlet) {
+      outlet = document.createElement("div");
+      outlet.id = "location-modal-menu-portals";
+      outlet.className = "location-modal-menu-portals";
+      modalRoot.appendChild(outlet);
+    }
+
+    this.portalOutletElement = outlet;
+  }
 
   #debouncedSearch() {
     discourseDebounce(
@@ -81,7 +117,6 @@ export default class GeoDMultiSelect extends Component {
 
   @action
   search(event) {
-    debugger;
     // normal typing path: DO NOT auto-pick
     this.autoPickNextResult = false;
 
@@ -103,7 +138,6 @@ export default class GeoDMultiSelect extends Component {
 
   @action
   handleKeydown(event) {
-    debugger;
     if (!this.isResolved) {
       return;
     }
@@ -186,19 +220,14 @@ export default class GeoDMultiSelect extends Component {
   compare(a, b) {
     if (this.args.compareFn) {
       return this.args.compareFn(a, b);
-    } else {
-      return a?.[this.compareKey] === b?.[this.compareKey];
     }
+    return a?.[this.compareKey] === b?.[this.compareKey];
   }
 
   getDisplayText(item) {
     return item?.name;
   }
 
-  // Choose the first "real" location result:
-  // - skip provider/footer item (your code adds { provider: ... })
-  // - skip anything falsy
-  // - skip anything already selected (availableOptions already filters selection, but keep safe)
   #firstSelectableResult() {
     const opts = this.availableOptions || [];
     return opts.find((r) => r && !r.provider);
@@ -217,7 +246,6 @@ export default class GeoDMultiSelect extends Component {
       return;
     }
 
-    // mimic a click selection
     const currentSelection = makeArray(this.args.selection);
     this.args.onChange?.(currentSelection.concat(first));
   }
@@ -239,16 +267,15 @@ export default class GeoDMultiSelect extends Component {
         this.value = val;
         this.isResolved = true;
 
-        // if bullseye triggered the search, auto-select the first result
         this.#autoPickIfNeeded();
       })
       .catch((e) => {
         if (requestId !== this._requestId) {
           return;
         }
+
         this.error = e;
         this.isRejected = true;
-        // no auto-pick on error
         this.autoPickNextResult = false;
       })
       .finally(() => {
@@ -265,7 +292,6 @@ export default class GeoDMultiSelect extends Component {
       return;
     }
 
-    // next search (coords) should auto-pick
     this.autoPickNextResult = true;
 
     navigator.geolocation.getCurrentPosition(
@@ -274,7 +300,7 @@ export default class GeoDMultiSelect extends Component {
         this.preselectedItem = null;
         this.searchTerm = term;
 
-        // run immediately (debounced is fine too, but immediate makes UX snappier)
+        // Run immediately so we can auto-pick right away
         this.#performSearch(this.args.loadFn, term);
       },
       () => {
@@ -285,20 +311,33 @@ export default class GeoDMultiSelect extends Component {
 
   <template>
     <DMenu
-      @identifier="d-multi-select"
+      @identifier={{this.identifier}}
+      @listeners={{false}}
+      @portalOutletElement={{this.portalOutletElement}}
+      @inline={{this.inModal}}
       @triggerComponent={{element "div"}}
-      @triggerClass={{concatClass (if this.hasSelection "--has-selection")}}
+      @triggerClass={{concatClass
+        "d-multi-select-trigger"
+        "geo-d-multi-select-trigger-root"
+        (if this.hasSelection "--has-selection")
+      }}
+      @contentClass={{concatClass
+        "d-multi-select-content"
+        "geo-d-multi-select-content-root"
+      }}
       @visibilityOptimizer={{@visibilityOptimizer}}
       @placement={{@placement}}
       @allowedPlacements={{@allowedPlacements}}
       @offset={{@offset}}
       @matchTriggerMinWidth={{@matchTriggerMinWidth}}
       @matchTriggerWidth={{@matchTriggerWidth}}
-      @renderInPlace={{true}}
       ...attributes
     >
-      <:trigger>
-        <div class="geo-d-multi-select-trigger">
+      <:trigger as |api|>
+        <div
+          class="geo-d-multi-select-trigger"
+          {{didInsert this.setPortalOutlet}}
+        >
           <div class="geo-d-multi-select-trigger__content">
             {{#if @selection}}
               <div class="d-multi-select-trigger__selection">
@@ -332,7 +371,8 @@ export default class GeoDMultiSelect extends Component {
             <DButton
               @icon="angle-down"
               class="d-multi-select-trigger__expand-btn btn-transparent"
-              @action={{@componentArgs.show}}
+              @disabled={{and this.inModal (not this.portalOutletElement)}}
+              @action={{api.show}}
             />
           </div>
         </div>
