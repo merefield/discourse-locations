@@ -48,12 +48,18 @@ export default {
     withPluginApi("0.8.23", (api) => {
       const router = container.lookup("service:router");
       const siteSettings = container.lookup("service:site-settings");
+      const currentUser = container.lookup("service:current-user");
+      const userHasLocation = currentUser?.custom_fields?.geo_location &&
+        ((typeof currentUser.custom_fields.geo_location === "string" &&
+          currentUser.custom_fields.geo_location.replaceAll(" ", "") !== "{}") ||
+          (typeof currentUser.custom_fields.geo_location === "object" &&
+            Object.keys(currentUser.custom_fields.geo_location).length !== 0));
 
       if (!siteSettings.location_enabled) {
         return;
       }
 
-      if (siteSettings.location_nearby_list_max_distance_km > 0) {
+      if (siteSettings.location_nearby_list_max_distance_km > 0 && userHasLocation) {
         api.addNavigationBarItem({
           name: "nearby",
           href: "/nearby",
