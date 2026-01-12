@@ -1,83 +1,100 @@
 ru:
   js:
+    distance: "Расстояние (км)"
     category:
-      location_settings_label: "Locations"
-      location_enabled: "Разрешить адреса для тем в этом разделе"
-      location_topic_status: "Enable location topic status icons for topic lists in this category."
-      location_map_filter_closed: "Filter closed topics from the map topic list in this category."
+      location_settings_label: "Местоположения"
+      location_enabled: "Разрешить добавление местоположений к темам в этой категории"
+      location_topic_status: "Включить иконки статуса местоположения для списков тем в этой категории."
+      location_map_filter_closed: "Скрывать закрытые темы из списка тем на карте в этой категории."
     composer:
       location:
-        btn: "Добавить адрес"
-        title: "Добавить адрес"
+        btn: "Добавить место"
+        title: "Добавить местоположение"
     location:
-      address: "Address"
+      address: "Адрес"
       name:
-        title: "Название (опционально)"
-        desc: "Например, Шерман Дентист"
+        title: "Название (необязательно)"
+        desc: "например: Центральный государственный музей Республики Казахстан"
       street:
         title: "Улица и номер дома"
-        desc: "Например, пр. Мира 42"
+        desc: "например: Самал-1, 44"
       postalcode:
         title: "Почтовый индекс"
-        desc: "Например, 03118"
+        desc: "например: 050059"
       neighbourhood:
-        title: "Neighbourhood"
-        desc: "e.g. Cremorne Point"
+        title: "Район"
+        desc: "например: Алатауский район"
       city:
-        title: "Город / населенный пункт"
-        desc: "Например, Киев"
+        title: "Город или населённый пункт"
+        desc: "например: Алматы"
       state:
-        title: "State or Province"
-        desc: "e.g. New South Wales"
+        title: "Область, край или республика"
+        desc: "например: Алматинская область"
       country_code:
         title: "Страна"
         placeholder: "Выберите страну"
-      coordinates: "Coordinates"
+      coordinates: "Координаты"
       lat:
-        title: "Latitude"
-        desc: "e.g. -31.9456702"
+        title: "Широта"
+        desc: "например: 43.235291"
       lon:
-        title: "Longitude"
-        desc: "e.g. 115.8626477"
+        title: "Долгота"
+        desc: "например: 76.945789"
       query:
         title: "Адрес"
-        desc: "Например, пр Мира 42, Киев"
+        desc: "например: Самал-1, 44, Алматы."
       geo:
-        desc: "Адрес, полученный с помощью {{provider}}"
+        desc: "Местоположения предоставлены {{provider}}"
         btn:
           label: "Найти адрес"
-        results: "Адреса"
-        no_results: "Поиск не дал результатов. Пожалуйста, проверьте правильность адреса и почтового индекса."
+        results: "Найденные адреса"
+        no_results: "Ничего не найдено."
         show_map: "Показать карту"
-        hide_map: "Hide Map"
+        hide_map: "Скрыть карту"
       label:
-        add: "Добавить адрес"
-        title: "Показать детали адреса"
+        add: "Добавить местоположение"
+        title: "Показать детали местоположения"
       clear: "Очистить"
       done: "Готово"
       errors:
-        search: "Произошла ошибка во время проверки адреса. Пожалуйста, подождите 5 секунда и попробуйте снова."
+        search: "Возникла проблема при поиске этого адреса. Пожалуйста, подождите 5 секунд и попробуйте снова."
     filters:
       map:
         title: "Карта"
-        help: "Отобразить карту с нанесенными темами с адресами из этого раздела."
+        label: "Карта"
+        help: "Отметить темы с местоположениями в этой категории на карте."
+      nearby:
+        title: "Рядом"
+        label: "Рядом"
+        help: "темы рядом с вашим местоположением"
     map:
-      search_placeholder: "Search"
+      search_placeholder: "Поиск"
+      search:
+        name: "Название"
+        username: "Имя пользователя"
+        city: "Город"
+        address: "Адрес"
+        street: "Улица"
+      topic_modal:
+        label: "Местоположение темы: %{topic_title}"
     topic_statuses:
       location:
-        help: "This topic has a location."
+        help: "У этой темы указано местоположение."
     user:
       map_location:
-        title: "Map Location"
-        warning: Your location will be displayed publicly.
+        title: "Местоположение на карте"
+        warning: Ваше местоположение будет отображаться публично.
     directory:
       map:
-        title: "Users Map"
+        title: "Карта пользователей"
+        user_prefs_link:
+          title: "Перейти в профиль, чтобы добавить или изменить своё местоположение"
+          text: "Обновить моё местоположение"
       list:
-        title: "Users List"
+        title: "Список пользователей"
   admin_js:
     admin:
       wizard:
         field:
           type:
-            location: "Location (Locations Plugin)"
+            location: "Местоположение (Плагин Locations)"
