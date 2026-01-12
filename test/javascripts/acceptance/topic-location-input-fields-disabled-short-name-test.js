@@ -1,11 +1,6 @@
 import { click, fillIn, visit } from "@ember/test-helpers";
 import { test } from "qunit";
-import {
-  acceptance,
-  query,
-  simulateKeys,
-  visible,
-} from "discourse/tests/helpers/qunit-helpers";
+import { acceptance, visible } from "discourse/tests/helpers/qunit-helpers";
 import { cloneJSON } from "discourse-common/lib/object";
 import locationFixtures from "../fixtures/location-fixtures";
 import siteFixtures from "../fixtures/site-fixtures";
@@ -37,27 +32,27 @@ acceptance(
       await click("a.fancy-title");
       await click("button.add-location-btn");
       assert.ok(visible(".add-location-modal"), "add location modal is shown");
-      await simulateKeys(query(".location-selector"), "liver building");
-      await click("li.location-form-result:first-child label");
+      await click(".location-selector .d-multi-select-trigger");
+      await fillIn(".d-multi-select__search-input", "liver building");
+      await click(".location-form-result:first-child label");
 
-      assert.equal(
-        query(".location-selector-container .item span").innerText,
-        "Royal Liver Building, Water Street, Ropewalks, Liverpool, Liverpool City Region, England, L3 1EG, United Kingdom"
-      );
+      assert
+        .dom(".location-selector .d-multi-select-trigger__selection-label")
+        .hasText(
+          "Royal Liver Building, Water Street, Ropewalks, Liverpool, Liverpool City Region, England, L3 1EG, United Kingdom"
+        );
 
       await fillIn(".location-name", "Home Sweet Home");
       await click("#save-location");
 
-      assert.equal(
-        query("button.add-location-btn span.d-button-label").innerText,
-        "Home Sweet Home, L3 1EG, Liverpool, United Kingdom"
-      );
+      assert
+        .dom("button.add-location-btn span.d-button-label")
+        .hasText("Home Sweet Home, L3 1EG, Liverpool, United Kingdom");
 
       await click("button.submit-edit");
-      assert.equal(
-        query(".location-label-container .location-text").innerText,
-        "Home Sweet Home"
-      );
+      assert
+        .dom(".location-label-container .location-text")
+        .hasText("Home Sweet Home");
     });
   }
 );

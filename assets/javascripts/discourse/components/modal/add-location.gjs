@@ -1,8 +1,9 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { Input } from "@ember/component";
+import { array } from "@ember/helper";
 import { action, computed } from "@ember/object";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
 import { i18n } from "discourse-i18n";
@@ -159,6 +160,8 @@ export default class AddLocationComponent extends Component {
         @searchOnInit={{this.searchOnInit}}
         @setGeoLocation={{this.setGeoLocation}}
         @searchError={{this.searchError}}
+        @geoAttrs={{array}}
+        @showType={{false}}
       />
       <hr />
       <div class="control-group">
@@ -175,7 +178,7 @@ export default class AddLocationComponent extends Component {
       <div class="modal-footer">
         <DButton
           id="save-location"
-          @action={{action "submit"}}
+          @action={{this.submit}}
           @label="location.done"
           @class="btn-primary"
           @disabled={{this.submitDisabled}}
@@ -183,7 +186,7 @@ export default class AddLocationComponent extends Component {
         <DButton
           id="clear-location"
           @class="clear"
-          @action={{action "clear"}}
+          @action={{this.clear}}
           @label="location.clear"
         />
       </div>

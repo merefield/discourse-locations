@@ -6,7 +6,7 @@ import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action, set } from "@ember/object";
 import { equal } from "@ember/object/computed";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 import { htmlSafe } from "@ember/template";
 import $ from "jquery";
 import { hash } from "rsvp";
@@ -357,6 +357,8 @@ export default class LocationForm extends Component {
                     class="input-xxlarge location-selector"
                     @searchError={{@searchError}}
                     @context={{this.context}}
+                    @geoAttrs={{@geoAttrs}}
+                    @showType={{@showType}}
                   />
                 {{else}}
                   <Input

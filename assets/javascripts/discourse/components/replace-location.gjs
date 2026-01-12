@@ -1,5 +1,5 @@
 import Component from "@glimmer/component";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 import bodyClass from "discourse/helpers/body-class";
 import icon from "discourse-common/helpers/d-icon";
 import UserLocation from "./user-location";

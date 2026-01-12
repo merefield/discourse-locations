@@ -1,10 +1,51 @@
 // User location selection //
 
+.user-card .location-and-website.map-location-enabled {
+  .location,
+  .website-name {
+    display: none;
+  }
+
+  .replace-location .location,
+  .replace-location .website-name {
+    display: block;
+  }
+}
+
+.user-profile-location,
+.user-profile-website {
+  display: none;
+}
+
+.replace-location .user-profile-location,
+.replace-location .user-profile-website {
+  display: block;
+}
+
 .user-preferences .location-selector-container {
   max-width: 552px;
 
   .ac-wrap {
     width: 100% !important;
+  }
+
+  .d-multi-select-trigger__selection {
+    min-width: 0;
+  }
+
+  .d-multi-select-trigger__selected-item {
+    width: 100%;
+    min-width: 0; /* allow shrinking inside flex */
+  }
+
+  .d-multi-select-trigger__selection-label {
+    flex: 1 1 auto; /* take remaining space */
+    min-width: 0; /* allow shrinking inside flex */
+    max-width: 100%; /* (optional) cap to container */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: block; /* makes width behavior predictable */
   }
 }
 
@@ -38,117 +79,75 @@
   margin-top: 5px;
 }
 
-// User location in profile and user-card //
+.user-profile__featured-topic,
+.user-profile__location-and-website {
+  font-size: var(--font-0);
+  white-space: normal;
+}
 
-.btn-show-map.no-text {
-  padding: 6px 8px !important;
-  margin-bottom: 0;
+.user-location-widget {
+  border: 1px solid var(--primary-low);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
 
-  .d-icon {
-    margin-right: 0 !important;
-    width: 1em !important;
-    height: 1em !important;
+  .location-label {
+    margin: 0 11px 0 5px;
+    color: var(--primary);
+    text-align: left;
+  }
+
+  .location-flag img {
+    height: 30px;
+    width: auto;
+  }
+
+  .d-icon-location-dot {
+    margin-top: 4px;
+    margin-right: 5px;
+  }
+
+  .map-wrapper {
+    position: relative;
+  }
+
+  .map-container.small {
+    position: absolute;
+    z-index: 9999;
+    top: 100%;
+    left: 0;
+    max-width: 100%;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
   }
 }
 
-.location-and-website.map-location-enabled {
-  .user-location-widget {
-    display: flex;
-
-    .d-icon-location-dot {
-      margin-top: 4px;
-      margin-right: 5px;
-    }
-
-    .map-wrapper {
-      position: relative;
-      margin-left: 5px;
-    }
-
-    .map-container.small {
-      position: absolute;
-      z-index: 9999;
-      top: initial;
-      right: 0;
-      max-width: 758px;
-      height: 250px;
-      top: 30px;
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
-    }
-
-    .map-container {
-      width: 330px;
-    }
-  }
-}
-
-.user-card .location-and-website.map-location-enabled {
-  .location,
-  .website-name {
-    display: none;
-  }
-
-  .replace-location .location,
-  .replace-location .website-name {
-    display: block;
-    overflow: visible;
-    margin-right: 0;
-  }
-
-  .locations-map .location .d-icon {
-    margin-right: 0;
-  }
-}
-
-body.map-location-enabled {
-  .user-main .about .primary .primary-textual .location-and-website {
-    overflow: initial;
+#topic {
+  .row .location-summary {
     display: flex;
     flex-direction: row;
-
-    > span {
-      max-width: 80%;
-      flex: 1;
+    align-items: center;
+    .user-location {
+      padding: 0 11px 0 11px;
     }
-
-    .user-profile-location,
-    .user-profile-website {
-      display: none;
+    .location-flag {
+      padding: 0 11px 0 0;
+      display: flex;
+      align-items: center;
     }
-
-    .replace-location .user-profile-location,
-    .replace-location .user-profile-website {
-      display: block;
-      margin-right: 0;
+    img {
+      width: 24px;
+      height: auto;
     }
+  }
+}
 
-    .replace-location .user-profile-location {
-      .user-location-widget {
-        display: flex;
-        flex-direction: row;
-        .location-label {
-          max-width: 100%;
-          white-space: initial;
-        }
-        svg {
-          padding-top: 5px;
-        }
-        .map-wrapper {
-          min-width: 110px;
-          text-align: right;
-          .map-container.small {
-            z-index: 290;
-            width: 300px;
-            right: initial;
-            top: initial;
-            transform: translate(-190px, 0);
-            .avatar {
-              margin-right: 10px;
-              width: 30px;
-              height: 30px;
-            }
-          }
-        }
+// mobile adjustments
+@media (max-width: 40rem) {
+  #topic {
+    .row .location-summary {
+      .user-location {
+        padding: 0 11px 0 0;
       }
     }
   }

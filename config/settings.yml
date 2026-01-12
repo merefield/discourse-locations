@@ -130,6 +130,9 @@ plugins:
   location_user_post:
     default: false
     client: true
+  location_user_country_flag:
+    default: true
+    client: true
   location_user_post_format:
     type: list
     default: ''
@@ -165,3 +168,6 @@ plugins:
     choices:
       - none
       - user
+  location_nearby_list_max_distance_km:
+    default: 0
+    client: true
