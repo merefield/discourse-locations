@@ -5,8 +5,7 @@ import SortableColumn from "discourse/components/topic-list/header/sortable-colu
 import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
-import discourseComputed from "discourse-common/utils/decorators";
-import I18n from "I18n";
+import I18n, { i18n } from "discourse-i18n";
 
 const NEW_TOPIC_KEY = "new_topic";
 const LOCATIONS_LIST_ROUTES = ["discovery.nearby"];
@@ -45,7 +44,7 @@ const locationsDistanceCell = <template>
 export default {
   name: "location-edits",
   initialize(container) {
-    withPluginApi("0.8.23", (api) => {
+    withPluginApi((api) => {
       const router = container.lookup("service:router");
       const siteSettings = container.lookup("service:site-settings");
       const currentUser = container.lookup("service:current-user");
@@ -108,6 +107,11 @@ export default {
         "model:composer",
         (Superclass) =>
           class extends Superclass {
+            init() {
+              super.init(...arguments);
+              this._maybeSetupDefaultLocation();
+            }
+
             @computed("categoryId", "topicFirstPost", "forceLocationControls")
             get showLocationControls() {
               const categoryId = this.get("categoryId");
@@ -134,11 +138,6 @@ export default {
             clearState() {
               super.clearState(...arguments);
               this.set("location", null);
-            }
-
-            init() {
-              super.init(...arguments);
-              this._maybeSetupDefaultLocation();
             }
 
             @observes("composeState", "draftKey")
@@ -255,25 +254,17 @@ export default {
           }
       );
 
-      api.modifyClass(
-        "component:edit-category-settings",
-        (Superclass) =>
-          class extends Superclass {
-            @discourseComputed("category.id", "category.custom_fields")
-            availableViews() {
-              const category = this.get("category");
-              let views = super.availableViews(...arguments);
-
-              if (
-                category.get("custom_fields.location_enabled") &&
-                this.siteSettings.location_category_map_filter
-              ) {
-                views.push({ name: I18n.t("filters.map.label"), value: "map" });
-              }
-
-              return views;
-            }
+      api.registerValueTransformer(
+        "category-available-views",
+        ({ value, context }) => {
+          if (
+            context.customFields?.location_enabled &&
+            siteSettings.location_category_map_filter
+          ) {
+            value.push({ name: i18n("filters.map.label"), value: "map" });
           }
+          return value;
+        }
       );
 
       const mapRoutes = [`Map`, `MapCategory`, `MapCategoryNone`];
