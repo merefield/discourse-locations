@@ -35,7 +35,7 @@ const locationsDistanceHeader = <template>
 
 const locationsDistanceCell = <template>
   <td class="distance">
-    {{#if @topic.distance}}
+    {{#if (Number.isFinite @topic.distance)}}
       {{formatDistance @topic.distance}}
     {{/if}}
   </td>
