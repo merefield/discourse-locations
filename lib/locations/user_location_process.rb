@@ -4,15 +4,14 @@ module ::Locations
   class UserLocationProcess
     def self.upsert(user_id)
       user = User.find_by(id: user_id)
+      geo_location = Locations.parse_geo_location(user&.custom_fields&.[]("geo_location"))
 
-      if user.nil? || !user.custom_fields["geo_location"].present? ||
-           user.custom_fields["geo_location"].blank? ||
-           !user.custom_fields["geo_location"]["lat"].present? ||
-           !user.custom_fields["geo_location"]["lon"].present?
+      if user.nil? || geo_location.blank? ||
+           !geo_location.is_a?(Hash) ||
+           !geo_location["lat"].present? ||
+           !geo_location["lon"].present?
         return
       end
-
-      geo_location = JSON.parse(user.custom_fields["geo_location"])
 
       ::Locations::UserLocation.upsert(
         {
