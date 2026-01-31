@@ -28,4 +28,27 @@ describe ::Locations::GeoLocationBuilder do
     expect(result["countrycode"]).to eq("es")
     expect(result["geoAttrs"]["geoname_id"]).to eq(42)
   end
+
+  it "uses county name in state for county granularity" do
+    allow(::Locations::GeoNamesGranularityPicker).to receive(:pick).and_return(
+      {
+        geoname_id: 99,
+        name: "Los Angeles County",
+        lat: 34.05,
+        lon: -118.25,
+        fcl: "A",
+        fcode: "ADM2",
+        country_code: "US",
+        country_name: "United States",
+        admin1: "California",
+      },
+    )
+
+    ip_info = { geoname_ids: [99], country: "United States", country_code: "US" }
+    result = described_class.from_ip_info(ip_info, granularity: "county")
+
+    expect(result["state"]).to eq("Los Angeles County")
+    expect(result["city"]).to be_nil
+    expect(result["country"]).to eq("United States")
+  end
 end

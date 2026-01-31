@@ -184,6 +184,7 @@ plugins:
     choices:
       - country
       - province
+      - county
       - city
   location_ip_auto_lookup_enabled:
     default: false

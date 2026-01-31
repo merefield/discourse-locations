@@ -23,6 +23,8 @@ describe ::Locations::GeoNamesGranularityPicker do
         build_feature(geoname_id: 10, fcl: "A", fcode: "PCLI", name: "United States")
       when 11
         build_feature(geoname_id: 11, fcl: "A", fcode: "ADM1", name: "California")
+      when 14
+        build_feature(geoname_id: 14, fcl: "A", fcode: "ADM2", name: "Los Angeles County")
       when 12
         build_feature(geoname_id: 12, fcl: "P", fcode: "PPLA", name: "Sacramento")
       when 13
@@ -39,6 +41,11 @@ describe ::Locations::GeoNamesGranularityPicker do
   it "picks admin1 for province granularity" do
     chosen = described_class.pick([10, 11, 12], granularity: "province")
     expect(chosen[:geoname_id]).to eq(11)
+  end
+
+  it "picks admin2 for county granularity" do
+    chosen = described_class.pick([10, 11, 14], granularity: "county")
+    expect(chosen[:geoname_id]).to eq(14)
   end
 
   it "picks best city for city granularity" do

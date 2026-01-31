@@ -15,6 +15,8 @@ module ::Locations
       state =
         if granularity == "province"
           chosen[:name]
+        elsif granularity == "county"
+          chosen[:name]
         elsif granularity == "city"
           chosen[:admin1]
         end

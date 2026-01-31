@@ -11,13 +11,14 @@ module ::Locations
 
       country = features.find { |f| f[:fcl] == "A" && f[:fcode] == "PCLI" }
       admin1 = features.find { |f| f[:fcl] == "A" && f[:fcode] == "ADM1" }
+      admin2 = features.find { |f| f[:fcl] == "A" && f[:fcode] == "ADM2" }
       city =
         features
           .select { |f| f[:fcl] == "P" && f[:fcode].start_with?("PPL") }
           .max_by { |f| CITY_PRIORITY.fetch(f[:fcode], 0) }
 
       Rails.logger.info(
-        "Locations GeoNames pick result: country=#{country&.dig(:geoname_id)} admin1=#{admin1&.dig(:geoname_id)} city=#{city&.dig(:geoname_id)}",
+        "Locations GeoNames pick result: country=#{country&.dig(:geoname_id)} admin1=#{admin1&.dig(:geoname_id)} admin2=#{admin2&.dig(:geoname_id)} city=#{city&.dig(:geoname_id)}",
       )
 
       case granularity
@@ -25,6 +26,8 @@ module ::Locations
         country
       when "province"
         admin1 || country
+      when "county"
+        admin2 || admin1 || country
       when "city"
         city || admin1 || country
       else
