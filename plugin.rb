@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 6.10.5
+# version: 7.0.0
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -223,6 +223,7 @@ after_initialize do
 
     next unless SiteSetting.location_enabled
     next unless SiteSetting.location_users_map
+    next unless SiteSetting.location_ip_auto_lookup_enabled
     next if user.blank?
 
     ip_address =

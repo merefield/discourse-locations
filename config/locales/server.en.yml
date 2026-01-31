@@ -57,6 +57,7 @@ en:
     location_geonames_username: "GeoNames username for IP-based location lookups."
     locations_skip_ip_based_location_update_if_existing: "Skip IP-based location lookup when a user already has coordinates set (lat/lon)."
     location_ip_granularity: "Granularity for IP-based location (country, province, or city)."
+    location_ip_auto_lookup_enabled: "Automatically enqueue IP-based location lookup on post creation."
 
   location:
     errors:

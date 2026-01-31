@@ -185,3 +185,6 @@ plugins:
       - country
       - province
       - city
+  location_ip_auto_lookup_enabled:
+    default: false
+    type: bool
