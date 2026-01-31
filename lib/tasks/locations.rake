@@ -181,35 +181,25 @@ def enqueue_user_ip_location_lookups(args)
   puts "with a delay of #{delay} second(s) between enqueues" if delay.to_f > 0
   puts "-" * 50
 
-  total =
-    if pattern.present?
-      if pattern_type == "regex"
-        User.all.select { |u| Regexp.new(pattern).match?(u.username) }.size
-      else
-        User.where("username ILIKE ?", "%#{pattern}%").count
-      end
+  relation = User.all
+  if pattern.present?
+    if pattern_type == "regex"
+      relation = relation.where("username ~* ?", pattern)
     else
-      User.count
+      relation = relation.where("username ILIKE ?", "%#{pattern}%")
     end
+  end
+
+  total = relation.count
   queued = 0
   batch = 1000
 
   (0..(total - 1).abs).step(batch) do |i|
-    User
+    relation
       .order(id: :desc)
       .offset(i)
       .limit(batch)
       .each do |user|
-        if pattern.present?
-          match =
-            if pattern_type == "regex"
-              Regexp.new(pattern).match?(user.username)
-            else
-              user.username.include?(pattern)
-            end
-          next unless match
-        end
-
         ip_address = user.ip_address&.to_s
         if ip_address.present?
           Jobs.enqueue(
