@@ -2,7 +2,10 @@
 require 'rails_helper'
 
 RSpec.describe DirectoryItemsController do
-  fab!(:user)
+  fab!(:user) do
+    token = SecureRandom.hex(6)
+    Fabricate(:user, email: "dir-items-#{token}@example.com", username: "diritems#{token}")
+  end
 
   context "browsing the users map" do
     before(:each) do
