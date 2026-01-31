@@ -15,8 +15,15 @@ RSpec.describe DirectoryItemsController do
     it "allows user to browse the users map" do
       SiteSetting.location_users_map = true
       SiteSetting.enable_user_directory = true
+      UserCustomField.create!(
+        user_id: user.id,
+        name: "geo_location",
+        value: { lat: 10, lon: 12 }.to_json
+      )
       get "/directory_items.json?period=location"
       expect(response.status).to eq(200)
+      item = response.parsed_body["directory_items"].find { |row| row["user_id"] == user.id }
+      expect(item["geo_location"]["lat"].to_s).to eq("10")
     end
     it "doesn't allow user to browse the users map when user directory is disabled" do
       SiteSetting.location_users_map = true

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 7.0.0
+# version: 7.0.1
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -184,7 +184,7 @@ after_initialize do
     attributes :geo_location
 
     def geo_location
-      object.custom_fields["geo_location"]
+      Locations.parse_geo_location(object.custom_fields["geo_location"])
     end
 
     def include_geo_location?
