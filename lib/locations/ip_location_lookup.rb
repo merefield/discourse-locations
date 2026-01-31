@@ -18,10 +18,10 @@ module ::Locations
     def self.should_skip_existing_location?(user)
       return false unless SiteSetting.locations_skip_ip_based_location_update_if_existing
 
-      existing = Locations.parse_geo_location(user.custom_fields["geo_location"])
-      return false if existing.blank?
+      geo = Locations.parse_geo_location(user.custom_fields["geo_location"])
+      return false unless geo.is_a?(Hash)
 
-      existing.is_a?(Hash) ? existing.present? : true
+      geo["lat"].present? && geo["lon"].present?
     end
 
     def self.mark_lookup!(user)
