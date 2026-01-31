@@ -14,7 +14,7 @@ module DirectoryItemsControllerExtension
       serializer_opts = {}
       serializer_opts[:attributes] = []
 
-      serialized = serialize_data(result, DirectoryItemSerializer, serializer_opts)
+      serialized = serialize_data(result, Locations::UsersMapDirectoryItemSerializer, serializer_opts)
       render_json_dump(directory_items: serialized,
                        meta: {}
                       )
