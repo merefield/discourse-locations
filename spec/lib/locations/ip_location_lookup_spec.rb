@@ -32,7 +32,14 @@ describe ::Locations::IpLocationLookup do
       expect(described_class.should_skip_existing_location?(user)).to eq(false)
     end
 
-    it "skips when geo_location is present" do
+    it "does not skip when geo_location lacks coordinates" do
+      user.custom_fields["geo_location"] = { city: "Paris" }.to_json
+      user.save_custom_fields(true)
+
+      expect(described_class.should_skip_existing_location?(user)).to eq(false)
+    end
+
+    it "skips when geo_location has coordinates" do
       user.custom_fields["geo_location"] = { lat: 1, lon: 2 }.to_json
       user.save_custom_fields(true)
 
