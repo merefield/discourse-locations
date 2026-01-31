@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 7.0.1
+# version: 7.1.0
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -44,6 +44,7 @@ after_initialize do
     app/models/locations/user_location
     app/models/locations/topic_location
     app/serializers/locations/geo_location_serializer
+    app/serializers/locations/users_map_directory_item_serializer
     app/controllers/locations/geocode_controller
     app/controllers/locations/users_map_controller
     lib/users_map
