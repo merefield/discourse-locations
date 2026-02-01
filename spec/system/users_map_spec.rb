@@ -2,23 +2,10 @@
 require "rails_helper"
 
 RSpec.describe "Users map" do
-  fab!(:admin) do
-    token = SecureRandom.hex(6)
-    Fabricate(
-      :admin,
-      email: "users-map-admin-#{token}@example.com",
-      username: "usersmapadmin#{token[0, 6]}"
-    )
-  end
+  fab!(:admin) { Fabricate(:admin) }
 
   def create_user_with_location(lat:, lon:, suffix:)
-    token = SecureRandom.hex(6)
-    user =
-      Fabricate(
-        :user,
-        email: "users-map-#{suffix}-#{token}@example.com",
-        username: "usersmap#{suffix}#{token[0, 6]}"
-      )
+    user = Fabricate(:user)
 
     UserCustomField.create!(
       user_id: user.id,

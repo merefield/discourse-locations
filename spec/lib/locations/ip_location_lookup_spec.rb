@@ -2,10 +2,7 @@
 require "rails_helper"
 
 describe ::Locations::IpLocationLookup do
-  fab!(:user) do
-    token = SecureRandom.hex(6)
-    Fabricate(:user, email: "ip-lookup-#{token}@example.com", username: "iplookup#{token}")
-  end
+  fab!(:user)
 
   describe ".cooldown_passed?" do
     it "returns true when cooldown is zero" do

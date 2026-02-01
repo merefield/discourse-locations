@@ -2,14 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "User can manage their location" do
-  fab!(:user) do
-    token = SecureRandom.hex(6)
-    Fabricate(
-      :user,
-      email: "user-loc-sys-#{token}@example.com",
-      username: "userloc#{token[0, 6]}"
-    )
-  end
+  fab!(:user)
   fab!(:topic) { Fabricate(:topic, user: user) }
   fab!(:post) { Fabricate(:post, topic: topic, user: user) }
   let(:user_preferences_profile_page) do
@@ -19,7 +12,7 @@ RSpec.describe "User can manage their location" do
   let(:location_selector) do
     PageObjects::Components::LocationSelector.new ".location-selector-wrapper"
   end
-  fab!(:address_string) do
+  let(:address_string) do
     "Hope Street, Canning / Georgian Quarter, Toxteth, Liverpool, Liverpool City Region, England, L1 9BW, United Kingdom"
   end
   let(:location) do
