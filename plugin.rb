@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 7.1.0
+# version: 7.1.1
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -230,7 +230,7 @@ after_initialize do
     ip_address =
       opts[:ip_address].presence ||
         (post.respond_to?(:ip_address) ? post.ip_address : nil).presence ||
-        user.last_seen_ip_address
+        user.ip_address
 
     ip_address = "2.139.231.7" if Rails.env.development?
 
