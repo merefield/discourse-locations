@@ -3,8 +3,8 @@
 module ::Locations
   class GeoLocationBuilder
     def self.from_ip_info(ip_info, granularity:)
-      Rails.logger.info(
-        "Locations GeoLocationBuilder: granularity=#{granularity} ip_info=#{ip_info.inspect}",
+      ::Locations.ip_lookup_log(
+        "5. Locations GeoLocationBuilder: granularity=#{granularity} ip_info=#{ip_info.inspect}",
       )
       ids = ip_info[:geoname_ids] || ip_info["geoname_ids"]
       chosen = GeoNamesGranularityPicker.pick(ids, granularity: granularity)
@@ -47,5 +47,6 @@ module ::Locations
         "id" => "geoname:#{chosen[:geoname_id]}",
       }
     end
+
   end
 end

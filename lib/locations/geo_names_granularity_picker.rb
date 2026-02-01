@@ -5,7 +5,7 @@ module ::Locations
     CITY_PRIORITY = { "PPLC" => 5, "PPLA" => 4, "PPLA2" => 3, "PPLA3" => 2, "PPL" => 1 }.freeze
 
     def self.pick(ids, granularity:)
-      Rails.logger.info("Locations GeoNames pick: ids=#{ids.inspect} granularity=#{granularity}")
+      ::Locations.ip_lookup_log("4. Locations GeoNames pick: ids=#{ids.inspect} granularity=#{granularity}")
       client = GeoNamesClient.new
       features = Array(ids).uniq.filter_map { |id| client.get_feature(id) }
 
@@ -17,8 +17,8 @@ module ::Locations
           .select { |f| f[:fcl] == "P" && f[:fcode].start_with?("PPL") }
           .max_by { |f| CITY_PRIORITY.fetch(f[:fcode], 0) }
 
-      Rails.logger.info(
-        "Locations GeoNames pick result: country=#{country&.dig(:geoname_id)} admin1=#{admin1&.dig(:geoname_id)} admin2=#{admin2&.dig(:geoname_id)} city=#{city&.dig(:geoname_id)}",
+      ::Locations.ip_lookup_log(
+        "4. Locations GeoNames pick result: country=#{country&.dig(:geoname_id)} admin1=#{admin1&.dig(:geoname_id)} admin2=#{admin2&.dig(:geoname_id)} city=#{city&.dig(:geoname_id)}",
       )
 
       case granularity
@@ -29,7 +29,7 @@ module ::Locations
       when "county"
         admin2 || admin1 || country
       when "city"
-        city || admin1 || country
+        city || admin2 || admin1 || country
       else
         nil
       end
