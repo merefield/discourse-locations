@@ -2,14 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "IP location lookup post hook" do
-  fab!(:user) do
-    token = SecureRandom.hex(6)
-    Fabricate(
-      :user,
-      email: "ip-hook-#{token}@example.com",
-      username: "iphook#{token[0, 6]}"
-    )
-  end
+  fab!(:user)
   fab!(:topic) { Fabricate(:topic, user: user) }
 
   before do

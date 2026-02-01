@@ -2,10 +2,7 @@
 require "rails_helper"
 
 RSpec.describe UsersController do
-  fab!(:user) do
-    token = SecureRandom.hex(6)
-    Fabricate(:user, email: "user-loc-#{token}@example.com", username: "userloc#{token}")
-  end
+  fab!(:user)
   let!(:user_field) { Fabricate(:user_field, editable: true) }
 
   before do

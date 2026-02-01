@@ -2,15 +2,7 @@
 require "rails_helper"
 
 RSpec.describe TopicsController do
-  fab!(:user) do
-    token = SecureRandom.hex(6)
-    Fabricate(
-      :user,
-      refresh_auto_groups: true,
-      email: "topic-loc-#{token}@example.com",
-      username: "topicloc#{token[0, 6]}"
-    )
-  end
+  fab!(:user) { Fabricate(:user, refresh_auto_groups: true) }
   fab!(:category) do
     Fabricate(:category, user: user, custom_fields: { location_enabled: true })
   end

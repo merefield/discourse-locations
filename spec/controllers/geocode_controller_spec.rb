@@ -4,13 +4,9 @@ require 'rails_helper'
 describe ::Locations::GeocodeController do
   routes { ::Locations::Engine.routes }
 
-  let!(:user) do
-    token = SecureRandom.hex(6)
-    user = Fabricate(:user, email: "geo-ctrl-#{token}@example.com", username: "geoctrl#{token}")
-    log_in_user(user)
-    user
-  end
+  fab!(:user)
   let(:category) { Fabricate(:category, custom_fields: { location_enabled: true }) }
+  before { log_in_user(user) }
 
   describe 'search' do
     it 'works' do
