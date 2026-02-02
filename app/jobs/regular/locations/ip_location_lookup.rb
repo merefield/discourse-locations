@@ -3,6 +3,8 @@
 module ::Jobs
   module Locations
     class IpLocationLookup < ::Jobs::Base
+      sidekiq_options queue: "low"
+
       def execute(args)
         return unless SiteSetting.location_enabled
         return unless SiteSetting.location_users_map
