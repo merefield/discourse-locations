@@ -47,6 +47,7 @@ after_initialize do
     app/serializers/locations/users_map_directory_item_serializer
     app/controllers/locations/geocode_controller
     app/controllers/locations/users_map_controller
+    lib/locations/logging_helper
     lib/users_map
   ].each { |path| require_relative path }
 
