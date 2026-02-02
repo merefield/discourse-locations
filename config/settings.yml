@@ -175,6 +175,9 @@ plugins:
     default: 1
   location_geonames_username:
     default: ""
+  location_ip_lookup_debug_logging:
+    default: false
+    type: bool
   locations_skip_ip_based_location_update_if_existing:
     default: true
     type: bool

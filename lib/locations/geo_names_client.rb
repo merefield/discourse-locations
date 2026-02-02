@@ -2,14 +2,14 @@
 
 module ::Locations
   class GeoNamesClient
-    Rails.logger.info("Locations GeoNamesClient initialized")
     DEFAULT_BASE_URL = "https://secure.geonames.org/"
     CACHE_TTL = 30.days
 
     def initialize
       @base_url = DEFAULT_BASE_URL
       @username = SiteSetting.location_geonames_username
-      Rails.logger.info("Locations GeoNamesClient base_url=#{@base_url}")
+      ::Locations.ip_lookup_log("3. Locations GeoNamesClient initialized")
+      ::Locations.ip_lookup_log("3. Locations GeoNamesClient base_url=#{@base_url}")
     end
 
     def get_feature(geoname_id)
@@ -31,12 +31,14 @@ module ::Locations
     end
 
     def fetch_and_normalize(id)
-      Rails.logger.info("Locations GeoNames fetch: geoname_id=#{id}")
+      ::Locations.ip_lookup_log("4. Locations GeoNames fetch: geoname_id=#{id}")
       url =
         "#{@base_url}getJSON?" +
           URI.encode_www_form(geonameId: id, username: @username, style: "full", formatted: "true")
 
+      ::Locations.ip_lookup_log("4. Locations GeoNames request: url=#{url}")
       body = FinalDestination::HTTP.get(URI(url))
+      ::Locations.ip_lookup_log("4. Locations GeoNames response: geoname_id=#{id} body=#{body}")
       raw = JSON.parse(body)
       return nil if raw["status"]
 
@@ -51,12 +53,12 @@ module ::Locations
         country_name: raw["countryName"],
         admin1: raw["adminName1"],
       }
-      Rails.logger.info(
-        "Locations GeoNames feature: geoname_id=#{feature[:geoname_id]} fcl=#{feature[:fcl]} fcode=#{feature[:fcode]}",
+      ::Locations.ip_lookup_log(
+        "4. Locations GeoNames feature: geoname_id=#{feature[:geoname_id]} name=#{feature[:name]} lat=#{feature[:lat]} lon=#{feature[:lon]} fcl=#{feature[:fcl]} fcode=#{feature[:fcode]}",
       )
       feature
     rescue StandardError => e
-      Rails.logger.warn("GeoNames lookup failed (#{id}): #{e.message}")
+      ::Locations.ip_lookup_log("4. GeoNames lookup failed (#{id}): #{e.message}")
       nil
     end
   end

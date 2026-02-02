@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 7.1.2
+# version: 7.1.3
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -47,6 +47,7 @@ after_initialize do
     app/serializers/locations/users_map_directory_item_serializer
     app/controllers/locations/geocode_controller
     app/controllers/locations/users_map_controller
+    lib/locations/logging_helper
     lib/users_map
   ].each { |path| require_relative path }
 
