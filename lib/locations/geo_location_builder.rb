@@ -4,7 +4,7 @@ module ::Locations
   class GeoLocationBuilder
     def self.from_ip_info(ip_info, granularity:)
       ::Locations.ip_lookup_log(
-        "5. Locations GeoLocationBuilder: granularity=#{granularity} ip_info=#{ip_info.inspect}",
+        "3. Locations GeoLocationBuilder: granularity=#{granularity} ip_info=#{ip_info.inspect}",
       )
       ids = ip_info[:geoname_ids] || ip_info["geoname_ids"]
       chosen = GeoNamesGranularityPicker.pick(ids, granularity: granularity)
