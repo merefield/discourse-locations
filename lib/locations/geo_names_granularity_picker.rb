@@ -18,7 +18,7 @@ module ::Locations
           .max_by { |f| CITY_PRIORITY.fetch(f[:fcode], 0) }
 
       ::Locations.ip_lookup_log(
-        "4. Locations GeoNames pick result: country=#{country&.dig(:geoname_id)} admin1=#{admin1&.dig(:geoname_id)} admin2=#{admin2&.dig(:geoname_id)} city=#{city&.dig(:geoname_id)}",
+        "6. Locations GeoNames pick result: country=#{country&.dig(:geoname_id)} admin1=#{admin1&.dig(:geoname_id)} admin2=#{admin2&.dig(:geoname_id)} city=#{city&.dig(:geoname_id)}",
       )
 
       case granularity

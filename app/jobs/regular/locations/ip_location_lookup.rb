@@ -36,7 +36,7 @@ module ::Jobs
             granularity: SiteSetting.location_ip_granularity,
           )
         ::Locations.ip_lookup_log(
-          "6. Locations IP lookup GeoLocationBuilder result: user_id=#{user_id} ip_address=#{ip_address} geo_location=#{geo_location.inspect}",
+          "7. Locations IP lookup GeoLocationBuilder result: user_id=#{user_id} ip_address=#{ip_address} geo_location=#{geo_location.inspect}",
         )
 
         if geo_location.blank?
