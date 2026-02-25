@@ -21,6 +21,30 @@ function formatDistance(distance) {
   });
 }
 
+function parseGeoLocation(rawGeoLocation) {
+  if (!rawGeoLocation || rawGeoLocation === "{}") {
+    return null;
+  }
+
+  if (typeof rawGeoLocation === "string") {
+    if (rawGeoLocation.replaceAll(" ", "") === "{}") {
+      return null;
+    }
+
+    try {
+      rawGeoLocation = JSON.parse(rawGeoLocation);
+    } catch {
+      return null;
+    }
+  }
+
+  if (typeof rawGeoLocation === "object" && Object.keys(rawGeoLocation).length) {
+    return rawGeoLocation;
+  }
+
+  return null;
+}
+
 const locationsDistanceHeader = <template>
   <SortableColumn
     @sortable={{@sortable}}
@@ -140,7 +164,12 @@ export default {
               this.set("location", null);
             }
 
-            @observes("composeState", "draftKey")
+            @observes(
+              "composeState",
+              "draftKey",
+              "user.geo_location",
+              "user.custom_fields.geo_location"
+            )
             _maybeSetupDefaultLocation() {
               const draftKey = this.draftKey;
               if (!draftKey) {
@@ -151,22 +180,19 @@ export default {
               if (draftKey.startsWith(NEW_TOPIC_KEY)) {
                 const topicDefaultLocation =
                   this.siteSettings.location_topic_default;
+                const userGeoLocation =
+                  parseGeoLocation(this.user?.geo_location) ||
+                  parseGeoLocation(this.user?.custom_fields?.geo_location);
                 // NB: we can't use the siteSettings, nor currentUser values set in the initialiser here
                 // because in QUnit they will not be defined as the initialiser only runs once
                 // so this will break all tests, even if in runtime it may work.
                 // so solution is to use the values provided by the Composer model under 'this'.
                 if (
                   topicDefaultLocation === "user" &&
-                  this.user.custom_fields.geo_location &&
-                  ((typeof this.user.custom_fields.geo_location === "string" &&
-                    this.user.custom_fields.geo_location.replaceAll(" ", "") !==
-                      "{}") ||
-                    (typeof this.user.custom_fields.geo_location === "object" &&
-                      Object.keys(this.user.custom_fields.geo_location)
-                        .length !== 0))
+                  userGeoLocation
                 ) {
                   this.set("location", {
-                    geo_location: this.user.custom_fields.geo_location,
+                    geo_location: userGeoLocation,
                   });
                 }
               }
