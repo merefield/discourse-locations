@@ -7,6 +7,7 @@ RSpec.describe "Composer default location", type: :system do
   fab!(:category) do
     Fabricate(:category_with_definition, custom_fields: { location_enabled: true })
   end
+  let(:category_page) { PageObjects::Pages::Category.new }
 
   let(:geo_location) do
     {
@@ -40,14 +41,17 @@ RSpec.describe "Composer default location", type: :system do
   end
 
   it "initialises the composer location from the user location" do
-    visit("/c/#{category.slug}/#{category.id}")
-    find("#create-topic").click
+    category_page.visit(category)
+    category_page.new_topic_button.click
 
     expect(page).to have_css("#reply-control.open")
+    select_kit = PageObjects::Components::SelectKit.new("#reply-control.open .category-chooser")
+    expect(select_kit).to have_selected_value(category.id)
 
     expect(page).to have_css(
-      ".composer-controls-location .d-button-label",
+      "#reply-control.open .location-label .d-button-label",
       text: geo_location[:address],
+      wait: 10,
     )
   end
 end

@@ -1,6 +1,6 @@
 import { LinkTo } from "@ember/routing";
-import LocationsMap from "discourse/components/locations-map";
 import { i18n } from "discourse-i18n";
+import LocationsMap from "discourse/plugins/discourse-locations/discourse/components/locations-map";
 
 export default <template>
   <div class="container users-nav">
