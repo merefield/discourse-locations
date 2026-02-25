@@ -227,12 +227,6 @@ after_initialize do
   end
   SiteSetting.public_user_custom_fields = public_user_custom_fields.join("|")
 
-  if SiteSetting.location_ip_auto_lookup_enabled &&
-       SiteSetting.location_ip_auto_lookup_mode == "disabled"
-    SiteSetting.location_ip_auto_lookup_mode = "posting"
-    SiteSetting.location_ip_auto_lookup_enabled = false
-  end
-
   PostRevisor.track_topic_field(:location) do |tc, location|
     if location.present? && location = Locations::Helper.parse_location(location.to_unsafe_hash)
       tc.record_change("location", tc.topic.custom_fields["location"], location)
