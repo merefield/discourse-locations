@@ -31,7 +31,10 @@ acceptance(
       await visit("/t/online-learning/51/1");
       await click("a.fancy-title");
       await click("button.add-location-btn");
-      assert.ok(visible(".add-location-modal"), "add location modal is shown");
+      assert.true(
+        visible(".add-location-modal"),
+        "add location modal is shown"
+      );
       await click(".location-selector .d-multi-select-trigger");
       await fillIn(".d-multi-select__search-input", "liver building");
       await click(".location-form-result:first-child label");

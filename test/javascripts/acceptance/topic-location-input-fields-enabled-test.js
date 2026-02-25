@@ -37,10 +37,15 @@ acceptance(
       await visit("/t/online-learning/51/1");
       await click("a.fancy-title");
       await click("button.add-location-btn");
-      assert.ok(visible(".add-location-modal"), "add location modal is shown");
+      assert.true(
+        visible(".add-location-modal"),
+        "add location modal is shown"
+      );
       await selectKit(".input-location.country-code").expand();
-      assert.ok(exists(".input-location.country-code .select-kit-collection"));
-      assert.ok(exists(".select-kit-row.is-highlighted.is-selected"));
+      assert.true(
+        exists(".input-location.country-code .select-kit-collection")
+      );
+      assert.true(exists(".select-kit-row.is-highlighted.is-selected"));
       assert.strictEqual(
         query(".select-kit-row.is-highlighted.is-selected").innerText,
         "France",
@@ -73,7 +78,10 @@ acceptance(
       await visit("/t/online-learning/51/1");
       await click("a.fancy-title");
       await click("button.add-location-btn");
-      assert.ok(visible(".add-location-modal"), "add location modal is shown");
+      assert.true(
+        visible(".add-location-modal"),
+        "add location modal is shown"
+      );
       await fillIn(
         ".add-location div.location-form div.coordinates .input-location.lat",
         "22"

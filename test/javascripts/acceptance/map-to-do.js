@@ -26,7 +26,7 @@ acceptance("Topic Map - Show Correct Population", function (needs) {
   test("Category map includes the right topics", async function (assert) {
     await visit("/c/general/announcements/24/l/map");
 
-    assert.ok(
+    assert.true(
       exists(
         'img.leaflet-marker-icon[title="Coolest thing you have seen today"]'
       ),
@@ -42,14 +42,14 @@ acceptance("Topic Map - Show Correct Population", function (needs) {
   test("General map shows topics from all Categories", async function (assert) {
     await visit("/map");
 
-    assert.ok(
+    assert.true(
       exists(
         'img.leaflet-marker-icon[title="Coolest thing you have seen today"]'
       ),
       "Announcement Topic Location exists"
     );
 
-    assert.ok(
+    assert.true(
       exists('img.leaflet-marker-icon[title="The Room Appreciation Topic"]'),
       "Software and Operating Systems Topic Location does exist"
     );
