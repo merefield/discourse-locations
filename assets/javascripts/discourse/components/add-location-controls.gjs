@@ -2,7 +2,6 @@ import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import { service } from "@ember/service";
-import $ from "jquery";
 import DButton from "discourse/components/d-button";
 import AddLocationComponent from "../components/modal/add-location";
 import { locationFormat } from "../lib/location-utilities";
@@ -14,7 +13,9 @@ export default class AddLocationControlsComponent extends Component {
 
   @action
   didInsert() {
-    $(".title-and-category").toggleClass("location-add-no-text", this.iconOnly);
+    document
+      .querySelector(".title-and-category")
+      ?.classList.toggle("location-add-no-text", this.iconOnly);
   }
 
   get iconOnly() {
@@ -69,7 +70,7 @@ export default class AddLocationControlsComponent extends Component {
     <div class="location-label" {{didInsert this.didInsert}}>
       {{#if @location}}
         <DButton
-          @class={{this.valueClasses}}
+          class={{this.valueClasses}}
           @title="location.label.add"
           @action={{this.showAddLocation}}
           @translatedLabel={{this.valueLabel}}
@@ -79,20 +80,20 @@ export default class AddLocationControlsComponent extends Component {
           <DButton
             @icon="xmark"
             @action={{this.removeLocation}}
-            @class="remove"
+            class="remove"
           />
         {{/unless}}
       {{else}}
         {{#if this.iconOnly}}
           <DButton
-            @class="add-location-btn"
+            class="add-location-btn"
             @icon="location-dot"
             @action={{this.showAddLocation}}
             @title={{this.addLabel}}
           />
         {{else}}
           <DButton
-            @class="add-location-btn"
+            class="add-location-btn"
             @icon="location-dot"
             @label={{this.addLabel}}
             @action={{this.showAddLocation}}
