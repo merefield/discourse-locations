@@ -1,4 +1,8 @@
-{{#if siteSettings.location_users_map}}
+import { LinkTo } from "@ember/routing";
+import LocationsMap from "discourse/components/locations-map";
+import { i18n } from "discourse-i18n";
+
+export default <template>
   <div class="container users-nav">
     <ul class="nav nav-pills">
       <li>
@@ -19,4 +23,9 @@
       </li>
     </ul>
   </div>
-{{/if}}
+  <div class="users-map-container">
+    <div class="map-component map-container">
+      <LocationsMap @mapType="userList" />
+    </div>
+  </div>
+</template>

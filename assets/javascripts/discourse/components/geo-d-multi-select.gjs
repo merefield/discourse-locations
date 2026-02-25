@@ -345,6 +345,7 @@ export default class GeoDMultiSelect extends Component {
                 {{#each @selection as |item|}}
                   <button
                     class="d-multi-select-trigger__selected-item"
+                    type="button"
                     {{on "click" (fn this.remove item)}}
                     title={{this.getDisplayText item}}
                   >
