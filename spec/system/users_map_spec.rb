@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "Users map" do
-  fab!(:admin) { Fabricate(:admin) }
+  fab!(:admin)
 
   def create_user_with_location(lat:, lon:, suffix:)
     user = Fabricate(:user)
@@ -10,7 +10,7 @@ RSpec.describe "Users map" do
     UserCustomField.create!(
       user_id: user.id,
       name: "geo_location",
-      value: { lat: lat, lon: lon }.to_json
+      value: { lat: lat, lon: lon }.to_json,
     )
 
     Locations::UserLocation.create!(user_id: user.id, latitude: lat, longitude: lon)
