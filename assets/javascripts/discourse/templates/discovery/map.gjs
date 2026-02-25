@@ -26,7 +26,10 @@ export default <template>
 
     <:list>
       <div class="map-component map-container">
-        <LocationsMap @mapType="topicList" />
+        <LocationsMap
+          @mapType="topicList"
+          @category={{@controller.model.category}}
+        />
       </div>
     </:list>
   </Layout>

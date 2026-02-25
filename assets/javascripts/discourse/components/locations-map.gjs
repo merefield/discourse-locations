@@ -17,6 +17,7 @@ import {
 } from "../lib/map-utilities";
 
 export default class LocationMapComponent extends Component {
+  @service session;
   @service siteSettings;
   @service store;
 
@@ -107,7 +108,7 @@ export default class LocationMapComponent extends Component {
           (await findOrResetCachedTopicList(this.session, filter)) ||
           this.store.findFiltered("topicList", { filter });
       } else {
-        let result = await ajax("map.json");
+        let result = await ajax("/map.json");
         this.topicList = result.topic_list;
       }
     }

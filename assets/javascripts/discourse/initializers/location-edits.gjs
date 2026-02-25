@@ -357,20 +357,18 @@ export default {
           `route:discovery.${route}`,
           (Superclass) =>
             class extends Superclass {
-              afterModel(model, transition) {
+              afterModel(model) {
                 if (
+                  model?.category &&
                   this.filter(model.category) === "map" &&
-                  this.siteSettings.location_category_map_filter
+                  siteSettings.location_category_map_filter
                 ) {
-                  transition.abort();
-                  return this.replaceWith(
-                    `/c/${this.Category.slugFor(
-                      model.category
-                    )}/l/${this.filter(model.category)}`
-                  );
+                  this.templateName = "discovery/map";
                 } else {
-                  return super.afterModel(...arguments);
+                  this.templateName = "discovery/list";
                 }
+
+                return super.afterModel(...arguments);
               }
             }
         );
