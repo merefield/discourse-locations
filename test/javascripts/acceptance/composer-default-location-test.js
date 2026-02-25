@@ -1,7 +1,7 @@
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
+import { cloneJSON } from "discourse/lib/object";
 import { acceptance, query } from "discourse/tests/helpers/qunit-helpers";
-import { cloneJSON } from "discourse-common/lib/object";
 import siteFixtures from "../fixtures/site-fixtures";
 
 acceptance(
@@ -38,7 +38,7 @@ acceptance(
       await visit("/");
       await click("#create-topic");
 
-      assert.equal(
+      assert.strictEqual(
         query(".composer-controls-location span.d-button-label").innerText,
         "Add Location"
       );
@@ -80,13 +80,13 @@ acceptance(
       await visit("/");
       await click("#create-topic");
 
-      assert.equal(
+      assert.strictEqual(
         query(".composer-controls-location span.d-button-label").innerText,
         "London, Greater London, England, United Kingdom"
       );
 
       await click(".composer-controls-location .remove");
-      assert.equal(
+      assert.strictEqual(
         query(".composer-controls-location span.d-button-label").innerText,
         "Add Location"
       );

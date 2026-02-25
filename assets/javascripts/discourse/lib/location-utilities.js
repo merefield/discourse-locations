@@ -1,7 +1,7 @@
 import { debounce } from "@ember/runloop";
 import { Promise } from "rsvp";
 import { ajax } from "discourse/lib/ajax";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 
 function locationSearch(request, resultsFn) {
   ajax({
@@ -12,7 +12,7 @@ function locationSearch(request, resultsFn) {
       resultsFn(r);
     })
     .catch(function (e) {
-      let message = I18n.t("location.errors.search");
+      let message = i18n("location.errors.search");
 
       if (e.responseJSON && e.responseJSON.errors) {
         message = e.responseJSON.errors[0];

@@ -3,6 +3,7 @@ import { tracked } from "@glimmer/tracking";
 import { array } from "@ember/helper";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
+import { htmlSafe } from "@ember/template";
 import { escapeExpression } from "discourse/lib/utilities";
 import { i18n } from "discourse-i18n";
 import {
@@ -47,75 +48,78 @@ export default class LocationSelector extends Component {
   }
 
   get loadFn() {
-    return async (term) => {
-      if (!term || term.length === 0) {
-        return [];
+    return this.loadLocations;
+  }
+
+  @action
+  async loadLocations(term) {
+    if (!term || term.length === 0) {
+      return [];
+    }
+
+    let request = { query: term };
+
+    const context = this.args.context;
+    if (context) {
+      request["context"] = context;
+    }
+
+    this.loading = true;
+
+    try {
+      const result = await geoLocationSearch(
+        request,
+        this.siteSettings.location_geocoding_debounce
+      );
+
+      if (result.error) {
+        throw new Error(result.error);
       }
 
-      let request = { query: term };
+      const defaultProvider = this.siteSettings.location_geocoding_provider;
+      const geoAttrs = this.args.geoAttrs;
+      const showType = this.args.showType;
+      let locations = [];
 
-      const context = this.args.context;
-      if (context) {
-        request["context"] = context;
+      // Store current provider for display
+      this.currentProvider =
+        providerDetails[result.provider || defaultProvider];
+
+      if (!result.locations || result.locations.length === 0) {
+        locations = [];
+      } else {
+        locations = result.locations.map((l) => {
+          if (geoAttrs) {
+            l["geoAttrs"] = geoAttrs;
+          }
+          if (showType !== undefined) {
+            l["showType"] = showType;
+          }
+          // Ensure each location has an ID for comparison
+          l.id = l.address || JSON.stringify(l);
+          return l;
+        });
       }
 
-      this.loading = true;
-
-      try {
-        const result = await geoLocationSearch(
-          request,
-          this.siteSettings.location_geocoding_debounce
-        );
-
-        if (result.error) {
-          throw new Error(result.error);
-        }
-
-        const defaultProvider = this.siteSettings.location_geocoding_provider;
-        const geoAttrs = this.args.geoAttrs;
-        const showType = this.args.showType;
-        let locations = [];
-
-        // Store current provider for display
-        this.currentProvider =
-          providerDetails[result.provider || defaultProvider];
-
-        if (!result.locations || result.locations.length === 0) {
-          locations = [];
-        } else {
-          locations = result.locations.map((l) => {
-            if (geoAttrs) {
-              l["geoAttrs"] = geoAttrs;
-            }
-            if (showType !== undefined) {
-              l["showType"] = showType;
-            }
-            // Ensure each location has an ID for comparison
-            l.id = l.address || JSON.stringify(l);
-            return l;
-          });
-        }
-
-        // Add provider info as non-selectable display item
-        if (this.currentProvider) {
-          locations.push({
-            provider: this.currentProvider,
-            address: i18n("location.geo.desc", {
+      // Add provider info as non-selectable display item
+      if (this.currentProvider) {
+        locations.push({
+          provider: this.currentProvider,
+          address: htmlSafe(
+            i18n("location.geo.desc", {
               provider: this.currentProvider,
-            }),
-          });
-        }
-
-        return locations;
-      } catch (e) {
-        if (this.searchError) {
-          this.searchError(e);
-        }
-        return [];
-      } finally {
-        this.loading = false;
+            })
+          ),
+        });
       }
-    };
+
+      return locations;
+    } catch (e) {
+      this.args.searchError?.(e);
+      return [];
+    } finally {
+      this.loading = false;
+    }
   }
 
   @action
@@ -211,7 +215,7 @@ export default class LocationSelector extends Component {
         <:result as |location|>
           {{#if location.provider}}
             <div class="location-provider">
-              <label>{{{location.address}}}</label>
+              <label>{{location.address}}</label>
             </div>
           {{else}}
             <div class="location-form-result">

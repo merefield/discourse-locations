@@ -3,7 +3,7 @@ import { tracked } from "@glimmer/tracking";
 import { array } from "@ember/helper";
 import { action, computed } from "@ember/object";
 import { service } from "@ember/service";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import LocationForm from "./location-form";
 
 export default class CustomWizardFieldLocationComponent extends Component {
@@ -104,7 +104,7 @@ export default class CustomWizardFieldLocationComponent extends Component {
   }
 
   setValidation(valid, type) {
-    const message = type ? I18n.t(`location.validation.${type}`) : "";
+    const message = type ? i18n(`location.validation.${type}`) : "";
     this.args.field.setValid(valid, message);
     return valid;
   }

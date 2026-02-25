@@ -1,7 +1,8 @@
+/* eslint-disable discourse/test-filename-suffix */
 import { visit } from "@ember/test-helpers";
 import { test } from "qunit";
+import { cloneJSON } from "discourse/lib/object";
 import { acceptance, exists } from "discourse/tests/helpers/qunit-helpers";
-import { cloneJSON } from "discourse-common/lib/object";
 import altSiteFixtures from "../fixtures/alt-site-fixtures";
 import mapFixtures from "../fixtures/map-fixtures";
 

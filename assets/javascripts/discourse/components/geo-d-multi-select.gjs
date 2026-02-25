@@ -77,6 +77,7 @@ export default class GeoDMultiSelect extends Component {
         !this.args.selection?.some((selected) => this.compare(item, selected))
     );
   }
+
   @action
   setPortalOutlet(triggerEl) {
     const modalRoot =

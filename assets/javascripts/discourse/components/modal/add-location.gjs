@@ -7,11 +7,11 @@ import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
 import { i18n } from "discourse-i18n";
-import I18n from "I18n";
 import LocationForm from "./../location-form";
 
 export default class AddLocationComponent extends Component {
   @service siteSettings;
+
   @tracked flash = this.args.model?.flash;
   @tracked searchOnInit = false;
   @tracked name = null;
@@ -21,7 +21,6 @@ export default class AddLocationComponent extends Component {
   @tracked countrycode = null;
   @tracked geoLocation = { lat: "", lon: "" };
   @tracked rawLocation = null;
-  title = I18n.t("composer.location.title");
 
   constructor() {
     super(...arguments);
@@ -40,6 +39,10 @@ export default class AddLocationComponent extends Component {
       this.geoLocation = location.geo_location;
       this.rawLocation = location.raw;
     }
+  }
+
+  get title() {
+    return i18n("composer.location.title");
   }
 
   @computed()
@@ -108,7 +111,7 @@ export default class AddLocationComponent extends Component {
     }
 
     Object.keys(location).forEach((k) => {
-      if (location[k] == null || location[k] === "" || location[k] === {}) {
+      if (location[k] == null || location[k] === "") {
         delete location[k];
       }
     });
@@ -180,12 +183,12 @@ export default class AddLocationComponent extends Component {
           id="save-location"
           @action={{this.submit}}
           @label="location.done"
-          @class="btn-primary"
+          class="btn-primary"
           @disabled={{this.submitDisabled}}
         />
         <DButton
           id="clear-location"
-          @class="clear"
+          class="clear"
           @action={{this.clear}}
           @label="location.clear"
         />

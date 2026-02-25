@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-observers */
 import { computed } from "@ember/object";
 import { next, scheduleOnce } from "@ember/runloop";
 import { observes } from "@ember-decorators/object";
@@ -38,7 +39,10 @@ function parseGeoLocation(rawGeoLocation) {
     }
   }
 
-  if (typeof rawGeoLocation === "object" && Object.keys(rawGeoLocation).length) {
+  if (
+    typeof rawGeoLocation === "object" &&
+    Object.keys(rawGeoLocation).length
+  ) {
     return rawGeoLocation;
   }
 
@@ -187,10 +191,7 @@ export default {
                 // because in QUnit they will not be defined as the initialiser only runs once
                 // so this will break all tests, even if in runtime it may work.
                 // so solution is to use the values provided by the Composer model under 'this'.
-                if (
-                  topicDefaultLocation === "user" &&
-                  userGeoLocation
-                ) {
+                if (topicDefaultLocation === "user" && userGeoLocation) {
                   this.set("location", {
                     geo_location: userGeoLocation,
                   });

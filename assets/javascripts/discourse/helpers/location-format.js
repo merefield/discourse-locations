@@ -1,6 +1,6 @@
 import { htmlSafe } from "@ember/template";
+import { helperContext } from "discourse/lib/helpers";
 import Site from "discourse/models/site";
-import { helperContext } from "discourse-common/lib/helpers";
 import { locationFormat } from "../lib/location-utilities";
 
 export default function _locationFormat(location, opts) {

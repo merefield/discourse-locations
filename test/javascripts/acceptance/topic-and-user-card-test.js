@@ -1,7 +1,7 @@
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
+import { cloneJSON } from "discourse/lib/object";
 import { acceptance, query } from "discourse/tests/helpers/qunit-helpers";
-import { cloneJSON } from "discourse-common/lib/object";
 import locationFixtures from "../fixtures/location-fixtures";
 import siteFixtures from "../fixtures/site-fixtures";
 import topicFixtures from "../fixtures/topic-fixtures";
@@ -36,21 +36,24 @@ acceptance(
 
     test("topic title location, post user & user card location - shows correct format", async function (assert) {
       await visit("/t/online-learning/51/1");
-      assert.equal(
+      assert.strictEqual(
         query("span.location-text").innerText,
         "Pompidou, Paris, France"
       );
 
-      assert.equal(
+      assert.strictEqual(
         query(".small-action-desc.timegap").innerText,
         "2 years later"
       );
 
-      assert.equal(query("#post_3 .user-location").innerText, "Paris, France");
+      assert.strictEqual(
+        query("#post_3 .user-location").innerText,
+        "Paris, France"
+      );
 
       await click('a[data-user-card="merefield"]');
 
-      assert.equal(
+      assert.strictEqual(
         query(".user-card .location-label").innerText,
         "London, United Kingdom"
       );
