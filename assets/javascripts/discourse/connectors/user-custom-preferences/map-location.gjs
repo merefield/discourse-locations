@@ -3,12 +3,13 @@ import { tracked } from "@glimmer/tracking";
 import { array } from "@ember/helper";
 import { action, set } from "@ember/object";
 import { service } from "@ember/service";
-import icon from "discourse-common/helpers/d-icon";
-import i18n from "discourse-common/helpers/i18n";
+import icon from "discourse/helpers/d-icon";
+import { i18n } from "discourse-i18n";
 import LocationSelector from "../../components/location-selector";
 
 export default class UserCustomPrefsMapLocation extends Component {
   @service siteSettings;
+
   @tracked error = null;
 
   get parsedGeoLocation() {

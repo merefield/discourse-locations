@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-observers */
 import { computed } from "@ember/object";
 import { next, scheduleOnce } from "@ember/runloop";
 import { observes } from "@ember-decorators/object";
@@ -19,6 +20,62 @@ function formatDistance(distance) {
     precision: 2,
     strip_insignificant_zeros: false,
   });
+}
+
+function parseGeoLocation(rawGeoLocation) {
+  if (!rawGeoLocation || rawGeoLocation === "{}") {
+    return null;
+  }
+
+  if (typeof rawGeoLocation === "string") {
+    if (rawGeoLocation.replaceAll(" ", "") === "{}") {
+      return null;
+    }
+
+    try {
+      rawGeoLocation = JSON.parse(rawGeoLocation);
+    } catch {
+      return null;
+    }
+  }
+
+  if (
+    typeof rawGeoLocation === "object" &&
+    Object.keys(rawGeoLocation).length
+  ) {
+    return rawGeoLocation;
+  }
+
+  return null;
+}
+
+function parseLocation(rawLocation) {
+  if (!rawLocation || rawLocation === "{}") {
+    return null;
+  }
+
+  if (typeof rawLocation === "string") {
+    if (rawLocation.replaceAll(" ", "") === "{}") {
+      return null;
+    }
+
+    try {
+      rawLocation = JSON.parse(rawLocation);
+    } catch {
+      return null;
+    }
+  }
+
+  if (typeof rawLocation !== "object") {
+    return null;
+  }
+
+  const parsedGeoLocation = parseGeoLocation(rawLocation.geo_location);
+  if (parsedGeoLocation) {
+    return { ...rawLocation, geo_location: parsedGeoLocation };
+  }
+
+  return Object.keys(rawLocation).length > 0 ? rawLocation : null;
 }
 
 const locationsDistanceHeader = <template>
@@ -140,7 +197,12 @@ export default {
               this.set("location", null);
             }
 
-            @observes("composeState", "draftKey")
+            @observes(
+              "composeState",
+              "draftKey",
+              "user.geo_location",
+              "user.custom_fields.geo_location"
+            )
             _maybeSetupDefaultLocation() {
               const draftKey = this.draftKey;
               if (!draftKey) {
@@ -148,27 +210,32 @@ export default {
                 return;
               }
 
-              if (draftKey.startsWith(NEW_TOPIC_KEY)) {
-                const topicDefaultLocation =
-                  this.siteSettings.location_topic_default;
-                // NB: we can't use the siteSettings, nor currentUser values set in the initialiser here
-                // because in QUnit they will not be defined as the initialiser only runs once
-                // so this will break all tests, even if in runtime it may work.
-                // so solution is to use the values provided by the Composer model under 'this'.
-                if (
-                  topicDefaultLocation === "user" &&
-                  this.user.custom_fields.geo_location &&
-                  ((typeof this.user.custom_fields.geo_location === "string" &&
-                    this.user.custom_fields.geo_location.replaceAll(" ", "") !==
-                      "{}") ||
-                    (typeof this.user.custom_fields.geo_location === "object" &&
-                      Object.keys(this.user.custom_fields.geo_location)
-                        .length !== 0))
-                ) {
-                  this.set("location", {
-                    geo_location: this.user.custom_fields.geo_location,
-                  });
-                }
+              if (!draftKey.startsWith(NEW_TOPIC_KEY) || !this.creatingTopic) {
+                return;
+              }
+
+              const currentLocation = parseLocation(this.location);
+              if (currentLocation) {
+                return;
+              }
+
+              if (this.location !== null) {
+                this.set("location", null);
+              }
+
+              const topicDefaultLocation =
+                this.siteSettings.location_topic_default;
+              const userGeoLocation =
+                parseGeoLocation(this.user?.geo_location) ||
+                parseGeoLocation(this.user?.custom_fields?.geo_location);
+              // NB: we can't use the siteSettings, nor currentUser values set in the initialiser here
+              // because in QUnit they will not be defined as the initialiser only runs once
+              // so this will break all tests, even if in runtime it may work.
+              // so solution is to use the values provided by the Composer model under 'this'.
+              if (topicDefaultLocation === "user" && userGeoLocation) {
+                this.set("location", {
+                  geo_location: userGeoLocation,
+                });
               }
             }
           }
@@ -290,20 +357,18 @@ export default {
           `route:discovery.${route}`,
           (Superclass) =>
             class extends Superclass {
-              afterModel(model, transition) {
+              afterModel(model) {
                 if (
+                  model?.category &&
                   this.filter(model.category) === "map" &&
-                  this.siteSettings.location_category_map_filter
+                  siteSettings.location_category_map_filter
                 ) {
-                  transition.abort();
-                  return this.replaceWith(
-                    `/c/${this.Category.slugFor(
-                      model.category
-                    )}/l/${this.filter(model.category)}`
-                  );
+                  this.templateName = "discovery/map";
                 } else {
-                  return super.afterModel(...arguments);
+                  this.templateName = "discovery/list";
                 }
+
+                return super.afterModel(...arguments);
               }
             }
         );

@@ -1,6 +1,5 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
-import { A } from "@ember/array";
 import { Input } from "@ember/component";
 import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
@@ -8,13 +7,11 @@ import { action, set } from "@ember/object";
 import { equal } from "@ember/object/computed";
 import { service } from "@ember/service";
 import { htmlSafe } from "@ember/template";
-import $ from "jquery";
 import { hash } from "rsvp";
 import ConditionalLoadingSpinner from "discourse/components/conditional-loading-spinner";
 import { ajax } from "discourse/lib/ajax";
-import i18n from "discourse-common/helpers/i18n";
-import I18n from "I18n";
-import ComboBox from "select-kit/components/combo-box";
+import ComboBox from "discourse/select-kit/components/combo-box";
+import { i18n } from "discourse-i18n";
 import { geoLocationSearch, providerDetails } from "../lib/location-utilities";
 import GeoLocationResult from "./geo-location-result";
 import LocationSelector from "./location-selector";
@@ -22,7 +19,8 @@ import LocationSelector from "./location-selector";
 export default class LocationForm extends Component {
   @service siteSettings;
   @service site;
-  @tracked geoLocationOptions = A();
+
+  @tracked geoLocationOptions = [];
   @tracked internalInputFields = [];
   @tracked provider = "";
   @tracked hasSearched = false;
@@ -41,6 +39,7 @@ export default class LocationForm extends Component {
   @tracked formLatitude;
   @tracked formLongitude;
   @tracked geoLocation = {};
+
   context = null;
 
   showTitle = equal("appType", "discourse");
@@ -54,9 +53,8 @@ export default class LocationForm extends Component {
       this.searchDisabled = true;
 
       this.internalInputFields.forEach((f) => {
-        this[
-          `show${f.charAt(0).toUpperCase() + f.substr(1).toLowerCase()}`
-        ] = true;
+        this[`show${f.charAt(0).toUpperCase() + f.substr(1).toLowerCase()}`] =
+          true;
         this[`form${f.charAt(0).toUpperCase() + f.substr(1).toLowerCase()}`] =
           this.args[f];
 
@@ -133,7 +131,7 @@ export default class LocationForm extends Component {
   }
 
   get searchLabel() {
-    return I18n.t(`location.geo.btn.${this.siteSettings.location_geocoding}`);
+    return i18n(`location.geo.btn.${this.siteSettings.location_geocoding}`);
   }
 
   @action
@@ -176,7 +174,7 @@ export default class LocationForm extends Component {
 
   @action
   clearSearch() {
-    this.geoLocationOptions.clear();
+    this.geoLocationOptions = [];
     this.args.geoLocation = null;
   }
 
@@ -197,7 +195,11 @@ export default class LocationForm extends Component {
       }
     });
 
-    if ($.isEmptyObject(request)) {
+    if (
+      !Object.values(request).some(
+        (value) => value !== undefined && value !== ""
+      )
+    ) {
       return;
     }
 
@@ -222,7 +224,7 @@ export default class LocationForm extends Component {
 
         this.showProvider = result.locations.length > 0;
 
-        this.geoLocationOptions.setObjects(result.locations);
+        this.geoLocationOptions = [...result.locations];
 
         this.loadingLocations = false;
       })
@@ -230,6 +232,7 @@ export default class LocationForm extends Component {
         this.args.searchError(error);
       });
   }
+
   <template>
     <div class="location-form">
       {{#if this.showAddress}}
@@ -377,7 +380,7 @@ export default class LocationForm extends Component {
             {{#if this.showInputFields}}
               <button
                 class="btn btn-default wizard-btn location-search"
-                onclick={{this.locationSearch}}
+                {{on "click" this.locationSearch}}
                 disabled={{this.searchDisabled}}
                 type="button"
               >

@@ -77,6 +77,7 @@ export default class GeoDMultiSelect extends Component {
         !this.args.selection?.some((selected) => this.compare(item, selected))
     );
   }
+
   @action
   setPortalOutlet(triggerEl) {
     const modalRoot =
@@ -344,6 +345,7 @@ export default class GeoDMultiSelect extends Component {
                 {{#each @selection as |item|}}
                   <button
                     class="d-multi-select-trigger__selected-item"
+                    type="button"
                     {{on "click" (fn this.remove item)}}
                     title={{this.getDisplayText item}}
                   >

@@ -5,11 +5,10 @@ import { action, computed } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import didUpdate from "@ember/render-modifiers/modifiers/did-update";
 import { service } from "@ember/service";
-import $ from "jquery";
+import icon from "discourse/helpers/d-icon";
 import { ajax } from "discourse/lib/ajax";
 import { findOrResetCachedTopicList } from "discourse/lib/cached-topic-list";
-import icon from "discourse-common/helpers/d-icon";
-import i18n from "discourse-common/helpers/i18n";
+import { i18n } from "discourse-i18n";
 import {
   addCircleMarkersToMap,
   addMarkersToMap,
@@ -18,8 +17,8 @@ import {
 } from "../lib/map-utilities";
 
 export default class LocationMapComponent extends Component {
+  @service session;
   @service siteSettings;
-  @service currentUser;
   @service store;
 
   @tracked mapToggle = "expand";
@@ -109,7 +108,7 @@ export default class LocationMapComponent extends Component {
           (await findOrResetCachedTopicList(this.session, filter)) ||
           this.store.findFiltered("topicList", { filter });
       } else {
-        let result = await ajax("map.json");
+        let result = await ajax("/map.json");
         this.topicList = result.topic_list;
       }
     }
@@ -471,7 +470,9 @@ export default class LocationMapComponent extends Component {
     if (!this.showAttribution) {
       map.addControl(attribution);
     } else {
-      if ($(".locations-map .leaflet-control-attribution").is(":visible")) {
+      if (
+        document.querySelector(".locations-map .leaflet-control-attribution")
+      ) {
         map.removeControl(attribution);
       }
     }

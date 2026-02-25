@@ -23,7 +23,7 @@ module ::Locations
 
         lat = geo["lat"]
         lon = geo["lon"]
-        return nil unless lat.present? && lon.present?
+        return nil if lat.blank? || lon.blank?
 
         { "lat" => lat, "lon" => lon }
       end

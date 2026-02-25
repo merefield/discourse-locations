@@ -189,6 +189,10 @@ plugins:
       - province
       - county
       - city
-  location_ip_auto_lookup_enabled:
-    default: false
-    type: bool
+  location_ip_auto_lookup_mode:
+    default: "disabled"
+    type: enum
+    choices:
+      - disabled
+      - posting
+      - login_and_posting

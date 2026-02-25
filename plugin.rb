@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 7.1.5
+# version: 7.1.6
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -63,6 +63,33 @@ after_initialize do
     val.is_a?(String) ? JSON.parse(val) : nil
   rescue JSON::ParserError
     nil
+  end
+
+  def Locations.ip_auto_lookup_mode
+    SiteSetting.location_ip_auto_lookup_mode
+  end
+
+  def Locations.ip_auto_lookup_enabled?
+    SiteSetting.location_enabled && SiteSetting.location_users_map &&
+      ip_auto_lookup_mode != "disabled"
+  end
+
+  def Locations.ip_auto_lookup_on_post?
+    %w[posting login_and_posting].include?(ip_auto_lookup_mode)
+  end
+
+  def Locations.ip_auto_lookup_on_login?
+    ip_auto_lookup_mode == "login_and_posting"
+  end
+
+  def Locations.latest_login_ip(user)
+    user.user_auth_tokens.order(created_at: :desc).pick(:client_ip).presence || user.ip_address
+  end
+
+  def Locations.enqueue_ip_lookup(user, ip_address)
+    return if user.blank? || ip_address.blank?
+
+    Jobs.enqueue(::Jobs::Locations::IpLocationLookup, user_id: user.id, ip_address: ip_address.to_s)
   end
 
   Discourse.top_menu_items.push(:nearby)
@@ -223,21 +250,28 @@ after_initialize do
       Locations::TopicLocationProcess.upsert(topic)
     end
 
-    next unless SiteSetting.location_enabled
-    next unless SiteSetting.location_users_map
-    next unless SiteSetting.location_ip_auto_lookup_enabled
+    next unless Locations.ip_auto_lookup_enabled?
+    next unless Locations.ip_auto_lookup_on_post?
     next if user.blank?
 
     ip_address =
       opts[:ip_address].presence ||
-        (post.respond_to?(:ip_address) ? post.ip_address : nil).presence ||
-        user.ip_address
+        (post.respond_to?(:ip_address) ? post.ip_address : nil).presence || user.ip_address
 
     ip_address = "2.139.231.7" if Rails.env.development?
 
-    if ip_address.present?
-      Jobs.enqueue(::Jobs::Locations::IpLocationLookup, user_id: user.id, ip_address: ip_address)
-    end
+    Locations.enqueue_ip_lookup(user, ip_address)
+  end
+
+  on(:user_logged_in) do |user|
+    next unless Locations.ip_auto_lookup_enabled?
+    next unless Locations.ip_auto_lookup_on_login?
+    next if user.blank?
+
+    ip_address = Locations.latest_login_ip(user)
+    ip_address = "2.139.231.7" if Rails.env.development?
+
+    Locations.enqueue_ip_lookup(user, ip_address)
   end
 
   # check latitude and longitude are included when updating users location or raise an error

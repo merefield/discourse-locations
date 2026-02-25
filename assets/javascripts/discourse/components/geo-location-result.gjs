@@ -1,9 +1,13 @@
-import Component from "@ember/component";
+import Component from "@glimmer/component";
 import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import geoLocationFormat from "../helpers/geo-location-format";
 
 export default class GeoLocationResultComponent extends Component {
+  get showType() {
+    return this.args.showType;
+  }
+
   <template>
     <li class="location-form-result {{if @location.selected 'selected'}}">
       <label {{on "click" (fn @updateGeoLocation @location false)}}>

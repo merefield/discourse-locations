@@ -1,4 +1,4 @@
-import Component from "@ember/component";
+import Component from "@glimmer/component";
 import DModal from "discourse/components/d-modal";
 import { i18n } from "discourse-i18n";
 import LocationsMap from "./../locations-map";

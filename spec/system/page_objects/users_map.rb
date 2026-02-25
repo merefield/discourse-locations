@@ -4,7 +4,7 @@ module PageObjects
   module Pages
     class UsersMap < PageObjects::Pages::Base
       def visit
-        page.visit("/locations/users_map")
+        page.visit("/locations/users-map")
       end
 
       def has_marker_count?(count)
