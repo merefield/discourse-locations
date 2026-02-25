@@ -49,6 +49,35 @@ function parseGeoLocation(rawGeoLocation) {
   return null;
 }
 
+function parseLocation(rawLocation) {
+  if (!rawLocation || rawLocation === "{}") {
+    return null;
+  }
+
+  if (typeof rawLocation === "string") {
+    if (rawLocation.replaceAll(" ", "") === "{}") {
+      return null;
+    }
+
+    try {
+      rawLocation = JSON.parse(rawLocation);
+    } catch {
+      return null;
+    }
+  }
+
+  if (typeof rawLocation !== "object") {
+    return null;
+  }
+
+  const parsedGeoLocation = parseGeoLocation(rawLocation.geo_location);
+  if (parsedGeoLocation) {
+    return { ...rawLocation, geo_location: parsedGeoLocation };
+  }
+
+  return Object.keys(rawLocation).length > 0 ? rawLocation : null;
+}
+
 const locationsDistanceHeader = <template>
   <SortableColumn
     @sortable={{@sortable}}
@@ -181,21 +210,32 @@ export default {
                 return;
               }
 
-              if (draftKey.startsWith(NEW_TOPIC_KEY)) {
-                const topicDefaultLocation =
-                  this.siteSettings.location_topic_default;
-                const userGeoLocation =
-                  parseGeoLocation(this.user?.geo_location) ||
-                  parseGeoLocation(this.user?.custom_fields?.geo_location);
-                // NB: we can't use the siteSettings, nor currentUser values set in the initialiser here
-                // because in QUnit they will not be defined as the initialiser only runs once
-                // so this will break all tests, even if in runtime it may work.
-                // so solution is to use the values provided by the Composer model under 'this'.
-                if (topicDefaultLocation === "user" && userGeoLocation) {
-                  this.set("location", {
-                    geo_location: userGeoLocation,
-                  });
-                }
+              if (!draftKey.startsWith(NEW_TOPIC_KEY) || !this.creatingTopic) {
+                return;
+              }
+
+              const currentLocation = parseLocation(this.location);
+              if (currentLocation) {
+                return;
+              }
+
+              if (this.location !== null) {
+                this.set("location", null);
+              }
+
+              const topicDefaultLocation =
+                this.siteSettings.location_topic_default;
+              const userGeoLocation =
+                parseGeoLocation(this.user?.geo_location) ||
+                parseGeoLocation(this.user?.custom_fields?.geo_location);
+              // NB: we can't use the siteSettings, nor currentUser values set in the initialiser here
+              // because in QUnit they will not be defined as the initialiser only runs once
+              // so this will break all tests, even if in runtime it may work.
+              // so solution is to use the values provided by the Composer model under 'this'.
+              if (topicDefaultLocation === "user" && userGeoLocation) {
+                this.set("location", {
+                  geo_location: userGeoLocation,
+                });
               }
             }
           }
