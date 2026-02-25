@@ -65,6 +65,33 @@ after_initialize do
     nil
   end
 
+  def Locations.ip_auto_lookup_mode
+    SiteSetting.location_ip_auto_lookup_mode
+  end
+
+  def Locations.ip_auto_lookup_enabled?
+    SiteSetting.location_enabled && SiteSetting.location_users_map &&
+      ip_auto_lookup_mode != "disabled"
+  end
+
+  def Locations.ip_auto_lookup_on_post?
+    %w[posting login_and_posting].include?(ip_auto_lookup_mode)
+  end
+
+  def Locations.ip_auto_lookup_on_login?
+    ip_auto_lookup_mode == "login_and_posting"
+  end
+
+  def Locations.latest_login_ip(user)
+    user.user_auth_tokens.order(created_at: :desc).pick(:client_ip).presence || user.ip_address
+  end
+
+  def Locations.enqueue_ip_lookup(user, ip_address)
+    return if user.blank? || ip_address.blank?
+
+    Jobs.enqueue(::Jobs::Locations::IpLocationLookup, user_id: user.id, ip_address: ip_address.to_s)
+  end
+
   Discourse.top_menu_items.push(:nearby)
   Discourse.filters.push(:nearby)
 
@@ -200,6 +227,12 @@ after_initialize do
   end
   SiteSetting.public_user_custom_fields = public_user_custom_fields.join("|")
 
+  if SiteSetting.location_ip_auto_lookup_enabled &&
+       SiteSetting.location_ip_auto_lookup_mode == "disabled"
+    SiteSetting.location_ip_auto_lookup_mode = "posting"
+    SiteSetting.location_ip_auto_lookup_enabled = false
+  end
+
   PostRevisor.track_topic_field(:location) do |tc, location|
     if location.present? && location = Locations::Helper.parse_location(location.to_unsafe_hash)
       tc.record_change("location", tc.topic.custom_fields["location"], location)
@@ -223,21 +256,28 @@ after_initialize do
       Locations::TopicLocationProcess.upsert(topic)
     end
 
-    next unless SiteSetting.location_enabled
-    next unless SiteSetting.location_users_map
-    next unless SiteSetting.location_ip_auto_lookup_enabled
+    next unless Locations.ip_auto_lookup_enabled?
+    next unless Locations.ip_auto_lookup_on_post?
     next if user.blank?
 
     ip_address =
       opts[:ip_address].presence ||
-        (post.respond_to?(:ip_address) ? post.ip_address : nil).presence ||
-        user.ip_address
+        (post.respond_to?(:ip_address) ? post.ip_address : nil).presence || user.ip_address
 
     ip_address = "2.139.231.7" if Rails.env.development?
 
-    if ip_address.present?
-      Jobs.enqueue(::Jobs::Locations::IpLocationLookup, user_id: user.id, ip_address: ip_address)
-    end
+    Locations.enqueue_ip_lookup(user, ip_address)
+  end
+
+  on(:user_logged_in) do |user|
+    next unless Locations.ip_auto_lookup_enabled?
+    next unless Locations.ip_auto_lookup_on_login?
+    next if user.blank?
+
+    ip_address = Locations.latest_login_ip(user)
+    ip_address = "2.139.231.7" if Rails.env.development?
+
+    Locations.enqueue_ip_lookup(user, ip_address)
   end
 
   # check latitude and longitude are included when updating users location or raise an error
