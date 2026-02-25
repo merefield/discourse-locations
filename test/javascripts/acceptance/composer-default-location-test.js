@@ -7,7 +7,9 @@ import siteFixtures from "../fixtures/site-fixtures";
 function buildSiteFixture() {
   const site = cloneJSON(siteFixtures["site.json"]);
   site.can_create_topic = true;
-  const defaultCategory = site.categories.find((category) => category.id === 11);
+  const defaultCategory = site.categories.find(
+    (category) => category.id === 11
+  );
   defaultCategory.permission = 1;
   return site;
 }
