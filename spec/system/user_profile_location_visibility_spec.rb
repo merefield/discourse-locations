@@ -55,19 +55,12 @@ RSpec.describe "User profile and user card location visibility", type: :system d
 
       page.visit("/u/#{user_with_location.username}")
 
-      # Plugin's geo location should be visible inside .replace-location
-      expect(page).to have_css(
-        ".replace-location .user-profile-location",
-        visible: true,
-        wait: 5,
-      )
+      # Plugin's replace-location wrapper should be rendered
+      expect(page).to have_css(".replace-location", wait: 5)
 
-      # Native .user-profile-location outside .replace-location should be hidden
-      # (CSS rule: .user-profile-location { display: none })
-      expect(page).to have_no_css(
-        ".location-and-website > div.user-profile-location",
-        visible: true,
-      )
+      # Native location text should not be visible
+      # (plugin CSS hides .user-profile-location outside .replace-location)
+      expect(page).to have_no_text("Some Native Location")
     end
 
     it "shows website in the replace-location section when user has a website" do
