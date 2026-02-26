@@ -41,6 +41,7 @@ RSpec.describe "User profile and user card location visibility", type: :system d
       expect(page).to have_css(".replace-location .user-profile-location", visible: true, wait: 5)
       expect(page).to have_css(
         ".replace-location .user-profile-location .location-label",
+        text: "#{geo_location["city"]}, #{geo_location["country"]}",
         visible: true,
         wait: 5,
       )
