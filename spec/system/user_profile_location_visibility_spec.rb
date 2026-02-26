@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe "User profile and user card location visibility", type: :system do
@@ -9,8 +10,7 @@ RSpec.describe "User profile and user card location visibility", type: :system d
     {
       "lat" => "51.5073219",
       "lon" => "-0.1276474",
-      "address" =>
-        "London, Greater London, England, United Kingdom",
+      "address" => "London, Greater London, England, United Kingdom",
       "countrycode" => "gb",
       "city" => "London",
       "state" => "England",
@@ -38,13 +38,10 @@ RSpec.describe "User profile and user card location visibility", type: :system d
     it "shows geo location in the replace-location section" do
       page.visit("/u/#{user_with_location.username}")
 
-      expect(page).to have_css(
-        ".replace-location .user-profile-location",
-        visible: true,
-        wait: 5,
-      )
+      expect(page).to have_css(".replace-location .user-profile-location", visible: true, wait: 5)
       expect(page).to have_css(
         ".replace-location .user-profile-location .location-label",
+        text: "#{geo_location["city"]}, #{geo_location["country"]}",
         visible: true,
         wait: 5,
       )
@@ -68,11 +65,7 @@ RSpec.describe "User profile and user card location visibility", type: :system d
 
       page.visit("/u/#{user_with_location.username}")
 
-      expect(page).to have_css(
-        ".replace-location .user-profile-website",
-        visible: true,
-        wait: 5,
-      )
+      expect(page).to have_css(".replace-location .user-profile-website", visible: true, wait: 5)
       expect(page).to have_css(
         ".replace-location .user-profile-website a[href='https://example.com']",
         visible: true,
@@ -82,9 +75,7 @@ RSpec.describe "User profile and user card location visibility", type: :system d
 
   describe "user card" do
     fab!(:topic) { Fabricate(:topic, user: user_with_location) }
-    fab!(:post_with_location) do
-      Fabricate(:post, topic: topic, user: user_with_location)
-    end
+    fab!(:post_with_location) { Fabricate(:post, topic: topic, user: user_with_location) }
 
     def open_user_card(page, topic, username)
       page.visit("/t/#{topic.slug}/#{topic.id}")
@@ -102,6 +93,7 @@ RSpec.describe "User profile and user card location visibility", type: :system d
       )
       expect(page).to have_css(
         "#user-card .location-and-website .replace-location .location .location-label",
+        text: geo_location["city"],
         visible: true,
       )
     end
@@ -112,10 +104,7 @@ RSpec.describe "User profile and user card location visibility", type: :system d
       open_user_card(page, topic, user_with_location.username)
 
       # Plugin's replace-location wrapper should be rendered
-      expect(page).to have_css(
-        "#user-card .location-and-website .replace-location",
-        wait: 5,
-      )
+      expect(page).to have_css("#user-card .location-and-website .replace-location", wait: 5)
 
       # Native location text should not be visible
       # (plugin CSS hides native location outside .replace-location)

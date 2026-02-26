@@ -36,7 +36,11 @@ export default class ReplaceLocationComponent extends Component {
             {{! template-lint-disable link-rel-noopener }}
             <a
               href={{@model.website}}
-              rel={{unless this.removeNoFollow "nofollow ugc noopener"}}
+              rel={{if
+                this.removeNoFollow
+                "noopener noreferrer"
+                "nofollow ugc noopener noreferrer"
+              }}
               target="_blank"
             >
               {{@model.website_name}}
