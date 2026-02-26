@@ -51,7 +51,7 @@ RSpec.describe "User profile and user card location visibility", type: :system d
     end
 
     it "hides the native location field when user has a native location set" do
-      user_with_location.update!(location: "Some Native Location")
+      user_with_location.user_profile.update!(location: "Some Native Location")
 
       page.visit("/u/#{user_with_location.username}")
 
