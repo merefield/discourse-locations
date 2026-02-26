@@ -2,7 +2,7 @@
 require "rails_helper"
 
 RSpec.describe "User profile and user card location visibility", type: :system do
-  fab!(:user_with_location) { Fabricate(:user) }
+  fab!(:user_with_location, :user)
   fab!(:admin)
 
   let(:geo_location) do
