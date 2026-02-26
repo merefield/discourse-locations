@@ -22,31 +22,33 @@ export default class UserCardReplaceLocation extends Component {
   }
 
   <template>
-    <span hidden {{didInsert this.decorateLocationAndWebsite}}></span>
+    <div class="replace-location">
+      <span hidden {{didInsert this.decorateLocationAndWebsite}}></span>
 
-    {{#if this.showUserLocation}}
-      <span class="location">
-        <UserLocation @user={{@outletArgs.user}} @formFactor="card" />
-      </span>
-    {{/if}}
+      {{#if this.showUserLocation}}
+        <span class="location">
+          <UserLocation @user={{@outletArgs.user}} @formFactor="card" />
+        </span>
+      {{/if}}
 
-    {{#if @outletArgs.user.website_name}}
-      <span class="website-name">
-        {{dIcon "globe"}}
-        {{#if this.linkWebsite}}
-          <a
-            href={{@outletArgs.user.website}}
-            rel="nofollow ugc noopener noreferrer"
-            target="_blank"
-          >
-            {{@outletArgs.user.website_name}}
-          </a>
-        {{else}}
-          <span title={{@outletArgs.user.website}}>
-            {{@outletArgs.user.website_name}}
-          </span>
-        {{/if}}
-      </span>
-    {{/if}}
+      {{#if @outletArgs.user.website_name}}
+        <span class="website-name">
+          {{dIcon "globe"}}
+          {{#if this.linkWebsite}}
+            <a
+              href={{@outletArgs.user.website}}
+              rel="nofollow ugc noopener noreferrer"
+              target="_blank"
+            >
+              {{@outletArgs.user.website_name}}
+            </a>
+          {{else}}
+            <span title={{@outletArgs.user.website}}>
+              {{@outletArgs.user.website_name}}
+            </span>
+          {{/if}}
+        </span>
+      {{/if}}
+    </div>
   </template>
 }

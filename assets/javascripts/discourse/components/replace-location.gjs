@@ -8,10 +8,7 @@ export default class ReplaceLocationComponent extends Component {
   @service siteSettings;
 
   get showUserLocation() {
-    return (
-      !!this.args.model.custom_fields?.geo_location &&
-      this.args.model.custom_fields?.geo_location !== "{}"
-    );
+    return !!this.args.model.geo_location;
   }
 
   get linkWebsite() {
@@ -26,27 +23,29 @@ export default class ReplaceLocationComponent extends Component {
 
   <template>
     {{bodyClass "map-location-enabled"}}
-    {{#if this.showUserLocation}}
-      <div class="user-profile-location">
-        <UserLocation @user={{@model}} @formFactor="profile" />
-      </div>
-    {{/if}}
-    {{#if @model.website_name}}
-      <div class="user-profile-website">
-        {{icon "globe"}}
-        {{#if this.linkWebsite}}
-          {{! template-lint-disable link-rel-noopener }}
-          <a
-            href={{@model.website}}
-            rel={{unless this.removeNoFollow "nofollow ugc noopener"}}
-            target="_blank"
-          >
-            {{@model.website_name}}
-          </a>
-        {{else}}
-          <span title={{@model.website}}>{{@model.website_name}}</span>
-        {{/if}}
-      </div>
-    {{/if}}
+    <div class="replace-location">
+      {{#if this.showUserLocation}}
+        <div class="user-profile-location">
+          <UserLocation @user={{@model}} @formFactor="profile" />
+        </div>
+      {{/if}}
+      {{#if @model.website_name}}
+        <div class="user-profile-website">
+          {{icon "globe"}}
+          {{#if this.linkWebsite}}
+            {{! template-lint-disable link-rel-noopener }}
+            <a
+              href={{@model.website}}
+              rel={{unless this.removeNoFollow "nofollow ugc noopener"}}
+              target="_blank"
+            >
+              {{@model.website_name}}
+            </a>
+          {{else}}
+            <span title={{@model.website}}>{{@model.website_name}}</span>
+          {{/if}}
+        </div>
+      {{/if}}
+    </div>
   </template>
 }
