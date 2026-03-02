@@ -3,7 +3,7 @@
 module ::Locations
   class GeoLocationBuilder
     def self.from_ip_info(ip_info, granularity:)
-      ::Locations.ip_lookup_log(
+      ::Locations::LoggingHelper.ip_lookup_log(
         "3. Locations GeoLocationBuilder: granularity=#{granularity} ip_info=#{ip_info.inspect}",
       )
       ids = ip_info[:geoname_ids] || ip_info["geoname_ids"]
@@ -47,6 +47,5 @@ module ::Locations
         "id" => "geoname:#{chosen[:geoname_id]}",
       }
     end
-
   end
 end

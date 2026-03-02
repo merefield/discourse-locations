@@ -8,8 +8,8 @@ module ::Locations
     def initialize
       @base_url = DEFAULT_BASE_URL
       @username = SiteSetting.location_geonames_username
-      ::Locations.ip_lookup_log("5. Locations GeoNamesClient initialized")
-      ::Locations.ip_lookup_log("5. Locations GeoNamesClient base_url=#{@base_url}")
+      ::Locations::LoggingHelper.ip_lookup_log("5. Locations GeoNamesClient initialized")
+      ::Locations::LoggingHelper.ip_lookup_log("5. Locations GeoNamesClient base_url=#{@base_url}")
     end
 
     def get_feature(geoname_id)
@@ -31,14 +31,16 @@ module ::Locations
     end
 
     def fetch_and_normalize(id)
-      ::Locations.ip_lookup_log("5. Locations GeoNames fetch: geoname_id=#{id}")
+      ::Locations::LoggingHelper.ip_lookup_log("5. Locations GeoNames fetch: geoname_id=#{id}")
       url =
         "#{@base_url}getJSON?" +
           URI.encode_www_form(geonameId: id, username: @username, style: "full", formatted: "true")
 
-      ::Locations.ip_lookup_log("5. Locations GeoNames request: url=#{url}")
+      ::Locations::LoggingHelper.ip_lookup_log("5. Locations GeoNames request: url=#{url}")
       body = FinalDestination::HTTP.get(URI(url))
-      ::Locations.ip_lookup_log("5. Locations GeoNames response: geoname_id=#{id} body=#{body}")
+      ::Locations::LoggingHelper.ip_lookup_log(
+        "5. Locations GeoNames response: geoname_id=#{id} body=#{body}",
+      )
       raw = JSON.parse(body)
       return nil if raw["status"]
 
@@ -53,12 +55,12 @@ module ::Locations
         country_name: raw["countryName"],
         admin1: raw["adminName1"],
       }
-      ::Locations.ip_lookup_log(
+      ::Locations::LoggingHelper.ip_lookup_log(
         "5. Locations GeoNames feature: geoname_id=#{feature[:geoname_id]} name=#{feature[:name]} lat=#{feature[:lat]} lon=#{feature[:lon]} fcl=#{feature[:fcl]} fcode=#{feature[:fcode]}",
       )
       feature
     rescue StandardError => e
-      ::Locations.ip_lookup_log("5. GeoNames lookup failed (#{id}): #{e.message}")
+      ::Locations::LoggingHelper.ip_lookup_log("5. GeoNames lookup failed (#{id}): #{e.message}")
       nil
     end
   end
