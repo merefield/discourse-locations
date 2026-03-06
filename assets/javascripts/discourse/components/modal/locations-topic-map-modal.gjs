@@ -6,7 +6,7 @@ import LocationsMap from "./../locations-map";
 export default class LocationsTopicMapModalComponent extends Component {
   get title() {
     return i18n("map.topic_modal.label", {
-      topic_title: this.model.topic.title,
+      topic_title: this.args.model.topic.title,
     });
   }
 
