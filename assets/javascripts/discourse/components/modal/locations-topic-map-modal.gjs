@@ -4,9 +4,13 @@ import { i18n } from "discourse-i18n";
 import LocationsMap from "./../locations-map";
 
 export default class LocationsTopicMapModalComponent extends Component {
+  get topic() {
+    return this.args.model.topic;
+  }
+
   get title() {
     return i18n("map.topic_modal.label", {
-      topic_title: this.args.model.topic.title,
+      topic_title: this.topic.title,
     });
   }
 
@@ -16,7 +20,7 @@ export default class LocationsTopicMapModalComponent extends Component {
       @closeModal={{@closeModal}}
       class="locations-map-modal"
     >
-      <LocationsMap @topic={{this.model.topic}} @mapType="topic" />
+      <LocationsMap @topic={{this.topic}} @mapType="topic" />
     </DModal>
   </template>
 }
