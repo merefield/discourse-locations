@@ -16,6 +16,7 @@ export default class LocationsTopicMapModalComponent extends Component {
 
   <template>
     <DModal
+      @inline={{@inline}}
       @title={{this.title}}
       @closeModal={{@closeModal}}
       class="locations-map-modal"
