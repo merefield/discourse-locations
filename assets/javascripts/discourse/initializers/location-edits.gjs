@@ -78,6 +78,10 @@ function parseLocation(rawLocation) {
   return Object.keys(rawLocation).length > 0 ? rawLocation : null;
 }
 
+function customFieldEnabled(value) {
+  return value === true || value === "true" || value === "t" || value === 1;
+}
+
 const locationsDistanceHeader = <template>
   <SortableColumn
     @sortable={{@sortable}}
@@ -178,7 +182,9 @@ export default {
                 (item) => item.id === categoryId
               );
 
-              return Boolean(category?.custom_fields?.location_enabled);
+              return customFieldEnabled(
+                category?.custom_fields?.location_enabled
+              );
             }
 
             @computed("categoryId", "topicFirstPost", "forceLocationControls")
@@ -219,6 +225,9 @@ export default {
               }
 
               if (!this.showLocationControls) {
+                if (this.location !== null) {
+                  this.set("location", null);
+                }
                 return;
               }
 
