@@ -97,6 +97,24 @@ RSpec.describe TopicsController do
       expect(::Locations::TopicLocation.find_by(topic: topic)).to be_present
     end
 
+    it "clears topic locations and removes TopicLocation when location is blank" do
+      topic.custom_fields["location"] = { "geo_location" => { "lat" => "10", "lon" => "12" } }
+      topic.custom_fields["has_geo_location"] = true
+      topic.save_custom_fields(true)
+      ::Locations::TopicLocationProcess.upsert(topic)
+
+      expect(::Locations::TopicLocation.find_by(topic: topic)).to be_present
+
+      put "/t/#{topic.id}.json", params: { location: "" }
+
+      expect(response.status).to eq(200)
+
+      topic.reload
+      expect(topic.custom_fields["location"]).to eq({})
+      expect(topic.custom_fields["has_geo_location"]).to eq(false)
+      expect(::Locations::TopicLocation.find_by(topic: topic)).to be_blank
+    end
+
     it "ignores location updates for categories without locations enabled" do
       put "/t/#{topic_without_locations.id}.json",
           params: {

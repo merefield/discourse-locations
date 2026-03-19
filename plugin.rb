@@ -198,6 +198,7 @@ after_initialize do
     elsif location.blank?
       tc.topic.custom_fields["location"] = {}
       tc.topic.custom_fields["has_geo_location"] = false
+      Locations::TopicLocationProcess.delete(tc.topic.id)
     end
   end
 
