@@ -18,13 +18,29 @@ const USER_GEO_LOCATION = {
   type: "city",
 };
 
-function buildSiteFixture() {
+function buildCategory({ id, name, locationEnabled }) {
+  const site = cloneJSON(siteFixtures["site.json"]);
+  const category = cloneJSON(site.categories[0]);
+
+  category.id = id;
+  category.name = name;
+  category.permission = 1;
+  category.custom_fields.location_enabled = locationEnabled;
+
+  return category;
+}
+
+function buildSiteFixture({ defaultCategoryLocationEnabled = true } = {}) {
   const site = cloneJSON(siteFixtures["site.json"]);
   site.can_create_topic = true;
-  const defaultCategory = site.categories.find(
-    (category) => category.id === 11
-  );
-  defaultCategory.permission = 1;
+  site.categories = [
+    buildCategory({
+      id: 11,
+      name: "Suggestions",
+      locationEnabled: defaultCategoryLocationEnabled,
+    }),
+  ];
+
   return site;
 }
 
@@ -106,6 +122,28 @@ acceptance(
         composer.model.location.geo_location.address,
         "Custom Draft Address"
       );
+    });
+  }
+);
+
+acceptance(
+  "Composer (locations) | - don't apply user default in categories without locations enabled",
+  function (needs) {
+    needs.user(userWithGeoLocation());
+    needs.site(buildSiteFixture({ defaultCategoryLocationEnabled: false }));
+    needs.settings({
+      location_enabled: true,
+      location_users_map: true,
+      hide_user_profiles_from_public: false,
+      location_topic_default: "user",
+      default_composer_category: 11,
+    });
+
+    test("composer doesn't include default location in disabled categories", async function (assert) {
+      await openComposer();
+      const composer = this.container.lookup("service:composer");
+
+      assert.strictEqual(composer.model.location, null);
     });
   }
 );
