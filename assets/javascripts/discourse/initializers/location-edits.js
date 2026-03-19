@@ -58,6 +58,10 @@ export default {
         @observes("draftKey")
         _setupDefaultLocation() {
           if (this.draftKey.startsWith(NEW_TOPIC_KEY)) {
+            if (!this.get("showLocationControls")) {
+              return;
+            }
+
             const topicDefaultLocation =
               this.siteSettings.location_topic_default;
             // NB: we can't use the siteSettings, nor currentUser values set in the initialiser here

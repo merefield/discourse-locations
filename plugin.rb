@@ -184,7 +184,9 @@ after_initialize do
   SiteSetting.public_user_custom_fields = public_user_custom_fields.join("|")
 
   PostRevisor.track_topic_field(:location) do |tc, location|
-    if location.present? &&
+    category_supports_locations = tc.topic.category&.custom_fields&.[]("location_enabled")
+
+    if location.present? && category_supports_locations &&
          location = Locations::Helper.parse_location(location.to_unsafe_hash)
       tc.record_change("location", tc.topic.custom_fields["location"], location)
       tc.topic.custom_fields["location"] = location
@@ -193,7 +195,7 @@ after_initialize do
       ].present?
 
       Locations::TopicLocationProcess.upsert(tc.topic)
-    else
+    elsif location.blank?
       tc.topic.custom_fields["location"] = {}
       tc.topic.custom_fields["has_geo_location"] = false
     end
@@ -201,6 +203,7 @@ after_initialize do
 
   DiscourseEvent.on(:post_created) do |post, opts, user|
     if post.is_first_post? && opts[:location].present? &&
+         post.topic.category&.custom_fields&.[]("location_enabled") &&
          location = Locations::Helper.parse_location(opts[:location])
       topic = post.topic
       topic.custom_fields["location"] = location
