@@ -78,6 +78,10 @@ function parseLocation(rawLocation) {
   return Object.keys(rawLocation).length > 0 ? rawLocation : null;
 }
 
+function customFieldEnabled(value) {
+  return value === true || value === "true" || value === "t" || value === 1;
+}
+
 const locationsDistanceHeader = <template>
   <SortableColumn
     @sortable={{@sortable}}
@@ -169,9 +173,22 @@ export default {
               this._maybeSetupDefaultLocation();
             }
 
+            categorySupportsLocation(categoryId = this.categoryId) {
+              if (!categoryId) {
+                return false;
+              }
+
+              const category = this.site.categories.find(
+                (item) => item.id === categoryId
+              );
+
+              return customFieldEnabled(
+                category?.custom_fields?.location_enabled
+              );
+            }
+
             @computed("categoryId", "topicFirstPost", "forceLocationControls")
             get showLocationControls() {
-              const categoryId = this.get("categoryId");
               const topicFirstPost = this.get("topicFirstPost");
               const force = this.get("forceLocationControls");
 
@@ -181,15 +198,8 @@ export default {
               if (force) {
                 return true;
               }
-              if (categoryId) {
-                const category = this.site.categories.find(
-                  (item) => item.id === categoryId
-                );
-                if (category && category.custom_fields?.location_enabled) {
-                  return true;
-                }
-              }
-              return false;
+
+              return this.categorySupportsLocation();
             }
 
             clearState() {
@@ -211,6 +221,13 @@ export default {
               }
 
               if (!draftKey.startsWith(NEW_TOPIC_KEY) || !this.creatingTopic) {
+                return;
+              }
+
+              if (!this.showLocationControls) {
+                if (this.location !== null) {
+                  this.set("location", null);
+                }
                 return;
               }
 

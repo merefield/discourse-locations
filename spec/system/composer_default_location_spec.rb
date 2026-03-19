@@ -4,9 +4,10 @@ require "rails_helper"
 
 RSpec.describe "Composer default location", type: :system do
   fab!(:user) { Fabricate(:user, refresh_auto_groups: true) }
-  fab!(:category) do
+  fab!(:location_category) do
     Fabricate(:category_with_definition, custom_fields: { location_enabled: true })
   end
+  fab!(:category_without_locations, :category_with_definition)
   let(:category_page) { PageObjects::Pages::Category.new }
 
   let(:geo_location) do
@@ -27,12 +28,14 @@ RSpec.describe "Composer default location", type: :system do
   before do
     SiteSetting.location_enabled = true
     SiteSetting.location_topic_default = "user"
-    SiteSetting.default_composer_category = category.id
+    SiteSetting.default_composer_category = location_category.id
     SiteSetting.create_topic_allowed_groups =
       "#{Group::AUTO_GROUPS[:admins]}|#{Group::AUTO_GROUPS[:moderators]}|#{Group::AUTO_GROUPS[:trust_level_0]}"
 
-    category.set_permissions(everyone: :full)
-    category.save!
+    location_category.set_permissions(everyone: :full)
+    location_category.save!
+    category_without_locations.set_permissions(everyone: :full)
+    category_without_locations.save!
 
     user.custom_fields["geo_location"] = geo_location.to_json
     user.save_custom_fields(true)
@@ -41,17 +44,29 @@ RSpec.describe "Composer default location", type: :system do
   end
 
   it "initialises the composer location from the user location" do
-    category_page.visit(category)
+    category_page.visit(location_category)
     category_page.new_topic_button.click
 
     expect(page).to have_css("#reply-control.open")
     select_kit = PageObjects::Components::SelectKit.new("#reply-control.open .category-chooser")
-    expect(select_kit).to have_selected_value(category.id)
+    expect(select_kit).to have_selected_value(location_category.id)
 
     expect(page).to have_css(
       "#reply-control.open .location-label .d-button-label",
       text: geo_location[:address],
       wait: 10,
     )
+  end
+
+  it "does not initialise the composer location for categories without locations enabled" do
+    SiteSetting.default_composer_category = category_without_locations.id
+
+    category_page.visit(category_without_locations)
+    category_page.new_topic_button.click
+
+    expect(page).to have_css("#reply-control.open")
+    select_kit = PageObjects::Components::SelectKit.new("#reply-control.open .category-chooser")
+    expect(select_kit).to have_selected_value(category_without_locations.id)
+    expect(page).to have_no_css("#reply-control.open .location-label")
   end
 end
