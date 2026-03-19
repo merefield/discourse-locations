@@ -145,6 +145,23 @@ acceptance(
 
       assert.strictEqual(composer.model.location, null);
     });
+
+    test("composer clears stale location state in disabled categories", async function (assert) {
+      await openComposer();
+      const composer = this.container.lookup("service:composer");
+
+      composer.model.set("location", {
+        geo_location: {
+          ...USER_GEO_LOCATION,
+          address: "Stale Draft Address",
+        },
+      });
+
+      composer.model._maybeSetupDefaultLocation();
+      await settled();
+
+      assert.strictEqual(composer.model.location, null);
+    });
   }
 );
 

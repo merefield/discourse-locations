@@ -10,6 +10,10 @@ import I18n from "I18n";
 
 const NEW_TOPIC_KEY = "new_topic";
 
+function customFieldEnabled(value) {
+  return value === true || value === "true" || value === "t" || value === 1;
+}
+
 export default {
   name: "location-edits",
   initialize() {
@@ -43,7 +47,10 @@ export default {
           }
           if (categoryId) {
             const category = this.site.categories.findBy("id", categoryId);
-            if (category && category.custom_fields?.location_enabled) {
+            if (
+              category &&
+              customFieldEnabled(category.custom_fields?.location_enabled)
+            ) {
               return true;
             }
           }
@@ -59,6 +66,10 @@ export default {
         _setupDefaultLocation() {
           if (this.draftKey.startsWith(NEW_TOPIC_KEY)) {
             if (!this.get("showLocationControls")) {
+              if (this.location !== null) {
+                this.set("location", null);
+              }
+
               return;
             }
 
