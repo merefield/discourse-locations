@@ -351,22 +351,6 @@ export default {
         }
       );
 
-      const mapRoutes = [`Map`, `MapCategory`, `MapCategoryNone`];
-
-      mapRoutes.forEach(function (route) {
-        api.modifyClass(
-          `route:discovery.${route}`,
-          (Superclass) =>
-            class extends Superclass {
-              afterModel() {
-                this.templateName = "discovery/map";
-
-                return super.afterModel(...arguments);
-              }
-            }
-        );
-      });
-
       const categoryRoutes = ["category", "categoryNone"];
 
       categoryRoutes.forEach(function (route) {
