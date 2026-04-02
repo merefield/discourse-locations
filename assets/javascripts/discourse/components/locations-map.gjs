@@ -162,7 +162,7 @@ export default class LocationMapComponent extends Component {
     }
 
     if (this.mapType === "userList" && this.userList) {
-      this.userList.forEach((u) => {
+      (this.userList.content || this.userList).forEach((u) => {
         if (this.addUserMarker(u.user, this.locations)) {
           this.filteredLocations.push(this.userMarker(u.user));
         }
