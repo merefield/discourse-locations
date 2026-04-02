@@ -16,7 +16,7 @@ function customFieldEnabled(value) {
 
 export default {
   name: "location-edits",
-  initialize() {
+  initialize(container) {
     withPluginApi("0.8.23", (api) => {
       api.modifyClass("controller:users", {
         pluginId: "locations-plugin",
@@ -186,15 +186,17 @@ export default {
       const mapRoutes = [`Map`, `MapCategory`, `MapCategoryNone`];
 
       mapRoutes.forEach(function (route) {
-        api.modifyClass(`route:discovery.${route}`, {
-          pluginId: "locations-plugin",
+        if (container.factoryFor(`route:discovery.${route}`)) {
+          api.modifyClass(`route:discovery.${route}`, {
+            pluginId: "locations-plugin",
 
-          afterModel() {
-            this.templateName = "discovery/map";
+            afterModel() {
+              this.templateName = "discovery/map";
 
-            return this._super(...arguments);
-          },
-        });
+              return this._super(...arguments);
+            },
+          });
+        }
       });
 
       const categoryRoutes = ["category", "categoryNone"];
