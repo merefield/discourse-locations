@@ -44,7 +44,7 @@ en:
         title: "Address"
         desc: "e.g. 42 Wallaby Way, Sydney."
       geo:
-        desc: "Locations provided by {{provider}}"
+        desc: "Locations provided by %{provider}"
         btn:
           label: "Find Address"
         results: "Addresses"

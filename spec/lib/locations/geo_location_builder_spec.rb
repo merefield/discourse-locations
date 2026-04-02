@@ -13,8 +13,8 @@ describe ::Locations::GeoLocationBuilder do
         fcode: "ADM1",
         country_code: "ES",
         country_name: "Spain",
-        admin1: "Andalusia",
-      },
+        admin1: "Andalusia"
+      }
     )
 
     ip_info = { geoname_ids: [42], country: "Spain", country_code: "ES" }
@@ -40,11 +40,15 @@ describe ::Locations::GeoLocationBuilder do
         fcode: "ADM2",
         country_code: "US",
         country_name: "United States",
-        admin1: "California",
-      },
+        admin1: "California"
+      }
     )
 
-    ip_info = { geoname_ids: [99], country: "United States", country_code: "US" }
+    ip_info = {
+      geoname_ids: [99],
+      country: "United States",
+      country_code: "US"
+    }
     result = described_class.from_ip_info(ip_info, granularity: "county")
 
     expect(result["state"]).to eq("Los Angeles County")

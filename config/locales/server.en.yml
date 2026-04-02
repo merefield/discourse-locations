@@ -1,4 +1,8 @@
 en:
+  rss_description:
+    map: "Map topics"
+    nearby: "Nearby topics"
+
   site_settings:
     location_enabled: "Enable the locations plugin."
     location_sidebar_menu_map_link: "Enable map menu item in hamburger menu"

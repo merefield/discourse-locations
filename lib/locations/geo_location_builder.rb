@@ -4,7 +4,7 @@ module ::Locations
   class GeoLocationBuilder
     def self.from_ip_info(ip_info, granularity:)
       ::Locations::LoggingHelper.ip_lookup_log(
-        "3. Locations GeoLocationBuilder: granularity=#{granularity} ip_info=#{ip_info.inspect}",
+        "3. Locations GeoLocationBuilder: granularity=#{granularity} ip_info=#{ip_info.inspect}"
       )
       ids = ip_info[:geoname_ids] || ip_info["geoname_ids"]
       chosen = GeoNamesGranularityPicker.pick(ids, granularity: granularity)
@@ -23,7 +23,9 @@ module ::Locations
 
       city = granularity == "city" ? chosen[:name] : nil
 
-      country_code = chosen[:country_code] || ip_info[:country_code] || ip_info["country_code"]
+      country_code =
+        chosen[:country_code] || ip_info[:country_code] ||
+          ip_info["country_code"]
 
       {
         "lat" => chosen[:lat],
@@ -41,10 +43,10 @@ module ::Locations
           "granularity" => granularity,
           "geoname_id" => chosen[:geoname_id],
           "fcl" => chosen[:fcl],
-          "fcode" => chosen[:fcode],
+          "fcode" => chosen[:fcode]
         },
         "showType" => false,
-        "id" => "geoname:#{chosen[:geoname_id]}",
+        "id" => "geoname:#{chosen[:geoname_id]}"
       }
     end
   end

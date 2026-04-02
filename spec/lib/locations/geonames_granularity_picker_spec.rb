@@ -12,21 +12,43 @@ describe ::Locations::GeoNamesGranularityPicker do
       fcode: "PCLI",
       country_code: "US",
       country_name: "United States",
-      admin1: "CA",
+      admin1: "CA"
     }.merge(attrs)
   end
 
   before do
-    allow_any_instance_of(::Locations::GeoNamesClient).to receive(:get_feature) do |_, id|
+    allow_any_instance_of(::Locations::GeoNamesClient).to receive(
+      :get_feature
+    ) do |_, id|
       case id
       when 10
-        build_feature(geoname_id: 10, fcl: "A", fcode: "PCLI", name: "United States")
+        build_feature(
+          geoname_id: 10,
+          fcl: "A",
+          fcode: "PCLI",
+          name: "United States"
+        )
       when 11
-        build_feature(geoname_id: 11, fcl: "A", fcode: "ADM1", name: "California")
+        build_feature(
+          geoname_id: 11,
+          fcl: "A",
+          fcode: "ADM1",
+          name: "California"
+        )
       when 14
-        build_feature(geoname_id: 14, fcl: "A", fcode: "ADM2", name: "Los Angeles County")
+        build_feature(
+          geoname_id: 14,
+          fcl: "A",
+          fcode: "ADM2",
+          name: "Los Angeles County"
+        )
       when 12
-        build_feature(geoname_id: 12, fcl: "P", fcode: "PPLA", name: "Sacramento")
+        build_feature(
+          geoname_id: 12,
+          fcl: "P",
+          fcode: "PPLA",
+          name: "Sacramento"
+        )
       when 13
         build_feature(geoname_id: 13, fcl: "P", fcode: "PPL", name: "Fresno")
       end

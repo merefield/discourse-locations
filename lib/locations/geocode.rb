@@ -1,16 +1,10 @@
 # frozen_string_literal: true
-class GeocoderError < StandardError; end
+class GeocoderError < StandardError
+end
 
 module ::Locations
   class Geocode
-
-    REQUEST_PARTS = [
-      'street',
-      'neighbourhood',
-      'postalcode',
-      'city',
-      'state'
-      ]
+    REQUEST_PARTS = %w[street neighbourhood postalcode city state]
 
     def self.set_config(opts = {})
       provider = opts[:provider] || SiteSetting.location_geocoding_provider
@@ -22,7 +16,7 @@ module ::Locations
         api_key: api_key,
         timeout: timeout.to_i,
         cache: Discourse.redis,
-        cache_prefix: 'geocoder:',
+        cache_prefix: "geocoder:",
         use_https: true,
         always_raise: [
           SocketError,
@@ -36,24 +30,22 @@ module ::Locations
       )
 
       ## test to see that the config works
-      perform('10 Downing Street')
+      perform("10 Downing Street")
     end
 
     def self.build_query(request)
-      if !request['query']
+      if !request["query"]
         query = +""
 
         REQUEST_PARTS.each do |part|
           if request_part = request[part]
             query << "#{request_part}"
 
-            if request_part != 'city'
-              query << ', '
-            end
+            query << ", " if request_part != "city"
           end
         end
       else
-        query = request['query']
+        query = request["query"]
       end
 
       query
@@ -61,11 +53,19 @@ module ::Locations
 
     def self.search(user, request)
       query = self.build_query(request)
-      countrycode = SiteSetting.location_country_default_apply_to_all_searches && request['countrycode'].blank? ? SiteSetting.location_country_default : request['countrycode']
-      context = request['context']
+      countrycode =
+        (
+          if SiteSetting.location_country_default_apply_to_all_searches &&
+               request["countrycode"].blank?
+            SiteSetting.location_country_default
+          else
+            request["countrycode"]
+          end
+        )
+      context = request["context"]
 
       language = SiteSetting.location_geocoding_language
-      if language == 'user' || language == :user
+      if language == "user" || language == :user
         options = { language: user.effective_locale }
       else
         options = { language: SiteSetting.default_locale }
@@ -93,7 +93,7 @@ module ::Locations
       end
 
       # To be removed
-      provider = :nominatim if provider == 'mapzen' || provider == :mapzen
+      provider = :nominatim if provider == "mapzen" || provider == :mapzen
 
       if countrycode
         country_key = nil
@@ -101,11 +101,11 @@ module ::Locations
         # note: Mapquest does not support country code request resrictions
         case provider
         when :nominatim, :location_iq
-          country_key = 'countrycodes'
+          country_key = "countrycodes"
         when :mapbox
-          country_key = 'country'
+          country_key = "country"
         when :opencagedata
-          country_key = 'countrycode'
+          country_key = "countrycode"
         end
 
         options[:params] = { country_key.to_sym => countrycode } if country_key
@@ -113,11 +113,8 @@ module ::Locations
 
       locations = perform(query, options)
 
-      filter_params = options.merge(
-        context: context,
-        provider: provider,
-        request: request
-      )
+      filter_params =
+        options.merge(context: context, provider: provider, request: request)
 
       filters.each do |filter|
         if filtered_locations = filter[:block].call(locations, filter_params)
@@ -132,29 +129,33 @@ module ::Locations
       begin
         Geocoder.search(query, options)
       rescue SocketError
-        raise GeocoderError.new I18n.t('location.errors.socket')
+        raise GeocoderError.new I18n.t("location.errors.socket")
       rescue Timeout::Error
-        raise GeocoderError.new I18n.t('location.errors.timeout')
+        raise GeocoderError.new I18n.t("location.errors.timeout")
       rescue Geocoder::OverQueryLimitError
-        raise GeocoderError.new I18n.t('location.errors.query_limit')
+        raise GeocoderError.new I18n.t("location.errors.query_limit")
       rescue Geocoder::RequestDenied
-        raise GeocoderError.new I18n.t('location.errors.request_denied')
+        raise GeocoderError.new I18n.t("location.errors.request_denied")
       rescue Geocoder::InvalidRequest
-        raise GeocoderError.new I18n.t('location.errors.request_invalid')
+        raise GeocoderError.new I18n.t("location.errors.request_invalid")
       rescue Geocoder::InvalidApiKey
-        raise GeocoderError.new I18n.t('location.errors.api_key')
+        raise GeocoderError.new I18n.t("location.errors.api_key")
       rescue Geocoder::ServiceUnavailable
-        raise GeocoderError.new I18n.t('location.errors.service_unavailable')
+        raise GeocoderError.new I18n.t("location.errors.service_unavailable")
       end
     end
 
     def self.return_coords(query)
       result = self.perform(query).first
-      "#{result.data['lat']}, #{result.data['lon']}"
+      "#{result.data["lat"]}, #{result.data["lon"]}"
     end
 
     def self.return_distance(lat1, lon1, lat2, lon2)
-      Geocoder::Calculations.distance_between([lat1, lon1], [lat2, lon2], units: :km)
+      Geocoder::Calculations.distance_between(
+        [lat1, lon1],
+        [lat2, lon2],
+        units: :km
+      )
     end
 
     def self.sorted_validators

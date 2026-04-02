@@ -8,7 +8,7 @@ module Locations
         topics =
           topics.joins(
             "INNER JOIN locations_topic
-                               ON locations_topic.topic_id = topics.id",
+                               ON locations_topic.topic_id = topics.id"
           )
 
         Locations::Map.sorted_list_filters.each do |filter|
@@ -24,7 +24,7 @@ module Locations
         nearby_data =
           ::Locations::UserLocationProcess.list_topics_near_user_location(
             @user.id,
-            SiteSetting.location_nearby_list_max_distance_km,
+            SiteSetting.location_nearby_list_max_distance_km
           )
         nearby_map =
           nearby_data.to_h do |topic_id, distance, bearing|

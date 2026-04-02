@@ -351,21 +351,18 @@ export default {
         }
       );
 
-      const mapRoutes = [`Map`, `MapCategory`, `MapCategoryNone`];
-
-      mapRoutes.forEach(function (route) {
+      if (container.factoryFor("route:discovery.map")) {
         api.modifyClass(
-          `route:discovery.${route}`,
+          "route:discovery.map",
           (Superclass) =>
             class extends Superclass {
               afterModel() {
                 this.templateName = "discovery/map";
-
                 return super.afterModel(...arguments);
               }
             }
         );
-      });
+      }
 
       const categoryRoutes = ["category", "categoryNone"];
 

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_dependency 'enum_site_setting'
+require_dependency "enum_site_setting"
 
 class LocationCountryDefaultSiteSetting < ::EnumSiteSetting
   def self.valid_value?(val)
@@ -8,11 +8,7 @@ class LocationCountryDefaultSiteSetting < ::EnumSiteSetting
   end
 
   def self.values
-    @values ||= Locations::Country.codes.map do |c|
-      {
-        name: c[:name],
-        value: c[:code]
-      }
-    end
+    @values ||=
+      Locations::Country.codes.map { |c| { name: c[:name], value: c[:code] } }
   end
 end

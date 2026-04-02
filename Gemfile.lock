@@ -33,6 +33,7 @@ GEM
     parser (3.3.10.2)
       ast (~> 2.4.1)
       racc
+    prettier_print (1.2.1)
     prism (1.9.0)
     racc (1.8.1)
     rack (3.2.5)
@@ -84,6 +85,8 @@ GEM
       rubocop-rspec (~> 3.5)
     ruby-progressbar (1.13.0)
     securerandom (0.4.1)
+    syntax_tree (6.3.0)
+      prettier_print (>= 1.2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (3.2.0)
@@ -98,6 +101,7 @@ PLATFORMS
 DEPENDENCIES
   racc
   rubocop-discourse
+  syntax_tree
 
 BUNDLED WITH
    2.6.6

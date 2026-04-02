@@ -10,10 +10,14 @@ RSpec.describe "Users map" do
     UserCustomField.create!(
       user_id: user.id,
       name: "geo_location",
-      value: { lat: lat, lon: lon }.to_json,
+      value: { lat: lat, lon: lon }.to_json
     )
 
-    Locations::UserLocation.create!(user_id: user.id, latitude: lat, longitude: lon)
+    Locations::UserLocation.create!(
+      user_id: user.id,
+      latitude: lat,
+      longitude: lon
+    )
     user
   end
 

@@ -13,7 +13,7 @@ module ::Jobs
         return if ENV["DISCOURSE_MAXMIND_LICENSE_KEY"].blank?
 
         ::Locations::LoggingHelper.ip_lookup_log(
-          "1. Locations IP lookup start: user_id=#{args[:user_id]} ip_address=#{args[:ip_address]}",
+          "1. Locations IP lookup start: user_id=#{args[:user_id]} ip_address=#{args[:ip_address]}"
         )
 
         user_id = args[:user_id]
@@ -24,26 +24,28 @@ module ::Jobs
         return if user.blank?
 
         return unless ::Locations::IpLocationLookup.cooldown_passed?(user)
-        return if ::Locations::IpLocationLookup.should_skip_existing_location?(user)
+        if ::Locations::IpLocationLookup.should_skip_existing_location?(user)
+          return
+        end
 
         ip_info = DiscourseIpInfo.get(ip_address)
         ::Locations::LoggingHelper.ip_lookup_log(
-          "2. Locations IP lookup MaxMind response: user_id=#{user_id} ip_address=#{ip_address} ip_info=#{ip_info.inspect}",
+          "2. Locations IP lookup MaxMind response: user_id=#{user_id} ip_address=#{ip_address} ip_info=#{ip_info.inspect}"
         )
         return if ip_info.blank?
 
         geo_location =
           ::Locations::GeoLocationBuilder.from_ip_info(
             ip_info,
-            granularity: SiteSetting.location_ip_granularity,
+            granularity: SiteSetting.location_ip_granularity
           )
         ::Locations::LoggingHelper.ip_lookup_log(
-          "7. Locations IP lookup GeoLocationBuilder result: user_id=#{user_id} ip_address=#{ip_address} geo_location=#{geo_location.inspect}",
+          "7. Locations IP lookup GeoLocationBuilder result: user_id=#{user_id} ip_address=#{ip_address} geo_location=#{geo_location.inspect}"
         )
 
         if geo_location.blank?
           ::Locations::LoggingHelper.ip_lookup_log(
-            "7. Locations IP lookup: no geo_location built for user_id=#{user_id} ip_address=#{ip_address}",
+            "7. Locations IP lookup: no geo_location built for user_id=#{user_id} ip_address=#{ip_address}"
           )
           return
         end
@@ -52,11 +54,11 @@ module ::Jobs
         ::Locations::IpLocationLookup.mark_lookup!(user)
         user.save_custom_fields(true)
         ::Locations::LoggingHelper.ip_lookup_log(
-          "8. Locations IP lookup saved geo_location: user_id=#{user_id} ip_address=#{ip_address}",
+          "8. Locations IP lookup saved geo_location: user_id=#{user_id} ip_address=#{ip_address}"
         )
         ::Locations::UserLocationProcess.upsert(user.id)
         ::Locations::LoggingHelper.ip_lookup_log(
-          "9. Locations IP lookup updated user_location: user_id=#{user_id} ip_address=#{ip_address}",
+          "9. Locations IP lookup updated user_location: user_id=#{user_id} ip_address=#{ip_address}"
         )
       end
     end

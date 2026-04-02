@@ -5,7 +5,7 @@ import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
-import { htmlSafe } from "@ember/template";
+import { trustHTML } from "@ember/template";
 import DButton from "discourse/components/d-button";
 import DropdownMenu from "discourse/components/dropdown-menu";
 import TextField from "discourse/components/text-field";
@@ -15,15 +15,16 @@ import icon from "discourse/helpers/d-icon";
 import element from "discourse/helpers/element";
 import uniqueId from "discourse/helpers/unique-id";
 import discourseDebounce from "discourse/lib/debounce";
-import { INPUT_DELAY } from "discourse/lib/environment";
 import { makeArray } from "discourse/lib/helpers";
 import scrollIntoView from "discourse/modifiers/scroll-into-view";
 import { and, eq, not } from "discourse/truth-helpers";
 import { i18n } from "discourse-i18n";
 
+const INPUT_DELAY = 250;
+
 class Skeleton extends Component {
   get width() {
-    return htmlSafe(`width: ${Math.floor(Math.random() * 70) + 20}%`);
+    return trustHTML(`width: ${Math.floor(Math.random() * 70) + 20}%`);
   }
 
   <template>

@@ -20,23 +20,34 @@ module PageObjects
       end
 
       def has_no_selected_locations?
-        find("#{@context} .location-selector").has_no_css?(".d-multi-select-trigger__selected-item")
+        find("#{@context} .location-selector").has_no_css?(
+          ".d-multi-select-trigger__selected-item"
+        )
       end
 
       def open
-        find(@context).find(".location-selector .d-multi-select-trigger__expand-btn").click
+        find(@context).find(
+          ".location-selector .d-multi-select-trigger__expand-btn"
+        ).click
         expect(page).to have_css(".fk-d-menu.d-multi-select-content")
       end
 
       def add_location(location_name)
         self.open
-        find(".dropdown-menu__item.d-multi-select__search-container").fill_in(with: location_name)
-        find(".dropdown-menu__item.d-multi-select__result[title='#{location_name}']").click
+        find(".dropdown-menu__item.d-multi-select__search-container").fill_in(
+          with: location_name
+        )
+        find(
+          ".dropdown-menu__item.d-multi-select__result[title='#{location_name}']"
+        ).click
       end
 
       def remove_location(location_name)
         find(@context)
-          .find(".location-selector .d-multi-select-trigger__selected-item", text: location_name)
+          .find(
+            ".location-selector .d-multi-select-trigger__selected-item",
+            text: location_name
+          )
           .find(".d-multi-select-trigger__remove-selection-icon")
           .click
       end

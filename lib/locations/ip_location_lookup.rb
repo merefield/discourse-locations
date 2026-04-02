@@ -16,7 +16,9 @@ module ::Locations
     end
 
     def self.should_skip_existing_location?(user)
-      return false unless SiteSetting.locations_skip_ip_based_location_update_if_existing
+      unless SiteSetting.locations_skip_ip_based_location_update_if_existing
+        return false
+      end
 
       geo = Locations.parse_geo_location(user.custom_fields["geo_location"])
       return false unless geo.is_a?(Hash)

@@ -8,6 +8,7 @@ export default [
   },
   {
     ignores: [
+      "assets/lib/leaflet/**",
       "plugins/**/lib/javascripts/locale",
       "plugins/discourse-math/public",
       "public/",
