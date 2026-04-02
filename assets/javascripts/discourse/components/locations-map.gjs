@@ -103,10 +103,17 @@ export default class LocationMapComponent extends Component {
     if (this.args.mapType === "topicList") {
       if (category) {
         filter = `c/${category.slug}/${category.id}/l/map`;
+        const cachedTopicList = findOrResetCachedTopicList(
+          this.session,
+          filter
+        );
 
-        this.topicList =
-          (await findOrResetCachedTopicList(this.session, filter)) ||
-          this.store.findFiltered("topicList", { filter });
+        if (cachedTopicList?.topics?.some((topic) => topic.location)) {
+          this.topicList = cachedTopicList;
+        } else {
+          const result = await ajax(`/${filter}.json`);
+          this.topicList = result.topic_list;
+        }
       } else {
         let result = await ajax("/map.json");
         this.topicList = result.topic_list;

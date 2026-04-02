@@ -15,11 +15,12 @@ import icon from "discourse/helpers/d-icon";
 import element from "discourse/helpers/element";
 import uniqueId from "discourse/helpers/unique-id";
 import discourseDebounce from "discourse/lib/debounce";
-import { INPUT_DELAY } from "discourse/lib/environment";
 import { makeArray } from "discourse/lib/helpers";
 import scrollIntoView from "discourse/modifiers/scroll-into-view";
 import { and, eq, not } from "discourse/truth-helpers";
 import { i18n } from "discourse-i18n";
+
+const INPUT_DELAY = 250;
 
 class Skeleton extends Component {
   get width() {

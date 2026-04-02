@@ -12,10 +12,14 @@ acceptance("Topic Map - Show Correct Population", function (needs) {
   needs.user();
   needs.settings({
     location_enabled: true,
+    navigation_menu: "header dropdown",
   });
   needs.site(cloneJSON(altSiteFixtures["site.json"]));
   needs.pretender((server, helper) => {
     const categoryMapResponse = cloneJSON(mapFixtures["/category_map.json"]);
+    server.get("/c/announcements/24/l/map.json", () =>
+      helper.response(categoryMapResponse)
+    );
     server.get("/c/general/announcements/24/l/map.json", () =>
       helper.response(categoryMapResponse)
     );
