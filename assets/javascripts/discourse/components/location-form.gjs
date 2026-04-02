@@ -6,7 +6,7 @@ import { on } from "@ember/modifier";
 import { action, set } from "@ember/object";
 import { equal } from "@ember/object/computed";
 import { service } from "@ember/service";
-import { htmlSafe } from "@ember/template";
+import { trustHTML } from "@ember/template";
 import { hash } from "rsvp";
 import ConditionalLoadingSpinner from "discourse/components/conditional-loading-spinner";
 import { ajax } from "discourse/lib/ajax";
@@ -410,7 +410,7 @@ export default class LocationForm extends Component {
                   </ul>
                 </div>
                 {{#if this.showProvider}}
-                  <div class="location-form-instructions">{{htmlSafe
+                  <div class="location-form-instructions">{{trustHTML
                       (i18n "location.geo.desc" provider=this.providerDetails)
                     }}</div>
                 {{/if}}
