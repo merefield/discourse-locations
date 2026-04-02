@@ -3,7 +3,12 @@
 class CreateLocationsUserTable < ActiveRecord::Migration[7.0]
   def change
     create_table :locations_user do |t|
-      t.integer :user_id, null: false, index: { unique: true }, foreign_key: true
+      t.integer :user_id,
+                null: false,
+                index: {
+                  unique: true
+                },
+                foreign_key: true
       t.float :latitude, null: false
       t.float :longitude, null: false
       t.string :street, null: true

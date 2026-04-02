@@ -2,7 +2,18 @@
 module ::Locations
   class Country
     def self.codes
-      raw_codes = YAML.safe_load(File.read(File.join(Rails.root, 'plugins', 'discourse-locations', 'config', 'country_codes.yml')))
+      raw_codes =
+        YAML.safe_load(
+          File.read(
+            File.join(
+              Rails.root,
+              "plugins",
+              "discourse-locations",
+              "config",
+              "country_codes.yml"
+            )
+          )
+        )
       formatted_codes = []
 
       raw_codes.map do |code, name|
@@ -13,7 +24,17 @@ module ::Locations
     end
 
     def self.bounding_boxes
-      YAML.safe_load(File.read(File.join(Rails.root, 'plugins', 'discourse-locations', 'config', 'country_bounding_boxes.yml')))
+      YAML.safe_load(
+        File.read(
+          File.join(
+            Rails.root,
+            "plugins",
+            "discourse-locations",
+            "config",
+            "country_bounding_boxes.yml"
+          )
+        )
+      )
     end
   end
 end

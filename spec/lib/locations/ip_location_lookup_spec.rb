@@ -12,7 +12,10 @@ describe ::Locations::IpLocationLookup do
 
     it "returns false when within cooldown window" do
       SiteSetting.location_ip_lookup_cooldown_days = 1
-      user.custom_fields[described_class::LAST_LOOKUP_FIELD] = Time.zone.now.iso8601
+      user.custom_fields[described_class::LAST_LOOKUP_FIELD] = Time
+        .zone
+        .now
+        .iso8601
       user.save_custom_fields(true)
 
       expect(described_class.cooldown_passed?(user)).to eq(false)
@@ -20,7 +23,9 @@ describe ::Locations::IpLocationLookup do
   end
 
   describe ".should_skip_existing_location?" do
-    before { SiteSetting.locations_skip_ip_based_location_update_if_existing = true }
+    before do
+      SiteSetting.locations_skip_ip_based_location_update_if_existing = true
+    end
 
     it "treats empty geo_location object as missing" do
       user.custom_fields["geo_location"] = "{}"

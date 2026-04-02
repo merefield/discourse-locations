@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_dependency 'enum_site_setting'
+require_dependency "enum_site_setting"
 
 class LocationGeocodingLanguageSiteSetting < EnumSiteSetting
   def self.valid_value?(val)
@@ -7,11 +7,12 @@ class LocationGeocodingLanguageSiteSetting < EnumSiteSetting
   end
 
   def self.values
-    @values ||= ['default', 'user'].map do |v|
-      {
-        name: I18n.t("site_settings.location_geocoding_language_#{v}"),
-        value: v
-      }
-    end
+    @values ||=
+      %w[default user].map do |v|
+        {
+          name: I18n.t("site_settings.location_geocoding_language_#{v}"),
+          value: v
+        }
+      end
   end
 end

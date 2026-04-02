@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe DirectoryItemsController do
   fab!(:user)
@@ -21,7 +21,10 @@ RSpec.describe DirectoryItemsController do
       DirectoryItem.refresh!
       get "/directory_items.json?period=location"
       expect(response.status).to eq(200)
-      item = response.parsed_body["directory_items"].find { |row| row["id"] == user.id }
+      item =
+        response.parsed_body["directory_items"].find do |row|
+          row["id"] == user.id
+        end
       expect(item["user"]["geo_location"]["lat"].to_s).to eq("10")
     end
     it "doesn't allow user to browse the users map when user directory is disabled" do

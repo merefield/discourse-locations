@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module ::Locations
-
   class Map
     def self.sorted_list_filters
       @sorted_list_filters ||= []

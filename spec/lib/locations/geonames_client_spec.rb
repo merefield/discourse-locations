@@ -16,7 +16,7 @@ describe ::Locations::GeoNamesClient do
       "fcode" => "AREA",
       "countryCode" => "",
       "countryName" => "",
-      "adminName1" => "",
+      "adminName1" => ""
     }.to_json
 
     allow(FinalDestination::HTTP).to receive(:get).and_return(body)

@@ -1,30 +1,45 @@
 # frozen_string_literal: true
 module DirectoryItemsControllerExtension
   def index
-    if params[:period] === 'location'
-      raise Discourse::InvalidAccess.new(:enable_user_directory) unless SiteSetting.enable_user_directory?
-      raise Discourse::InvalidAccess.new(:location_users_map) unless SiteSetting.location_users_map?
-      raise Discourse::InvalidAccess.new(:hide_user_profiles_from_public) if SiteSetting.hide_user_profiles_from_public? && !current_user
+    if params[:period] === "location"
+      unless SiteSetting.enable_user_directory?
+        raise Discourse::InvalidAccess.new(:enable_user_directory)
+      end
+      unless SiteSetting.location_users_map?
+        raise Discourse::InvalidAccess.new(:location_users_map)
+      end
+      if SiteSetting.hide_user_profiles_from_public? && !current_user
+        raise Discourse::InvalidAccess.new(:hide_user_profiles_from_public)
+      end
 
       limit = SiteSetting.location_users_map_limit.to_i
 
-      result = DirectoryItem.joins("INNER JOIN locations_user ON directory_items.user_id = locations_user.user_id")
-        .where("period_type = 5").includes(:user).limit(limit)
+      result =
+        DirectoryItem
+          .joins(
+            "INNER JOIN locations_user ON directory_items.user_id = locations_user.user_id"
+          )
+          .where("period_type = 5")
+          .includes(:user)
+          .limit(limit)
 
       serializer_opts = {}
       serializer_opts[:attributes] = []
 
-      serialized = serialize_data(result, Locations::UsersMapDirectoryItemSerializer, serializer_opts)
-      render_json_dump(directory_items: serialized,
-                       meta: {}
-                      )
+      serialized =
+        serialize_data(
+          result,
+          Locations::UsersMapDirectoryItemSerializer,
+          serializer_opts
+        )
+      render_json_dump(directory_items: serialized, meta: {})
     else
       super
     end
   end
 end
 
-require_dependency 'directory_items_controller'
+require_dependency "directory_items_controller"
 class ::DirectoryItemsController
   prepend DirectoryItemsControllerExtension
 end

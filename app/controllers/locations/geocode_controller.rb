@@ -7,7 +7,12 @@ module ::Locations
       params.require(:request)
 
       rate_limit = SiteSetting.location_geocoding_rate_limit
-      RateLimiter.new(current_user, "geocode_search", rate_limit, 1.minute).performed!
+      RateLimiter.new(
+        current_user,
+        "geocode_search",
+        rate_limit,
+        1.minute
+      ).performed!
 
       error = nil
 
@@ -21,8 +26,12 @@ module ::Locations
         render json: failed_json.merge(message: error.message)
       else
         render_json_dump(
-          locations: serialize_data(result[:locations], Locations::GeoLocationSerializer),
-          provider: result[:provider],
+          locations:
+            serialize_data(
+              result[:locations],
+              Locations::GeoLocationSerializer
+            ),
+          provider: result[:provider]
         )
       end
     end
@@ -42,7 +51,11 @@ module ::Locations
         end
       end
 
-      render json: success_json.merge(messages: messages, geo_location: geo_location)
+      render json:
+               success_json.merge(
+                 messages: messages,
+                 geo_location: geo_location
+               )
     end
 
     def countries

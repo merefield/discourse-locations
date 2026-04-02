@@ -22,9 +22,7 @@ module Locations
     protected
 
     def ensure_discourse_locations
-      if !SiteSetting.location_enabled
-        raise Discourse::NotFound
-      end
+      raise Discourse::NotFound if !SiteSetting.location_enabled
     end
   end
 end

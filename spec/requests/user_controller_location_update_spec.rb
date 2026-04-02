@@ -24,8 +24,8 @@ RSpec.describe UsersController do
       put "/u/#{user.username}.json",
           params: {
             custom_fields: {
-              geo_location: { lat: 10, lon: 12 }.to_json,
-            },
+              geo_location: { lat: 10, lon: 12 }.to_json
+            }
           }
 
       expect(response.status).to eq(200)
@@ -41,8 +41,8 @@ RSpec.describe UsersController do
       put "/u/#{user.username}.json",
           params: {
             custom_fields: {
-              geo_location: { lat: 10 }.to_json,
-            },
+              geo_location: { lat: 10 }.to_json
+            }
           }
 
       expect(response.status).to eq(400)
@@ -54,8 +54,8 @@ RSpec.describe UsersController do
       put "/u/#{user.username}.json",
           params: {
             user_fields: {
-              user_field.id.to_s => "happy",
-            },
+              user_field.id.to_s => "happy"
+            }
           }
 
       expect(response.status).to eq(200)
@@ -71,14 +71,14 @@ RSpec.describe UsersController do
       UserCustomField.create!(
         user_id: user.id,
         name: "geo_location",
-        value: { lat: 1, lon: 2, address: "Somewhere" }.to_json,
+        value: { lat: 1, lon: 2, address: "Somewhere" }.to_json
       )
 
       put "/u/#{user.username}.json",
           params: {
             custom_fields: {
-              geo_location: "",
-            },
+              geo_location: ""
+            }
           }
 
       expect(response.status).to eq(200)

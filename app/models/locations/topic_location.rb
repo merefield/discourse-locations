@@ -3,7 +3,7 @@
 module ::Locations
   class TopicLocation < ActiveRecord::Base
     extend Geocoder::Model::ActiveRecord
-    self.table_name = 'locations_topic'
+    self.table_name = "locations_topic"
 
     belongs_to :topic
     validates :longitude, presence: true
@@ -14,7 +14,7 @@ module ::Locations
     after_validation :reverse_geocode
 
     def address
-      [street, city, state, postalcode, country].compact.join(', ')
+      [street, city, state, postalcode, country].compact.join(", ")
     end
   end
 end

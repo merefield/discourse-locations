@@ -2,11 +2,17 @@
 
 module ::Locations
   class GeoNamesGranularityPicker
-    CITY_PRIORITY = { "PPLC" => 5, "PPLA" => 4, "PPLA2" => 3, "PPLA3" => 2, "PPL" => 1 }.freeze
+    CITY_PRIORITY = {
+      "PPLC" => 5,
+      "PPLA" => 4,
+      "PPLA2" => 3,
+      "PPLA3" => 2,
+      "PPL" => 1
+    }.freeze
 
     def self.pick(ids, granularity:)
       ::Locations::LoggingHelper.ip_lookup_log(
-        "4. Locations GeoNames pick: ids=#{ids.inspect} granularity=#{granularity}",
+        "4. Locations GeoNames pick: ids=#{ids.inspect} granularity=#{granularity}"
       )
       client = GeoNamesClient.new
       features = Array(ids).uniq.filter_map { |id| client.get_feature(id) }
@@ -20,7 +26,7 @@ module ::Locations
           .max_by { |f| CITY_PRIORITY.fetch(f[:fcode], 0) }
 
       ::Locations::LoggingHelper.ip_lookup_log(
-        "6. Locations GeoNames pick result: country=#{country&.dig(:geoname_id)} admin1=#{admin1&.dig(:geoname_id)} admin2=#{admin2&.dig(:geoname_id)} city=#{city&.dig(:geoname_id)}",
+        "6. Locations GeoNames pick result: country=#{country&.dig(:geoname_id)} admin1=#{admin1&.dig(:geoname_id)} admin2=#{admin2&.dig(:geoname_id)} city=#{city&.dig(:geoname_id)}"
       )
 
       case granularity

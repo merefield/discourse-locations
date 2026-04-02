@@ -20,8 +20,8 @@ RSpec.describe "IP location lookup hooks" do
         job: ::Jobs::Locations::IpLocationLookup,
         args: {
           user_id: user.id,
-          ip_address: "203.0.113.5",
-        },
+          ip_address: "203.0.113.5"
+        }
       ) { PostCreator.create!(user, raw: "hello", topic_id: topic.id) }
     end
 
@@ -43,15 +43,15 @@ RSpec.describe "IP location lookup hooks" do
         user_id: user.id,
         user_agent: "RSpec",
         client_ip: "198.51.100.10",
-        path: "/login",
+        path: "/login"
       )
 
       expect_enqueued_with(
         job: ::Jobs::Locations::IpLocationLookup,
         args: {
           user_id: user.id,
-          ip_address: "198.51.100.10",
-        },
+          ip_address: "198.51.100.10"
+        }
       ) { user.logged_in }
     end
 
@@ -62,10 +62,12 @@ RSpec.describe "IP location lookup hooks" do
         user_id: user.id,
         user_agent: "RSpec",
         client_ip: "198.51.100.11",
-        path: "/login",
+        path: "/login"
       )
 
-      expect_not_enqueued_with(job: ::Jobs::Locations::IpLocationLookup) { user.logged_in }
+      expect_not_enqueued_with(job: ::Jobs::Locations::IpLocationLookup) do
+        user.logged_in
+      end
     end
   end
 end

@@ -7,7 +7,9 @@ RSpec.describe "Category default map view", type: :system do
   fab!(:category, :category_with_definition)
 
   let(:category_page) { PageObjects::Pages::Category.new }
-  let(:default_view_select_kit) { PageObjects::Components::SelectKit.new("#category-default-view") }
+  let(:default_view_select_kit) do
+    PageObjects::Components::SelectKit.new("#category-default-view")
+  end
 
   before do
     SiteSetting.location_enabled = true

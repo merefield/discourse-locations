@@ -3,7 +3,9 @@ require "rails_helper"
 
 RSpec.describe TopicsController do
   fab!(:user) { Fabricate(:user, refresh_auto_groups: true) }
-  fab!(:category) { Fabricate(:category, user: user, custom_fields: { location_enabled: true }) }
+  fab!(:category) do
+    Fabricate(:category, user: user, custom_fields: { location_enabled: true })
+  end
   fab!(:category_without_locations) { Fabricate(:category, user: user) }
 
   before do
@@ -21,9 +23,9 @@ RSpec.describe TopicsController do
              location: {
                geo_location: {
                  lat: 10,
-                 lon: 12,
-               },
-             },
+                 lon: 12
+               }
+             }
            }
       expect(response.status).to eq(200)
 
@@ -36,10 +38,10 @@ RSpec.describe TopicsController do
           "location" => {
             "geo_location" => {
               "lat" => "10",
-              "lon" => "12",
-            },
-          },
-        },
+              "lon" => "12"
+            }
+          }
+        }
       )
       expect(::Locations::TopicLocation.find_by(topic: topic)).to be_present
     end
@@ -53,9 +55,9 @@ RSpec.describe TopicsController do
              location: {
                geo_location: {
                  lat: 10,
-                 lon: 12,
-               },
-             },
+                 lon: 12
+               }
+             }
            }
 
       expect(response.status).to eq(200)
@@ -75,10 +77,20 @@ RSpec.describe TopicsController do
     fab!(:topic_without_locations) do
       Fabricate(:topic, user: user, category: category_without_locations)
     end
-    fab!(:post_without_locations) { Fabricate(:post, user: user, topic: topic_without_locations) }
+    fab!(:post_without_locations) do
+      Fabricate(:post, user: user, topic: topic_without_locations)
+    end
 
     it "should update topic with custom fields and create TopicLocation" do
-      put "/t/#{topic.id}.json", params: { location: { geo_location: { lat: 10, lon: 12 } } }
+      put "/t/#{topic.id}.json",
+          params: {
+            location: {
+              geo_location: {
+                lat: 10,
+                lon: 12
+              }
+            }
+          }
 
       expect(response.status).to eq(200)
 
@@ -89,16 +101,21 @@ RSpec.describe TopicsController do
           "location" => {
             "geo_location" => {
               "lat" => "10",
-              "lon" => "12",
-            },
-          },
-        },
+              "lon" => "12"
+            }
+          }
+        }
       )
       expect(::Locations::TopicLocation.find_by(topic: topic)).to be_present
     end
 
     it "clears topic locations and removes TopicLocation when location is blank" do
-      topic.custom_fields["location"] = { "geo_location" => { "lat" => "10", "lon" => "12" } }
+      topic.custom_fields["location"] = {
+        "geo_location" => {
+          "lat" => "10",
+          "lon" => "12"
+        }
+      }
       topic.custom_fields["has_geo_location"] = true
       topic.save_custom_fields(true)
       ::Locations::TopicLocationProcess.upsert(topic)
@@ -121,17 +138,21 @@ RSpec.describe TopicsController do
             location: {
               geo_location: {
                 lat: 10,
-                lon: 12,
-              },
-            },
+                lon: 12
+              }
+            }
           }
 
       expect(response.status).to eq(200)
 
       topic_without_locations.reload
       expect(topic_without_locations.custom_fields["location"]).to be_blank
-      expect(topic_without_locations.custom_fields["has_geo_location"]).to be_blank
-      expect(::Locations::TopicLocation.find_by(topic: topic_without_locations)).to be_blank
+      expect(
+        topic_without_locations.custom_fields["has_geo_location"]
+      ).to be_blank
+      expect(
+        ::Locations::TopicLocation.find_by(topic: topic_without_locations)
+      ).to be_blank
     end
   end
 end
