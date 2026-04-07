@@ -183,7 +183,14 @@ export default {
         },
       });
 
-      const mapRoutes = [`Map`, `MapCategory`, `MapCategoryNone`];
+      const mapRoutes = [
+        "Map",
+        "MapCategory",
+        "MapCategoryNone",
+        "map-category",
+        "map-category-all",
+        "map-category-none",
+      ];
 
       mapRoutes.forEach(function (route) {
         if (container.factoryFor(`route:discovery.${route}`)) {
@@ -207,6 +214,7 @@ export default {
 
           afterModel(model, transition) {
             if (
+              model?.category &&
               this.filter(model.category) === "map" &&
               this.siteSettings.location_category_map_filter
             ) {
