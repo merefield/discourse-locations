@@ -10,7 +10,9 @@ RSpec.describe "Topic map" do
       user: admin,
       name: "Announcements",
       slug: "announcements",
-      custom_fields: { location_enabled: true }
+      custom_fields: {
+        location_enabled: true,
+      },
     )
   end
   fab!(:software_category) do
@@ -19,7 +21,9 @@ RSpec.describe "Topic map" do
       user: admin,
       name: "Software",
       slug: "software",
-      custom_fields: { location_enabled: true }
+      custom_fields: {
+        location_enabled: true,
+      },
     )
   end
 
@@ -28,17 +32,11 @@ RSpec.describe "Topic map" do
   def create_topic_with_location(title:, category:, lat:, lon:)
     topic = Fabricate(:topic, user: admin, category: category, title: title)
 
-    topic.custom_fields["location"] = {
-      "geo_location" => { "lat" => lat.to_s, "lon" => lon.to_s }
-    }
+    topic.custom_fields["location"] = { "geo_location" => { "lat" => lat.to_s, "lon" => lon.to_s } }
     topic.custom_fields["has_geo_location"] = true
     topic.save_custom_fields(true)
 
-    Locations::TopicLocation.create!(
-      topic: topic,
-      latitude: lat,
-      longitude: lon
-    )
+    Locations::TopicLocation.create!(topic: topic, latitude: lat, longitude: lon)
     topic
   end
 
@@ -60,13 +58,13 @@ RSpec.describe "Topic map" do
       title: "Coolest thing you have seen today",
       category: announcements_category,
       lat: 23.13608785,
-      lon: -82.34999917
+      lon: -82.34999917,
     )
     create_topic_with_location(
       title: "The Room Appreciation Topic",
       category: software_category,
       lat: 12.9716,
-      lon: 77.5946
+      lon: 77.5946,
     )
 
     sign_in(admin)
@@ -78,12 +76,16 @@ RSpec.describe "Topic map" do
 
     expect(topic_map_page.has_map?).to eq(true)
     expect(topic_map_page.has_marker_count?(1)).to eq(true)
-    expect(
-      topic_map_page.has_topic_tooltip?("Coolest thing you have seen today")
-    ).to eq(true)
-    expect(
-      topic_map_page.has_no_topic_tooltip?("The Room Appreciation Topic")
-    ).to eq(true)
+    expect(topic_map_page.has_topic_tooltip?("Coolest thing you have seen today")).to eq(true)
+    expect(topic_map_page.has_no_topic_tooltip?("The Room Appreciation Topic")).to eq(true)
+  end
+
+  it "shows the map when visiting a category map filter directly" do
+    topic_map_page.visit_category(announcements_category, filter: "map")
+
+    expect(topic_map_page.has_map?).to eq(true)
+    expect(topic_map_page.has_marker_count?(1)).to eq(true)
+    expect(topic_map_page.has_topic_tooltip?("Coolest thing you have seen today")).to eq(true)
   end
 
   it "shows markers from multiple categories on the global map" do
@@ -91,11 +93,7 @@ RSpec.describe "Topic map" do
 
     expect(topic_map_page.has_map?).to eq(true)
     expect(topic_map_page.has_marker_count?(2)).to eq(true)
-    expect(
-      topic_map_page.has_topic_tooltip?("Coolest thing you have seen today")
-    ).to eq(true)
-    expect(
-      topic_map_page.has_topic_tooltip?("The Room Appreciation Topic")
-    ).to eq(true)
+    expect(topic_map_page.has_topic_tooltip?("Coolest thing you have seen today")).to eq(true)
+    expect(topic_map_page.has_topic_tooltip?("The Room Appreciation Topic")).to eq(true)
   end
 end
