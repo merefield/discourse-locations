@@ -10,12 +10,12 @@ import I18n, { i18n } from "discourse-i18n";
 
 const NEW_TOPIC_KEY = "new_topic";
 const LOCATIONS_LIST_ROUTES = ["discovery.nearby"];
-const CATEGORY_LIST_ROUTE_OVERRIDES = ["category", "categoryNone"];
-const CATEGORY_MAP_ROUTE_OVERRIDES = [
-  "map-category",
-  "map-category-all",
-  "map-category-none",
+const CATEGORY_LIST_ROUTE_OVERRIDES = [
+  "category",
+  "category-none",
+  "category-all",
 ];
+const CATEGORY_MAP_ROUTE_OVERRIDES = ["map-category", "map-category-none"];
 
 function formatDistance(distance) {
   if (!Number.isFinite(distance)) {
