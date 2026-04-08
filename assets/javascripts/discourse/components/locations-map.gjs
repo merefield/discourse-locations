@@ -103,7 +103,11 @@ export default class LocationMapComponent extends Component {
 
     if (this.args.mapType === "topicList") {
       if (category) {
-        filter = `c/${category.slug}/${category.id}/l/map`;
+        filter = `c/${category.slug}/${category.id}`;
+        if (this.args.noSubcategories) {
+          filter += "/none";
+        }
+        filter += "/l/map";
 
         this.topicList =
           (await findOrResetCachedTopicList(this.session, filter)) ||

@@ -9,8 +9,9 @@ module PageObjects
         self
       end
 
-      def visit_category(category, filter: nil)
+      def visit_category(category, filter: nil, scope: nil)
         path = "/c/#{category.slug}/#{category.id}"
+        path = "#{path}/#{scope}" if scope
         path = "#{path}/l/#{filter}" if filter
 
         page.visit(path)
