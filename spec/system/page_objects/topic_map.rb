@@ -4,8 +4,7 @@ module PageObjects
   module Pages
     class TopicMap < PageObjects::Pages::Base
       def visit_general
-        page.visit("/latest")
-        page.execute_script('window.require("discourse/lib/url").default.routeTo("/map")')
+        page.visit("/map")
         self
       end
 
