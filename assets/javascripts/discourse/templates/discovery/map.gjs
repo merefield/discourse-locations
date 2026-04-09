@@ -29,6 +29,7 @@ export default <template>
         <LocationsMap
           @mapType="topicList"
           @category={{@controller.model.category}}
+          @noSubcategories={{@controller.model.noSubcategories}}
         />
       </div>
     </:list>

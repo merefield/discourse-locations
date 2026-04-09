@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 7.1.13
+# version: 7.1.14
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -83,18 +83,13 @@ after_initialize do
   end
 
   def Locations.latest_login_ip(user)
-    user.user_auth_tokens.order(created_at: :desc).pick(:client_ip).presence ||
-      user.ip_address
+    user.user_auth_tokens.order(created_at: :desc).pick(:client_ip).presence || user.ip_address
   end
 
   def Locations.enqueue_ip_lookup(user, ip_address)
     return if user.blank? || ip_address.blank?
 
-    Jobs.enqueue(
-      ::Jobs::Locations::IpLocationLookup,
-      user_id: user.id,
-      ip_address: ip_address.to_s
-    )
+    Jobs.enqueue(::Jobs::Locations::IpLocationLookup, user_id: user.id, ip_address: ip_address.to_s)
   end
 
   Discourse.top_menu_items.push(:nearby)
@@ -137,12 +132,7 @@ after_initialize do
     prepend LocationsSiteSettingExtension
   end
 
-  %w[
-    location
-    location_enabled
-    location_topic_status
-    location_map_filter_closed
-  ].each do |key|
+  %w[location location_enabled location_topic_status location_map_filter_closed].each do |key|
     if Site.respond_to? :preloaded_category_custom_fields
       Site.preloaded_category_custom_fields << key
     end
@@ -156,12 +146,10 @@ after_initialize do
   add_to_serializer(
     :topic_view,
     :location,
-    include_condition: -> { object.topic.location.present? }
+    include_condition: -> { object.topic.location.present? },
   ) { object.topic.location }
 
-  if TopicList.respond_to? :preloaded_custom_fields
-    TopicList.preloaded_custom_fields << "location"
-  end
+  TopicList.preloaded_custom_fields << "location" if TopicList.respond_to? :preloaded_custom_fields
 
   add_to_class(:topic, :distance) { self[:distance] }
 
@@ -174,28 +162,26 @@ after_initialize do
   add_to_serializer(
     :topic_list_item,
     :location,
-    include_condition: -> { object.location.present? }
+    include_condition: -> { object.location.present? },
   ) { object.location }
 
   add_to_serializer(
     :topic_list_item,
     :bearing,
-    include_condition: -> { object.bearing.present? }
+    include_condition: -> { object.bearing.present? },
   ) { object.bearing.to_f % 360 }
 
   add_to_serializer(
     :topic_list_item,
     :distance,
-    include_condition: -> { object.distance.present? }
+    include_condition: -> { object.distance.present? },
   ) { object.distance.to_f }
 
   if defined?(register_editable_user_custom_field)
     register_editable_user_custom_field("geo_location")
   end
 
-  if User.respond_to? :preloaded_custom_fields
-    User.preloaded_custom_fields << "geo_location"
-  end
+  User.preloaded_custom_fields << "geo_location" if User.respond_to? :preloaded_custom_fields
 
   add_to_serializer(:user, :geo_location, respect_plugin_enabled: false) do
     Locations.parse_geo_location(object.custom_fields["geo_location"])
@@ -205,17 +191,11 @@ after_initialize do
     :user_card,
     :geo_location,
     include_condition: -> do
-      Locations.parse_geo_location(
-        object.custom_fields["geo_location"]
-      ).present?
-    end
+      Locations.parse_geo_location(object.custom_fields["geo_location"]).present?
+    end,
   ) { Locations.parse_geo_location(object.custom_fields["geo_location"]) }
 
-  add_to_serializer(
-    :post,
-    :user_custom_fields,
-    respect_plugin_enabled: false
-  ) do
+  add_to_serializer(:post, :user_custom_fields, respect_plugin_enabled: false) do
     public_keys = SiteSetting.public_user_custom_fields.split("|")
     user_fields = object.user&.custom_fields || {}
 
@@ -248,16 +228,13 @@ after_initialize do
   SiteSetting.public_user_custom_fields = public_user_custom_fields.join("|")
 
   PostRevisor.track_topic_field(:location) do |tc, location|
-    category_supports_locations =
-      tc.topic.category&.custom_fields&.[]("location_enabled")
+    category_supports_locations = tc.topic.category&.custom_fields&.[]("location_enabled")
 
     if location.present? && category_supports_locations &&
          location = Locations::Helper.parse_location(location.to_unsafe_hash)
       tc.record_change("location", tc.topic.custom_fields["location"], location)
       tc.topic.custom_fields["location"] = location
-      tc.topic.custom_fields["has_geo_location"] = location[
-        "geo_location"
-      ].present?
+      tc.topic.custom_fields["has_geo_location"] = location["geo_location"].present?
 
       Locations::TopicLocationProcess.upsert(tc.topic)
     elsif location.blank?
@@ -273,9 +250,7 @@ after_initialize do
          location = Locations::Helper.parse_location(opts[:location])
       topic = post.topic
       topic.custom_fields["location"] = location
-      topic.custom_fields["has_geo_location"] = location[
-        "geo_location"
-      ].present?
+      topic.custom_fields["has_geo_location"] = location["geo_location"].present?
       topic.save!
       Locations::TopicLocationProcess.upsert(topic)
     end
@@ -286,8 +261,7 @@ after_initialize do
 
     ip_address =
       opts[:ip_address].presence ||
-        (post.respond_to?(:ip_address) ? post.ip_address : nil).presence ||
-        user.ip_address
+        (post.respond_to?(:ip_address) ? post.ip_address : nil).presence || user.ip_address
 
     ip_address = "2.139.231.7" if Rails.env.development?
 
@@ -306,9 +280,7 @@ after_initialize do
   end
 
   # check latitude and longitude are included when updating users location or raise an error
-  register_modifier(
-    :users_controller_update_user_params
-  ) do |result, current_user, params|
+  register_modifier(:users_controller_update_user_params) do |result, current_user, params|
     raw = params.dig(:custom_fields, :geo_location)
     next result if raw.nil?
 
@@ -335,8 +307,7 @@ after_initialize do
       rescue StandardError
         nil
       end
-    unless value_hash.is_a?(Hash) && value_hash["lat"].present? &&
-             value_hash["lon"].present?
+    unless value_hash.is_a?(Hash) && value_hash["lat"].present? && value_hash["lon"].present?
       raise Discourse::InvalidParameters.new, I18n.t("location.errors.invalid")
     end
 
@@ -349,9 +320,7 @@ after_initialize do
   on(:user_updated) do |*params|
     user_id = params[0].id
 
-    if SiteSetting.location_enabled
-      Locations::UserLocationProcess.upsert(user_id)
-    end
+    Locations::UserLocationProcess.upsert(user_id) if SiteSetting.location_enabled
   end
 
   on(:user_destroyed) do |*params|
@@ -384,21 +353,13 @@ after_initialize do
   end
 
   add_model_callback(SiteSetting, :before_save) do
-    if name == "location_geocoding_provider"
-      Locations::Geocode.set_config(provider: value)
-    end
-    if name == "location_geocoding_timeout"
-      Locations::Geocode.set_config(timeout: value)
-    end
+    Locations::Geocode.set_config(provider: value) if name == "location_geocoding_provider"
+    Locations::Geocode.set_config(timeout: value) if name == "location_geocoding_timeout"
   end
 
-  add_to_class(:site, :country_codes) do
-    @country_codes ||= Locations::Country.codes
-  end
+  add_to_class(:site, :country_codes) { @country_codes ||= Locations::Country.codes }
 
-  add_to_serializer(:site, :country_codes, respect_plugin_enabled: false) do
-    object.country_codes
-  end
+  add_to_serializer(:site, :country_codes, respect_plugin_enabled: false) { object.country_codes }
 
   require_dependency "topic_query"
 
@@ -406,10 +367,7 @@ after_initialize do
     category = Category.find(options[:category_id]) if options[:category_id]
 
     if SiteSetting.location_map_filter_closed ||
-         (
-           options[:category_id] &&
-             category.custom_fields["location_map_filter_closed"]
-         )
+         (options[:category_id] && category.custom_fields["location_map_filter_closed"])
       topics = topics.where(closed: false)
     end
 
@@ -423,14 +381,14 @@ on(:custom_wizard_ready) do
   if defined?(CustomWizard) == "constant" && CustomWizard.class == Module
     CustomWizard::Field.register("location", "discourse-locations")
     CustomWizard::Action.register_callback(
-      :before_create_topic
+      :before_create_topic,
     ) do |params, wizard, action, submission|
       if action["add_location"]
         location =
           CustomWizard::Mapper.new(
             inputs: action["add_location"],
             data: submission&.fields_and_meta,
-            user: wizard.user
+            user: wizard.user,
           ).perform
 
         if location.present?
@@ -438,9 +396,7 @@ on(:custom_wizard_ready) do
 
           location_params = {}
           location_params["location"] = location
-          location_params["has_geo_location"] = location[
-            "geo_location"
-          ].present?
+          location_params["has_geo_location"] = location["geo_location"].present?
 
           params[:topic_opts] ||= {}
           params[:topic_opts][:custom_fields] ||= {}

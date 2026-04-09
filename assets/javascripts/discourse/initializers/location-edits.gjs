@@ -10,6 +10,12 @@ import I18n, { i18n } from "discourse-i18n";
 
 const NEW_TOPIC_KEY = "new_topic";
 const LOCATIONS_LIST_ROUTES = ["discovery.nearby"];
+const CATEGORY_LIST_ROUTE_OVERRIDES = [
+  "category",
+  "category-none",
+  "category-all",
+];
+const CATEGORY_MAP_ROUTE_OVERRIDES = ["map-category", "map-category-none"];
 
 function formatDistance(distance) {
   if (!Number.isFinite(distance)) {
@@ -364,9 +370,11 @@ export default {
         );
       }
 
-      const categoryRoutes = ["category", "categoryNone"];
+      CATEGORY_LIST_ROUTE_OVERRIDES.forEach((route) => {
+        if (!container.factoryFor(`route:discovery.${route}`)) {
+          return;
+        }
 
-      categoryRoutes.forEach(function (route) {
         api.modifyClass(
           `route:discovery.${route}`,
           (Superclass) =>
@@ -382,6 +390,23 @@ export default {
                   this.templateName = "discovery/list";
                 }
 
+                return super.afterModel(...arguments);
+              }
+            }
+        );
+      });
+
+      CATEGORY_MAP_ROUTE_OVERRIDES.forEach((route) => {
+        if (!container.factoryFor(`route:discovery.${route}`)) {
+          return;
+        }
+
+        api.modifyClass(
+          `route:discovery.${route}`,
+          (Superclass) =>
+            class extends Superclass {
+              afterModel() {
+                this.templateName = "discovery/map";
                 return super.afterModel(...arguments);
               }
             }

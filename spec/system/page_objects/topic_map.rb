@@ -4,15 +4,16 @@ module PageObjects
   module Pages
     class TopicMap < PageObjects::Pages::Base
       def visit_general
-        page.visit("/latest")
-        page.execute_script(
-          'window.require("discourse/lib/url").default.routeTo("/map")'
-        )
+        page.visit("/map")
         self
       end
 
-      def visit_category(category)
-        page.visit("/c/#{category.slug}/#{category.id}")
+      def visit_category(category, filter: nil, scope: nil)
+        path = "/c/#{category.slug}/#{category.id}"
+        path = "#{path}/#{scope}" if scope
+        path = "#{path}/l/#{filter}" if filter
+
+        page.visit(path)
         self
       end
 

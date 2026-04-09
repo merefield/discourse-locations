@@ -10,7 +10,9 @@ RSpec.describe "Topic map" do
       user: admin,
       name: "Announcements",
       slug: "announcements",
-      custom_fields: { location_enabled: true }
+      custom_fields: {
+        location_enabled: true,
+      },
     )
   end
   fab!(:software_category) do
@@ -19,7 +21,32 @@ RSpec.describe "Topic map" do
       user: admin,
       name: "Software",
       slug: "software",
-      custom_fields: { location_enabled: true }
+      custom_fields: {
+        location_enabled: true,
+      },
+    )
+  end
+  fab!(:regions_category) do
+    Fabricate(
+      :category_with_definition,
+      user: admin,
+      name: "Regions",
+      slug: "regions",
+      custom_fields: {
+        location_enabled: true,
+      },
+    )
+  end
+  fab!(:europe_category) do
+    Fabricate(
+      :category_with_definition,
+      user: admin,
+      name: "Europe",
+      slug: "europe",
+      parent_category_id: regions_category.id,
+      custom_fields: {
+        location_enabled: true,
+      },
     )
   end
 
@@ -28,17 +55,11 @@ RSpec.describe "Topic map" do
   def create_topic_with_location(title:, category:, lat:, lon:)
     topic = Fabricate(:topic, user: admin, category: category, title: title)
 
-    topic.custom_fields["location"] = {
-      "geo_location" => { "lat" => lat.to_s, "lon" => lon.to_s }
-    }
+    topic.custom_fields["location"] = { "geo_location" => { "lat" => lat.to_s, "lon" => lon.to_s } }
     topic.custom_fields["has_geo_location"] = true
     topic.save_custom_fields(true)
 
-    Locations::TopicLocation.create!(
-      topic: topic,
-      latitude: lat,
-      longitude: lon
-    )
+    Locations::TopicLocation.create!(topic: topic, latitude: lat, longitude: lon)
     topic
   end
 
@@ -55,18 +76,34 @@ RSpec.describe "Topic map" do
     announcements_category.save!
     software_category.set_permissions(everyone: :full)
     software_category.save!
+    regions_category.set_permissions(everyone: :full)
+    regions_category.save!
+    europe_category.set_permissions(everyone: :full)
+    europe_category.save!
 
     create_topic_with_location(
       title: "Coolest thing you have seen today",
       category: announcements_category,
       lat: 23.13608785,
-      lon: -82.34999917
+      lon: -82.34999917,
     )
     create_topic_with_location(
       title: "The Room Appreciation Topic",
       category: software_category,
       lat: 12.9716,
-      lon: 77.5946
+      lon: 77.5946,
+    )
+    create_topic_with_location(
+      title: "Regions parent marker",
+      category: regions_category,
+      lat: 40.7128,
+      lon: -74.0060,
+    )
+    create_topic_with_location(
+      title: "Regions child marker",
+      category: europe_category,
+      lat: 48.8566,
+      lon: 2.3522,
     )
 
     sign_in(admin)
@@ -78,24 +115,43 @@ RSpec.describe "Topic map" do
 
     expect(topic_map_page.has_map?).to eq(true)
     expect(topic_map_page.has_marker_count?(1)).to eq(true)
-    expect(
-      topic_map_page.has_topic_tooltip?("Coolest thing you have seen today")
-    ).to eq(true)
-    expect(
-      topic_map_page.has_no_topic_tooltip?("The Room Appreciation Topic")
-    ).to eq(true)
+    expect(topic_map_page.has_topic_tooltip?("Coolest thing you have seen today")).to eq(true)
+    expect(topic_map_page.has_no_topic_tooltip?("The Room Appreciation Topic")).to eq(true)
+  end
+
+  it "shows the map when visiting a category map filter directly" do
+    topic_map_page.visit_category(announcements_category, filter: "map")
+
+    expect(topic_map_page.has_map?).to eq(true)
+    expect(topic_map_page.has_marker_count?(1)).to eq(true)
+    expect(topic_map_page.has_topic_tooltip?("Coolest thing you have seen today")).to eq(true)
+  end
+
+  it "shows parent and subcategory markers on the category all route when map is the default view" do
+    regions_category.update!(default_view: "map")
+    topic_map_page.visit_category(regions_category, scope: "all")
+
+    expect(topic_map_page.has_map?).to eq(true)
+    expect(topic_map_page.has_marker_count?(2)).to eq(true)
+    expect(topic_map_page.has_topic_tooltip?("Regions parent marker")).to eq(true)
+    expect(topic_map_page.has_topic_tooltip?("Regions child marker")).to eq(true)
+  end
+
+  it "excludes subcategory markers on the category none map filter" do
+    topic_map_page.visit_category(regions_category, scope: "none", filter: "map")
+
+    expect(topic_map_page.has_map?).to eq(true)
+    expect(topic_map_page.has_marker_count?(1)).to eq(true)
+    expect(topic_map_page.has_topic_tooltip?("Regions parent marker")).to eq(true)
+    expect(topic_map_page.has_no_topic_tooltip?("Regions child marker")).to eq(true)
   end
 
   it "shows markers from multiple categories on the global map" do
     topic_map_page.visit_general
 
     expect(topic_map_page.has_map?).to eq(true)
-    expect(topic_map_page.has_marker_count?(2)).to eq(true)
-    expect(
-      topic_map_page.has_topic_tooltip?("Coolest thing you have seen today")
-    ).to eq(true)
-    expect(
-      topic_map_page.has_topic_tooltip?("The Room Appreciation Topic")
-    ).to eq(true)
+    expect(topic_map_page.has_marker_count?(4)).to eq(true)
+    expect(topic_map_page.has_topic_tooltip?("Coolest thing you have seen today")).to eq(true)
+    expect(topic_map_page.has_topic_tooltip?("The Room Appreciation Topic")).to eq(true)
   end
 end
