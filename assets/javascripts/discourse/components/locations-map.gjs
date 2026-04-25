@@ -505,12 +505,23 @@ export default class LocationMapComponent extends Component {
 
     if (this.expanded) {
       this.mapToggle = "compress";
-      map.setZoom(this.siteSettings.location_map_expanded_zoom);
+      this.afterMapResize(() => {
+        map.setZoom(this.siteSettings.location_map_expanded_zoom);
+      });
     } else {
       this.mapToggle = "expand";
-      this.setupLocationMap();
+      this.afterMapResize(() => this.setupLocationMap());
     }
-    map.invalidateSize();
+  }
+
+  afterMapResize(callback) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.mapObjs.map.invalidateSize({ pan: false });
+        callback?.();
+        this.mapObjs.map.invalidateSize({ pan: false });
+      });
+    });
   }
 
   // TODO
