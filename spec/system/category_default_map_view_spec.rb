@@ -2,14 +2,12 @@
 
 require "rails_helper"
 
-RSpec.describe "Category default map view", type: :system do
+RSpec.describe "Category default map view" do
   fab!(:admin)
   fab!(:category, :category_with_definition)
 
   let(:category_page) { PageObjects::Pages::Category.new }
-  let(:default_view_select_kit) do
-    PageObjects::Components::SelectKit.new("#category-default-view")
-  end
+  let(:default_view_select_kit) { PageObjects::Components::SelectKit.new("#category-default-view") }
 
   before do
     SiteSetting.location_enabled = true
@@ -23,7 +21,7 @@ RSpec.describe "Category default map view", type: :system do
   end
 
   it "shows the map view without a route error when map is the category default view" do
-    category_page.visit_settings(category)
+    category_page.visit_appearance(category)
     default_view_select_kit.expand
     default_view_select_kit.select_row_by_value("map")
     category_page.save_settings
