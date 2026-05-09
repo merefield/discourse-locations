@@ -2,11 +2,39 @@
 import { computed, observer } from "@ember/object";
 import { scheduleOnce } from "@ember/runloop";
 import { withPluginApi } from "discourse/lib/plugin-api";
+import Category from "discourse/models/category";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
 import { i18n } from "discourse-i18n";
 
 const NEW_TOPIC_KEY = "new_topic";
+
+function parseGeoLocation(rawGeoLocation) {
+  if (!rawGeoLocation || rawGeoLocation === "{}") {
+    return null;
+  }
+
+  if (typeof rawGeoLocation === "string") {
+    if (rawGeoLocation.replaceAll(" ", "") === "{}") {
+      return null;
+    }
+
+    try {
+      rawGeoLocation = JSON.parse(rawGeoLocation);
+    } catch {
+      return null;
+    }
+  }
+
+  if (
+    typeof rawGeoLocation === "object" &&
+    Object.keys(rawGeoLocation).length
+  ) {
+    return rawGeoLocation;
+  }
+
+  return null;
+}
 
 function customFieldEnabled(value) {
   return value === true || value === "true" || value === "t" || value === 1;
@@ -15,6 +43,8 @@ function customFieldEnabled(value) {
 export default {
   name: "location-edits",
   initialize(container) {
+    const siteSettings = container.lookup("service:site-settings");
+
     withPluginApi((api) => {
       api.modifyClass("controller:users", {
         pluginId: "locations-plugin",
@@ -81,16 +111,11 @@ export default {
           }
 
           const topicDefaultLocation = this.siteSettings.location_topic_default;
-          const userGeoLocation = this.user?.custom_fields?.geo_location;
+          const userGeoLocation = parseGeoLocation(
+            this.user?.custom_fields?.geo_location
+          );
 
-          if (
-            topicDefaultLocation === "user" &&
-            userGeoLocation &&
-            ((typeof userGeoLocation === "string" &&
-              userGeoLocation.replaceAll(" ", "") !== "{}") ||
-              (typeof userGeoLocation === "object" &&
-                Object.keys(userGeoLocation).length !== 0))
-          ) {
+          if (topicDefaultLocation === "user" && userGeoLocation) {
             this.set("location", {
               geo_location: userGeoLocation,
             });
@@ -101,7 +126,7 @@ export default {
           this.maybeSetupDefaultLocation();
         },
 
-        _setupDefaultLocation: observer("draftKey", function () {
+        _setupDefaultLocation: observer("draftKey", "categoryId", function () {
           this.maybeSetupDefaultLocation();
         }),
       });
@@ -191,7 +216,7 @@ export default {
 
           if (
             category?.get?.("custom_fields.location_enabled") &&
-            this.siteSettings.location_category_map_filter
+            siteSettings.location_category_map_filter
           ) {
             views.push({ name: i18n("filters.map.label"), value: "map" });
           }
@@ -233,11 +258,11 @@ export default {
             if (
               model?.category &&
               this.filter(model.category) === "map" &&
-              this.siteSettings.location_category_map_filter
+              siteSettings.location_category_map_filter
             ) {
               transition.abort();
               return this.replaceWith(
-                `/c/${this.Category.slugFor(model.category)}/l/${this.filter(
+                `/c/${Category.slugFor(model.category)}/l/${this.filter(
                   model.category
                 )}`
               );
@@ -261,7 +286,7 @@ export default {
           typeof category !== "undefined" &&
           category &&
           category.custom_fields?.location_enabled &&
-          category.siteSettings.location_category_map_filter
+          siteSettings.location_category_map_filter
         ) {
           items.push(NavItem.fromText("map", args)); // Show category level "/map" instead
         }

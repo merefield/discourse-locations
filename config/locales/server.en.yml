@@ -53,6 +53,9 @@ en:
     location_user_profile_format: "Format of location on user's profile. A list of geolocation attributes, with an optional index if value is split by ',' e.g. address:3"
     location_topic_default: "Default location for topic."
 
+  rss_description:
+    map: "Map"
+
   location:
     errors:
       invalid: "Invalid map location"
