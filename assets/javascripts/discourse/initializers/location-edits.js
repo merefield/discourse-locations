@@ -1,6 +1,7 @@
 /* eslint-disable ember/no-observers */
-import { computed, observer } from "@ember/object";
-import { scheduleOnce } from "@ember/runloop";
+import { computed } from "@ember/object";
+import { next, scheduleOnce } from "@ember/runloop";
+import { observes } from "@ember-decorators/object";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
@@ -45,166 +46,198 @@ export default {
     const siteSettings = container.lookup("service:site-settings");
 
     withPluginApi((api) => {
-      api.modifyClass("controller:users", {
-        pluginId: "locations-plugin",
+      api.modifyClass(
+        "controller:users",
+        (Superclass) =>
+          class extends Superclass {
+            pluginId = "locations-plugin";
 
-        loadUsers(params) {
-          if (params !== undefined && params.period === "location") {
-            return;
+            loadUsers(params) {
+              if (params !== undefined && params.period === "location") {
+                return;
+              }
+              super.loadUsers(params);
+            }
           }
-          this._super(params);
-        },
-      });
+      );
 
-      api.modifyClass("model:composer", {
-        pluginId: "locations-plugin",
+      api.modifyClass(
+        "model:composer",
+        (Superclass) =>
+          class extends Superclass {
+            pluginId = "locations-plugin";
 
-        showLocationControls: computed(
-          "subtype",
-          "categoryId",
-          "topicFirstPost",
-          "forceLocationControls",
-          function () {
-            const { categoryId, topicFirstPost } = this;
-            const force = this.forceLocationControls;
-
-            if (!topicFirstPost) {
-              return false;
+            init() {
+              super.init(...arguments);
+              this._maybeSetupDefaultLocation();
             }
-            if (force) {
-              return true;
-            }
-            if (categoryId) {
-              const category = this.site.categories.findBy("id", categoryId);
-              if (
-                category &&
-                customFieldEnabled(category.custom_fields?.location_enabled)
-              ) {
+
+            @computed(
+              "subtype",
+              "categoryId",
+              "topicFirstPost",
+              "forceLocationControls"
+            )
+            get showLocationControls() {
+              const { categoryId, topicFirstPost } = this;
+              const force = this.forceLocationControls;
+
+              if (!topicFirstPost) {
+                return false;
+              }
+              if (force) {
                 return true;
               }
+              if (categoryId) {
+                const category = this.site.categories.find(
+                  (item) => item.id === categoryId
+                );
+                if (
+                  category &&
+                  customFieldEnabled(category.custom_fields?.location_enabled)
+                ) {
+                  return true;
+                }
+              }
+              return false;
             }
-            return false;
-          }
-        ),
 
-        clearState() {
-          this._super(...arguments);
-          this.set("location", null);
-        },
-
-        maybeSetupDefaultLocation() {
-          if (!this.draftKey?.startsWith(NEW_TOPIC_KEY)) {
-            return;
-          }
-
-          if (!this.get("showLocationControls")) {
-            if (this.location !== null) {
+            clearState() {
+              super.clearState(...arguments);
               this.set("location", null);
             }
 
-            return;
-          }
-
-          if (this.location) {
-            return;
-          }
-
-          const topicDefaultLocation = this.siteSettings.location_topic_default;
-          const userGeoLocation = parseGeoLocation(
-            this.user?.custom_fields?.geo_location
-          );
-
-          if (topicDefaultLocation === "user" && userGeoLocation) {
-            this.set("location", {
-              geo_location: userGeoLocation,
-            });
-          }
-        },
-
-        _maybeSetupDefaultLocation() {
-          this.maybeSetupDefaultLocation();
-        },
-
-        _setupDefaultLocation: observer("draftKey", "categoryId", function () {
-          this.maybeSetupDefaultLocation();
-        }),
-      });
-
-      api.modifyClass("component:composer-body", {
-        pluginId: "locations-plugin",
-
-        resizeWhenLocationAdded: observer("composer.location", function () {
-          this._triggerComposerResized();
-        }),
-
-        applyLocationInlineClass: observer(
-          "composer.showLocationControls",
-          "composer.composeState",
-          function () {
-            const applyClasses = () => {
-              const showLocationControls = this.get(
-                "composer.showLocationControls"
-              );
-              const containerElement = document.querySelector(
-                ".composer-fields .title-and-category"
-              );
-
-              if (containerElement) {
-                // Toggle the "show-location-controls" class based on `showLocationControls`
-                if (showLocationControls) {
-                  containerElement.classList.add("show-location-controls");
-                } else {
-                  containerElement.classList.remove("show-location-controls");
-                }
-
-                if (showLocationControls) {
-                  const anchorElement = this.site.mobileView
-                    ? containerElement.querySelector(".title-input")
-                    : containerElement;
-
-                  // Move ".composer-controls-location" element to `anchorElement`
-                  const locationControl = document.querySelector(
-                    ".composer-controls-location"
-                  );
-                  if (locationControl && anchorElement) {
-                    anchorElement.appendChild(locationControl);
-                  }
-                }
-
-                this._triggerComposerResized();
+            maybeSetupDefaultLocation() {
+              if (!this.draftKey) {
+                next(this, this._maybeSetupDefaultLocation);
+                return;
               }
-            };
 
-            scheduleOnce("afterRender", this, applyClasses);
+              if (!this.draftKey.startsWith(NEW_TOPIC_KEY)) {
+                return;
+              }
+
+              if (!this.get("showLocationControls")) {
+                if (this.location !== null) {
+                  this.set("location", null);
+                }
+
+                return;
+              }
+
+              if (this.location) {
+                return;
+              }
+
+              const topicDefaultLocation =
+                this.siteSettings.location_topic_default;
+              const userGeoLocation = parseGeoLocation(
+                this.user?.custom_fields?.geo_location
+              );
+
+              if (topicDefaultLocation === "user" && userGeoLocation) {
+                this.set("location", {
+                  geo_location: userGeoLocation,
+                });
+              }
+            }
+
+            _maybeSetupDefaultLocation() {
+              this.maybeSetupDefaultLocation();
+            }
+
+            @observes("draftKey", "categoryId")
+            _setupDefaultLocation() {
+              this.maybeSetupDefaultLocation();
+            }
           }
-        ),
-      });
+      );
+
+      api.modifyClass(
+        "component:composer-body",
+        (Superclass) =>
+          class extends Superclass {
+            pluginId = "locations-plugin";
+
+            @observes("composer.location")
+            resizeWhenLocationAdded() {
+              this._triggerComposerResized();
+            }
+
+            @observes("composer.showLocationControls", "composer.composeState")
+            applyLocationInlineClass() {
+              const applyClasses = () => {
+                const showLocationControls = this.get(
+                  "composer.showLocationControls"
+                );
+                const containerElement = document.querySelector(
+                  ".composer-fields .title-and-category"
+                );
+
+                if (containerElement) {
+                  // Toggle the "show-location-controls" class based on `showLocationControls`
+                  if (showLocationControls) {
+                    containerElement.classList.add("show-location-controls");
+                  } else {
+                    containerElement.classList.remove("show-location-controls");
+                  }
+
+                  if (showLocationControls) {
+                    const anchorElement = this.site.mobileView
+                      ? containerElement.querySelector(".title-input")
+                      : containerElement;
+
+                    // Move ".composer-controls-location" element to `anchorElement`
+                    const locationControl = document.querySelector(
+                      ".composer-controls-location"
+                    );
+                    if (locationControl && anchorElement) {
+                      anchorElement.appendChild(locationControl);
+                    }
+                  }
+
+                  this._triggerComposerResized();
+                }
+              };
+
+              scheduleOnce("afterRender", this, applyClasses);
+            }
+          }
+      );
 
       const subtypeShowLocation = ["event", "question", "general"];
-      api.modifyClass("model:topic", {
-        pluginId: "locations-plugin",
+      api.modifyClass(
+        "model:topic",
+        (Superclass) =>
+          class extends Superclass {
+            pluginId = "locations-plugin";
 
-        showLocationControls: computed(
-          "subtype",
-          "category.custom_fields.location_enabled",
-          function () {
-            const { subtype } = this;
-            const categoryEnabled =
-              this.category?.custom_fields?.location_enabled;
+            @computed("subtype", "category.custom_fields.location_enabled")
+            get showLocationControls() {
+              const { subtype } = this;
+              const categoryEnabled =
+                this.category?.custom_fields?.location_enabled;
 
-            return subtypeShowLocation.indexOf(subtype) > -1 || categoryEnabled;
+              return (
+                subtypeShowLocation.indexOf(subtype) > -1 || categoryEnabled
+              );
+            }
           }
-        ),
-      });
+      );
 
       // necessary because topic-title plugin outlet only recieves model
-      api.modifyClass("controller:topic", {
-        pluginId: "locations-plugin",
+      api.modifyClass(
+        "controller:topic",
+        (Superclass) =>
+          class extends Superclass {
+            pluginId = "locations-plugin";
 
-        setEditingTopicOnModel: observer("editingTopic", function () {
-          this.set("model.editingTopic", this.get("editingTopic"));
-        }),
-      });
+            @observes("editingTopic")
+            setEditingTopicOnModel() {
+              this.set("model.editingTopic", this.get("editingTopic"));
+            }
+          }
+      );
 
       api.registerValueTransformer(
         "category-available-views",

@@ -33,20 +33,25 @@ export default {
         });
       }
 
-      api.modifyClass("component:user-card-contents", {
-        pluginId: PLUGIN_ID,
+      api.modifyClass(
+        "component:user-card-contents",
+        (Superclass) =>
+          class extends Superclass {
+            pluginId = PLUGIN_ID;
 
-        hasLocaleOrWebsite: computed("user", function () {
-          const { user } = this;
+            @computed("user")
+            get hasLocaleOrWebsite() {
+              const { user } = this;
 
-          return (
-            user.geo_location ||
-            user.location ||
-            user.website_name ||
-            this.userTimezone
-          );
-        }),
-      });
+              return (
+                user.geo_location ||
+                user.location ||
+                user.website_name ||
+                this.userTimezone
+              );
+            }
+          }
+      );
     });
   },
 };
