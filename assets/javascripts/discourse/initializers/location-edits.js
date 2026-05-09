@@ -2,7 +2,6 @@
 import { computed, observer } from "@ember/object";
 import { scheduleOnce } from "@ember/runloop";
 import { withPluginApi } from "discourse/lib/plugin-api";
-import Category from "discourse/models/category";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
 import { i18n } from "discourse-i18n";
@@ -225,52 +224,54 @@ export default {
         }),
       });
 
-      const mapRoutes = [
-        "Map",
-        "MapCategory",
-        "MapCategoryNone",
-        "map-category",
-        "map-category-all",
-        "map-category-none",
-      ];
+      const mapRoutes = ["map", "map-category", "map-category-none"];
 
       mapRoutes.forEach(function (route) {
         if (container.factoryFor(`route:discovery.${route}`)) {
-          api.modifyClass(`route:discovery.${route}`, {
-            pluginId: "locations-plugin",
+          api.modifyClass(
+            `route:discovery.${route}`,
+            (Superclass) =>
+              class extends Superclass {
+                pluginId = "locations-plugin";
 
-            afterModel() {
-              this.templateName = "discovery/map";
+                afterModel() {
+                  this.templateName = "discovery/map";
 
-              return this._super(...arguments);
-            },
-          });
+                  return super.afterModel(...arguments);
+                }
+              }
+          );
         }
       });
 
-      const categoryRoutes = ["category", "categoryNone"];
+      const categoryRoutes = ["category", "category-all", "category-none"];
 
       categoryRoutes.forEach(function (route) {
-        api.modifyClass(`route:discovery.${route}`, {
-          pluginId: "locations-plugin",
+        if (!container.factoryFor(`route:discovery.${route}`)) {
+          return;
+        }
 
-          afterModel(model, transition) {
-            if (
-              model?.category &&
-              this.filter(model.category) === "map" &&
-              siteSettings.location_category_map_filter
-            ) {
-              transition.abort();
-              return this.replaceWith(
-                `/c/${Category.slugFor(model.category)}/l/${this.filter(
-                  model.category
-                )}`
-              );
-            } else {
-              return this._super(...arguments);
+        api.modifyClass(
+          `route:discovery.${route}`,
+          (Superclass) =>
+            class extends Superclass {
+              pluginId = "locations-plugin";
+
+              afterModel(model) {
+                if (
+                  model?.category &&
+                  this.filter(model.category) === "map" &&
+                  siteSettings.location_category_map_filter
+                ) {
+                  this.templateName = "discovery/map";
+                } else {
+                  this.templateName = "discovery/list";
+                }
+
+                return super.afterModel(...arguments);
+              }
             }
-          },
-        });
+        );
       });
     });
 

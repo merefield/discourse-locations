@@ -30,6 +30,7 @@ export default <template>
           @mapType="topicList"
           @category={{@controller.model.category}}
           @noSubcategories={{@controller.model.noSubcategories}}
+          @topicList={{@controller.model.list}}
         />
       </div>
     </:list>

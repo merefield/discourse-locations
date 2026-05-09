@@ -5,11 +5,10 @@ import { action, computed } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import didUpdate from "@ember/render-modifiers/modifiers/did-update";
 import { service } from "@ember/service";
-import $ from "jquery";
+import icon from "discourse/helpers/d-icon";
 import { ajax } from "discourse/lib/ajax";
 import { findOrResetCachedTopicList } from "discourse/lib/cached-topic-list";
-import icon from "discourse-common/helpers/d-icon";
-import i18n from "discourse-common/helpers/i18n";
+import { i18n } from "discourse-i18n";
 import {
   addCircleMarkersToMap,
   addMarkersToMap,
@@ -19,8 +18,8 @@ import {
 
 export default class LocationMapComponent extends Component {
   @service siteSettings;
-  @service currentUser;
   @service store;
+  @service session;
 
   @tracked mapToggle = "expand";
   @tracked expanded = false;
@@ -102,16 +101,22 @@ export default class LocationMapComponent extends Component {
     let category = this.args.category;
 
     if (this.args.mapType === "topicList") {
-      if (category) {
+      if (this.args.topicList) {
+        this.topicList = this.args.topicList;
+      } else if (category) {
         filter = `c/${category.slug}/${category.id}`;
         if (this.args.noSubcategories) {
           filter += "/none";
         }
         filter += "/l/map";
 
+        const cachedTopicList = this.session
+          ? findOrResetCachedTopicList(this.session, filter)
+          : null;
+
         this.topicList =
-          (await findOrResetCachedTopicList(this.session, filter)) ||
-          this.store.findFiltered("topicList", { filter });
+          cachedTopicList ||
+          (await this.store.findFiltered("topicList", { filter }));
       } else {
         let result = await ajax("map.json");
         this.topicList = result.topic_list;
@@ -475,7 +480,10 @@ export default class LocationMapComponent extends Component {
     if (!this.showAttribution) {
       map.addControl(attribution);
     } else {
-      if ($(".locations-map .leaflet-control-attribution").is(":visible")) {
+      if (
+        document.querySelector(".locations-map .leaflet-control-attribution")
+          ?.offsetParent
+      ) {
         map.removeControl(attribution);
       }
     }
