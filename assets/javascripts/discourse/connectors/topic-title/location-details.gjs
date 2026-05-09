@@ -1,6 +1,6 @@
 import LocationLabelContainer from "../../components/location-label-container";
 
-<template>
+export default <template>
   {{#unless @model.editingTopic}}
     {{#if @model.location}}
       {{#unless this.model.location.hide_marker}}
