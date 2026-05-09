@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
 import bodyClass from "discourse/helpers/body-class";
-import icon from "discourse-common/helpers/d-icon";
+import icon from "discourse/helpers/d-icon";
 import UserLocation from "./user-location";
 
 export default class ReplaceLocationComponent extends Component {

@@ -1,9 +1,8 @@
 /* global L */
 
-import $ from "jquery";
+import getURL from "discourse/lib/get-url";
 import { emojiUnescape } from "discourse/lib/text";
 import DiscourseURL from "discourse/lib/url";
-import getURL from "discourse-common/lib/get-url";
 
 const generateMap = function (siteSettings, opts) {
   const element = document.createElement("div");
@@ -185,7 +184,7 @@ const buildMarker = function (
     }
 
     if (rawMarker.options.class) {
-      $(marker._icon).addClass(rawMarker.options.class);
+      marker._icon?.classList?.add(rawMarker.options.class);
     }
   }
 

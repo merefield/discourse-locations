@@ -5,7 +5,7 @@ import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import willDestroy from "@ember/render-modifiers/modifiers/will-destroy";
 import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
-import icon from "discourse-common/helpers/d-icon";
+import icon from "discourse/helpers/d-icon";
 import { geoLocationFormat } from "../lib/location-utilities";
 import LocationsMap from "./locations-map";
 import NationalFlag from "./national-flag";
@@ -13,6 +13,7 @@ import NationalFlag from "./national-flag";
 export default class LocationMapComponent extends Component {
   @service siteSettings;
   @service site;
+
   @tracked showMap = false;
 
   outsideClick = (e) => {
@@ -28,6 +29,7 @@ export default class LocationMapComponent extends Component {
       this.showMap = false;
     }
   };
+
   get mapButtonLabel() {
     return `location.geo.${this.showMap ? "hide" : "show"}_map`;
   }

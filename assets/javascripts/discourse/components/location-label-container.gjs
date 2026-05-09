@@ -5,8 +5,8 @@ import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import willDestroy from "@ember/render-modifiers/modifiers/will-destroy";
 import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
-import icon from "discourse-common/helpers/d-icon";
-import i18n from "discourse-common/helpers/i18n";
+import icon from "discourse/helpers/d-icon";
+import { i18n } from "discourse-i18n";
 import locationFormat from "../helpers/location-format";
 import LocationsMap from "./locations-map";
 import LocationsTopicMapModal from "./modal/locations-topic-map-modal";
@@ -15,6 +15,7 @@ export default class LocationLableContainerComponent extends Component {
   @service siteSettings;
   @service site;
   @service modal;
+
   @tracked locationAttrs = [];
   @tracked geoAttrs = [];
   @tracked showMap = false;

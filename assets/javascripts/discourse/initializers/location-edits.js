@@ -206,23 +206,18 @@ export default {
         }),
       });
 
-      api.modifyClass("component:edit-category-settings", {
-        pluginId: "locations-plugin",
-
-        availableViews: computed("category", function () {
-          const { category } = this;
-          let views = this._super(category);
-
+      api.registerValueTransformer(
+        "category-available-views",
+        ({ value, context }) => {
           if (
-            category?.get?.("custom_fields.location_enabled") &&
+            context.customFields?.location_enabled &&
             siteSettings.location_category_map_filter
           ) {
-            views.push({ name: i18n("filters.map.label"), value: "map" });
+            value.push({ name: i18n("filters.map.label"), value: "map" });
           }
-
-          return views;
-        }),
-      });
+          return value;
+        }
+      );
 
       const mapRoutes = ["map", "map-category", "map-category-none"];
 
