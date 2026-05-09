@@ -173,6 +173,7 @@ export default {
       "new",
       "unseen",
       "top",
+      "hot",
       "read",
       "posted",
       "bookmarks",
@@ -185,6 +186,7 @@ export default {
       "new",
       "unseen",
       "top",
+      "hot",
       "read",
       "posted",
       "bookmarks",
@@ -194,6 +196,7 @@ export default {
     anonymous_top_menu_items: [
       "latest",
       "top",
+      "hot",
       "categories",
       "categories",
       "top",

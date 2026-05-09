@@ -1,9 +1,10 @@
+/* eslint-disable ember/no-observers */
 import { computed, observer } from "@ember/object";
 import { scheduleOnce } from "@ember/runloop";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 
 const NEW_TOPIC_KEY = "new_topic";
 
@@ -14,7 +15,7 @@ function customFieldEnabled(value) {
 export default {
   name: "location-edits",
   initialize(container) {
-    withPluginApi("0.8.23", (api) => {
+    withPluginApi((api) => {
       api.modifyClass("controller:users", {
         pluginId: "locations-plugin",
 
@@ -62,37 +63,46 @@ export default {
           this.set("location", null);
         },
 
-        _setupDefaultLocation: observer("draftKey", function () {
-          if (this.draftKey.startsWith(NEW_TOPIC_KEY)) {
-            if (!this.get("showLocationControls")) {
-              if (this.location !== null) {
-                this.set("location", null);
-              }
-
-              return;
-            }
-
-            const topicDefaultLocation =
-              this.siteSettings.location_topic_default;
-            // NB: we can't use the siteSettings, nor currentUser values set in the initialiser here
-            // because in QUnit they will not be defined as the initialiser only runs once
-            // so this will break all tests, even if in runtime it may work.
-            // so solution is to use the values provided by the Composer model under 'this'.
-            if (
-              topicDefaultLocation === "user" &&
-              this.user.custom_fields.geo_location &&
-              ((typeof this.user.custom_fields.geo_location === "string" &&
-                this.user.custom_fields.geo_location.replaceAll(" ", "") !==
-                  "{}") ||
-                (typeof this.user.custom_fields.geo_location === "object" &&
-                  Object.keys(this.user.custom_fields.geo_location).length !==
-                    0))
-            ) {
-              this.set("location", {
-                geo_location: this.user.custom_fields.geo_location,
-              });
-            }
+        maybeSetupDefaultLocation() {
+          if (!this.draftKey?.startsWith(NEW_TOPIC_KEY)) {
+            return;
           }
+
+          if (!this.get("showLocationControls")) {
+            if (this.location !== null) {
+              this.set("location", null);
+            }
+
+            return;
+          }
+
+          if (this.location) {
+            return;
+          }
+
+          const topicDefaultLocation = this.siteSettings.location_topic_default;
+          const userGeoLocation = this.user?.custom_fields?.geo_location;
+
+          if (
+            topicDefaultLocation === "user" &&
+            userGeoLocation &&
+            ((typeof userGeoLocation === "string" &&
+              userGeoLocation.replaceAll(" ", "") !== "{}") ||
+              (typeof userGeoLocation === "object" &&
+                Object.keys(userGeoLocation).length !== 0))
+          ) {
+            this.set("location", {
+              geo_location: userGeoLocation,
+            });
+          }
+        },
+
+        _maybeSetupDefaultLocation() {
+          this.maybeSetupDefaultLocation();
+        },
+
+        _setupDefaultLocation: observer("draftKey", function () {
+          this.maybeSetupDefaultLocation();
         }),
       });
 
@@ -180,10 +190,10 @@ export default {
           let views = this._super(category);
 
           if (
-            category.get("custom_fields.location_enabled") &&
+            category?.get?.("custom_fields.location_enabled") &&
             this.siteSettings.location_category_map_filter
           ) {
-            views.push({ name: I18n.t("filters.map.label"), value: "map" });
+            views.push({ name: i18n("filters.map.label"), value: "map" });
           }
 
           return views;
