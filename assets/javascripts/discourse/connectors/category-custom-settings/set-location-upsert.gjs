@@ -20,7 +20,9 @@ export default class SetLocationUpsert extends Component {
   }
 
   customFieldEnabled(name) {
-    const value = this.args.outletArgs.transientData?.custom_fields?.[name];
+    const fieldName = name.split(".").pop();
+    const value =
+      this.args.outletArgs.transientData?.custom_fields?.[fieldName];
     return value?.toString() === "true";
   }
 
