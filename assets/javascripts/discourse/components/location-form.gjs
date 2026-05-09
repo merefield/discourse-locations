@@ -1,6 +1,5 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
-import { A } from "@ember/array";
 import { Input } from "@ember/component";
 import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
@@ -22,7 +21,7 @@ import LocationSelector from "./location-selector";
 export default class LocationForm extends Component {
   @service siteSettings;
   @service site;
-  @tracked geoLocationOptions = A();
+  @tracked geoLocationOptions = [];
   @tracked internalInputFields = [];
   @tracked provider = "";
   @tracked hasSearched = false;
@@ -175,7 +174,7 @@ export default class LocationForm extends Component {
 
   @action
   clearSearch() {
-    this.geoLocationOptions.clear();
+    this.geoLocationOptions = [];
     this.args.geoLocation = null;
   }
 
@@ -221,7 +220,7 @@ export default class LocationForm extends Component {
 
         this.showProvider = result.locations.length > 0;
 
-        this.geoLocationOptions.setObjects(result.locations);
+        this.geoLocationOptions = result.locations;
 
         this.loadingLocations = false;
       })
