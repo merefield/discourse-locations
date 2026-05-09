@@ -1,22 +1,22 @@
 import { computed } from "@ember/object";
 import { withPluginApi } from "discourse/lib/plugin-api";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 
 const PLUGIN_ID = "locations-plugin";
 
 export default {
   name: "location-map-renderer",
   initialize(container) {
-    withPluginApi("0.8.12", (api) => {
-      const siteSettings = container.lookup("site-settings:main");
+    withPluginApi((api) => {
+      const siteSettings = container.lookup("service:site-settings");
       const currentUser = container.lookup("service:current-user");
 
       if (siteSettings.location_sidebar_menu_map_link) {
         api.addCommunitySectionLink({
           name: "map",
           route: "discovery.map",
-          title: I18n.t("filters.map.title"),
-          text: I18n.t("filters.map.label"),
+          title: i18n("filters.map.title"),
+          text: i18n("filters.map.label"),
         });
       }
 
@@ -28,8 +28,8 @@ export default {
         api.addCommunitySectionLink({
           name: "users map",
           route: "locations.users-map",
-          title: I18n.t("directory.map.title"),
-          text: I18n.t("directory.map.title"),
+          title: i18n("directory.map.title"),
+          text: i18n("directory.map.title"),
         });
       }
 
