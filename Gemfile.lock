@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.2)
+    base64 (0.3.0)
     json (2.6.3)
     parallel (1.23.0)
     parser (3.2.2.1)
@@ -41,8 +42,9 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  base64
   racc
   rubocop-discourse
 
 BUNDLED WITH
-   2.4.6
+   2.6.9

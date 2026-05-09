@@ -1,11 +1,8 @@
+import { computed, observer } from "@ember/object";
 import { scheduleOnce } from "@ember/runloop";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
-import {
-  default as discourseComputed,
-  observes,
-} from "discourse-common/utils/decorators";
 import I18n from "I18n";
 
 const NEW_TOPIC_KEY = "new_topic";
@@ -32,38 +29,40 @@ export default {
       api.modifyClass("model:composer", {
         pluginId: "locations-plugin",
 
-        @discourseComputed(
+        showLocationControls: computed(
           "subtype",
           "categoryId",
           "topicFirstPost",
-          "forceLocationControls"
-        )
-        showLocationControls(subtype, categoryId, topicFirstPost, force) {
-          if (!topicFirstPost) {
-            return false;
-          }
-          if (force) {
-            return true;
-          }
-          if (categoryId) {
-            const category = this.site.categories.findBy("id", categoryId);
-            if (
-              category &&
-              customFieldEnabled(category.custom_fields?.location_enabled)
-            ) {
+          "forceLocationControls",
+          function () {
+            const { categoryId, topicFirstPost } = this;
+            const force = this.forceLocationControls;
+
+            if (!topicFirstPost) {
+              return false;
+            }
+            if (force) {
               return true;
             }
+            if (categoryId) {
+              const category = this.site.categories.findBy("id", categoryId);
+              if (
+                category &&
+                customFieldEnabled(category.custom_fields?.location_enabled)
+              ) {
+                return true;
+              }
+            }
+            return false;
           }
-          return false;
-        },
+        ),
 
         clearState() {
           this._super(...arguments);
           this.set("location", null);
         },
 
-        @observes("draftKey")
-        _setupDefaultLocation() {
+        _setupDefaultLocation: observer("draftKey", function () {
           if (this.draftKey.startsWith(NEW_TOPIC_KEY)) {
             if (!this.get("showLocationControls")) {
               if (this.location !== null) {
@@ -94,83 +93,91 @@ export default {
               });
             }
           }
-        },
+        }),
       });
 
       api.modifyClass("component:composer-body", {
         pluginId: "locations-plugin",
 
-        @observes("composer.location")
-        resizeWhenLocationAdded: function () {
+        resizeWhenLocationAdded: observer("composer.location", function () {
           this._triggerComposerResized();
-        },
+        }),
 
-        @observes("composer.showLocationControls", "composer.composeState")
-        applyLocationInlineClass() {
-          const applyClasses = () => {
-            const showLocationControls = this.get(
-              "composer.showLocationControls"
-            );
-            const containerElement = document.querySelector(
-              ".composer-fields .title-and-category"
-            );
+        applyLocationInlineClass: observer(
+          "composer.showLocationControls",
+          "composer.composeState",
+          function () {
+            const applyClasses = () => {
+              const showLocationControls = this.get(
+                "composer.showLocationControls"
+              );
+              const containerElement = document.querySelector(
+                ".composer-fields .title-and-category"
+              );
 
-            if (containerElement) {
-              // Toggle the "show-location-controls" class based on `showLocationControls`
-              if (showLocationControls) {
-                containerElement.classList.add("show-location-controls");
-              } else {
-                containerElement.classList.remove("show-location-controls");
-              }
-
-              if (showLocationControls) {
-                const anchorElement = this.site.mobileView
-                  ? containerElement.querySelector(".title-input")
-                  : containerElement;
-
-                // Move ".composer-controls-location" element to `anchorElement`
-                const locationControl = document.querySelector(
-                  ".composer-controls-location"
-                );
-                if (locationControl && anchorElement) {
-                  anchorElement.appendChild(locationControl);
+              if (containerElement) {
+                // Toggle the "show-location-controls" class based on `showLocationControls`
+                if (showLocationControls) {
+                  containerElement.classList.add("show-location-controls");
+                } else {
+                  containerElement.classList.remove("show-location-controls");
                 }
+
+                if (showLocationControls) {
+                  const anchorElement = this.site.mobileView
+                    ? containerElement.querySelector(".title-input")
+                    : containerElement;
+
+                  // Move ".composer-controls-location" element to `anchorElement`
+                  const locationControl = document.querySelector(
+                    ".composer-controls-location"
+                  );
+                  if (locationControl && anchorElement) {
+                    anchorElement.appendChild(locationControl);
+                  }
+                }
+
+                this._triggerComposerResized();
               }
+            };
 
-              this._triggerComposerResized();
-            }
-          };
-
-          scheduleOnce("afterRender", this, applyClasses);
-        },
+            scheduleOnce("afterRender", this, applyClasses);
+          }
+        ),
       });
 
       const subtypeShowLocation = ["event", "question", "general"];
       api.modifyClass("model:topic", {
         pluginId: "locations-plugin",
 
-        @discourseComputed("subtype", "category.custom_fields.location_enabled")
-        showLocationControls(subtype, categoryEnabled) {
-          return subtypeShowLocation.indexOf(subtype) > -1 || categoryEnabled;
-        },
+        showLocationControls: computed(
+          "subtype",
+          "category.custom_fields.location_enabled",
+          function () {
+            const { subtype } = this;
+            const categoryEnabled =
+              this.category?.custom_fields?.location_enabled;
+
+            return subtypeShowLocation.indexOf(subtype) > -1 || categoryEnabled;
+          }
+        ),
       });
 
       // necessary because topic-title plugin outlet only recieves model
       api.modifyClass("controller:topic", {
         pluginId: "locations-plugin",
 
-        @observes("editingTopic")
-        setEditingTopicOnModel() {
+        setEditingTopicOnModel: observer("editingTopic", function () {
           this.set("model.editingTopic", this.get("editingTopic"));
-        },
+        }),
       });
 
       api.modifyClass("component:edit-category-settings", {
         pluginId: "locations-plugin",
 
-        @discourseComputed("category")
-        availableViews(category) {
-          let views = this._super(...arguments);
+        availableViews: computed("category", function () {
+          const { category } = this;
+          let views = this._super(category);
 
           if (
             category.get("custom_fields.location_enabled") &&
@@ -180,7 +187,7 @@ export default {
           }
 
           return views;
-        },
+        }),
       });
 
       const mapRoutes = [

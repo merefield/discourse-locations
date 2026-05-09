@@ -211,7 +211,7 @@ export default class LocationSelector extends Component {
         <:result as |location|>
           {{#if location.provider}}
             <div class="location-provider">
-              <label>{{{location.address}}}</label>
+              <label>{{location.address}}</label>
             </div>
           {{else}}
             <div class="location-form-result">

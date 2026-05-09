@@ -10,7 +10,5 @@ export default class LocationMapWrapperComponent extends Component {
     this.mapType = this.args.params.mapType;
   }
 
-  <template>
-    <LocationsMap @mapType={{this.mapType}} />
-  </template>
+  <template><LocationsMap @mapType={{this.mapType}} /></template>
 }

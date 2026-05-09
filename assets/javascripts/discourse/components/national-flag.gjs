@@ -9,7 +9,5 @@ export default class NationalFlagComponent extends Component {
     );
   }
 
-  <template>
-    <img class="national-flag" src={{this.fileName}} />
-  </template>
+  <template><img class="national-flag" src={{this.fileName}} /></template>
 }

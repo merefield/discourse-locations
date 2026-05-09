@@ -1,5 +1,4 @@
 // User location selection //
-
 .user-card .location-and-website.map-location-enabled {
   .location,
   .website-name {
@@ -53,14 +52,13 @@
   margin-top: 5px;
 }
 
-@media (max-width: 850px) {
+@media (width <= 850px) {
   .user-preferences .location-selector-container {
     max-width: 472px;
   }
 }
 
 // User map //
-
 .users-nav {
   margin: 20px 0;
 
@@ -118,7 +116,7 @@
     top: 100%;
     left: 0;
     max-width: 100%;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 1px 5px rgb(0, 0, 0, 0.4);
   }
 }
 
@@ -127,14 +125,17 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+
     .user-location {
       padding: 0 11px 0 11px;
     }
+
     .location-flag {
       padding: 0 11px 0 0;
       display: flex;
       align-items: center;
     }
+
     img {
       width: 24px;
       height: auto;
@@ -143,7 +144,7 @@
 }
 
 // mobile adjustments
-@media (max-width: 40rem) {
+@media (width <= 40rem) {
   #topic {
     .row .location-summary {
       .user-location {

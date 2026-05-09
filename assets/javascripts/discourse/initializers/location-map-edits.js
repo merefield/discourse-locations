@@ -1,5 +1,5 @@
+import { computed } from "@ember/object";
 import { withPluginApi } from "discourse/lib/plugin-api";
-import { default as discourseComputed } from "discourse-common/utils/decorators";
 import I18n from "I18n";
 
 const PLUGIN_ID = "locations-plugin";
@@ -36,15 +36,16 @@ export default {
       api.modifyClass("component:user-card-contents", {
         pluginId: PLUGIN_ID,
 
-        @discourseComputed("user")
-        hasLocaleOrWebsite(user) {
+        hasLocaleOrWebsite: computed("user", function () {
+          const { user } = this;
+
           return (
             user.geo_location ||
             user.location ||
             user.website_name ||
             this.userTimezone
           );
-        },
+        }),
       });
     });
   },

@@ -108,7 +108,11 @@ export default class AddLocationComponent extends Component {
     }
 
     Object.keys(location).forEach((k) => {
-      if (location[k] == null || location[k] === "" || location[k] === {}) {
+      const value = location[k];
+      const isEmptyObject =
+        value && typeof value === "object" && Object.keys(value).length === 0;
+
+      if (value == null || value === "" || isEmptyObject) {
         delete location[k];
       }
     });
@@ -180,12 +184,12 @@ export default class AddLocationComponent extends Component {
           id="save-location"
           @action={{this.submit}}
           @label="location.done"
-          @class="btn-primary"
+          class="btn-primary"
           @disabled={{this.submitDisabled}}
         />
         <DButton
           id="clear-location"
-          @class="clear"
+          class="clear"
           @action={{this.clear}}
           @label="location.clear"
         />
