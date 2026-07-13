@@ -1,5 +1,4 @@
 /* eslint-disable ember/no-observers */
-import { computed } from "@ember/object";
 import { next, scheduleOnce } from "@ember/runloop";
 import { observes } from "@ember-decorators/object";
 import { withPluginApi } from "discourse/lib/plugin-api";
@@ -61,97 +60,72 @@ export default {
           }
       );
 
-      api.modifyClass(
-        "model:composer",
-        (Superclass) =>
-          class extends Superclass {
-            pluginId = "locations-plugin";
+      api.addModelField("composer", "location", { defaultValue: null });
 
-            init() {
-              super.init(...arguments);
-              this._maybeSetupDefaultLocation();
-            }
+      api.addModelGetter("composer", "showLocationControls", function () {
+        const { categoryId, topicFirstPost } = this;
+        const force = this.forceLocationControls;
 
-            @computed(
-              "subtype",
-              "categoryId",
-              "topicFirstPost",
-              "forceLocationControls"
-            )
-            get showLocationControls() {
-              const { categoryId, topicFirstPost } = this;
-              const force = this.forceLocationControls;
-
-              if (!topicFirstPost) {
-                return false;
-              }
-              if (force) {
-                return true;
-              }
-              if (categoryId) {
-                const category = this.site.categories.find(
-                  (item) => item.id === categoryId
-                );
-                if (
-                  category &&
-                  customFieldEnabled(category.custom_fields?.location_enabled)
-                ) {
-                  return true;
-                }
-              }
-              return false;
-            }
-
-            clearState() {
-              super.clearState(...arguments);
-              this.set("location", null);
-            }
-
-            maybeSetupDefaultLocation() {
-              if (!this.draftKey) {
-                next(this, this._maybeSetupDefaultLocation);
-                return;
-              }
-
-              if (!this.draftKey.startsWith(NEW_TOPIC_KEY)) {
-                return;
-              }
-
-              if (!this.get("showLocationControls")) {
-                if (this.location !== null) {
-                  this.set("location", null);
-                }
-
-                return;
-              }
-
-              if (this.location) {
-                return;
-              }
-
-              const topicDefaultLocation =
-                this.siteSettings.location_topic_default;
-              const userGeoLocation = parseGeoLocation(
-                this.user?.custom_fields?.geo_location
-              );
-
-              if (topicDefaultLocation === "user" && userGeoLocation) {
-                this.set("location", {
-                  geo_location: userGeoLocation,
-                });
-              }
-            }
-
-            _maybeSetupDefaultLocation() {
-              this.maybeSetupDefaultLocation();
-            }
-
-            @observes("draftKey", "categoryId")
-            _setupDefaultLocation() {
-              this.maybeSetupDefaultLocation();
-            }
+        if (!topicFirstPost) {
+          return false;
+        }
+        if (force) {
+          return true;
+        }
+        if (categoryId) {
+          const category = this.site.categories.find(
+            (item) => item.id === categoryId
+          );
+          if (
+            category &&
+            customFieldEnabled(category.custom_fields?.location_enabled)
+          ) {
+            return true;
           }
-      );
+        }
+        return false;
+      });
+
+      // Prefill the default location for new topics in location-enabled
+      // categories, and clear it when the controls don't apply. Triggered on
+      // open/draft/category change by the `composer-controls-location`
+      // connector (replacing the former `init` + `@observes`).
+      api.addModelMethod("composer", "maybeSetupDefaultLocation", function () {
+        if (!this.draftKey) {
+          next(this, this._maybeSetupDefaultLocation);
+          return;
+        }
+
+        if (!this.draftKey.startsWith(NEW_TOPIC_KEY)) {
+          return;
+        }
+
+        if (!this.showLocationControls) {
+          if (this.location !== null) {
+            this.location = null;
+          }
+          return;
+        }
+
+        if (this.location) {
+          return;
+        }
+
+        const userGeoLocation = parseGeoLocation(
+          this.user?.custom_fields?.geo_location
+        );
+
+        if (
+          this.siteSettings.location_topic_default === "user" &&
+          userGeoLocation
+        ) {
+          this.location = { geo_location: userGeoLocation };
+        }
+      });
+
+      api.addModelMethod("composer", "_maybeSetupDefaultLocation", function () {
+        this.maybeSetupDefaultLocation();
+      });
 
       api.modifyClass(
         "component:composer-body",
@@ -206,24 +180,12 @@ export default {
       );
 
       const subtypeShowLocation = ["event", "question", "general"];
-      api.modifyClass(
-        "model:topic",
-        (Superclass) =>
-          class extends Superclass {
-            pluginId = "locations-plugin";
+      api.addModelGetter("topic", "showLocationControls", function () {
+        const { subtype } = this;
+        const categoryEnabled = this.category?.custom_fields?.location_enabled;
 
-            @computed("subtype", "category.custom_fields.location_enabled")
-            get showLocationControls() {
-              const { subtype } = this;
-              const categoryEnabled =
-                this.category?.custom_fields?.location_enabled;
-
-              return (
-                subtypeShowLocation.indexOf(subtype) > -1 || categoryEnabled
-              );
-            }
-          }
-      );
+        return subtypeShowLocation.indexOf(subtype) > -1 || categoryEnabled;
+      });
 
       // necessary because topic-title plugin outlet only recieves model
       api.modifyClass(
