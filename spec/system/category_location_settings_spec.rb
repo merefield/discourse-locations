@@ -9,7 +9,7 @@ RSpec.describe "Category location settings" do
   let(:category_page) { PageObjects::Pages::Category.new }
 
   def toggle_location_setting(label)
-    find(".form-kit__field", text: label).find(".form-kit__control-checkbox").click
+    find(".form-kit__field", text: label).find(".form-kit__control-checkbox-checkmark").click
   end
 
   def expect_location_custom_fields(enabled)
