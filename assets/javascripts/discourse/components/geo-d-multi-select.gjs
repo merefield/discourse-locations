@@ -1,3 +1,4 @@
+/* eslint-disable discourse/ui-kit-imports */
 // plugins/discourse-locations/assets/javascripts/discourse/components/geo-d-multi-select.gjs
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";

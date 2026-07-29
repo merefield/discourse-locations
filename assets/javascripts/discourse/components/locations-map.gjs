@@ -1,3 +1,4 @@
+/* eslint-disable discourse/ui-kit-imports, no-useless-assignment */
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { on } from "@ember/modifier";
@@ -23,9 +24,7 @@ export default class LocationMapComponent extends Component {
 
   @tracked mapToggle = "expand";
   @tracked expanded = false;
-  @tracked showExpand = !this.args.disableExpand;
   @tracked showAttribution = false;
-  @tracked runSetup = true;
   @tracked locations = this.args.locations || [];
   @tracked filteredLocations = [];
   @tracked mapType = "category";
@@ -37,6 +36,8 @@ export default class LocationMapComponent extends Component {
   @tracked markers = null;
   @tracked searchFilter = "";
   @tracked searchFilterType = "name";
+  showExpand = !this.args.disableExpand;
+  runSetup = true;
 
   @action
   setup() {

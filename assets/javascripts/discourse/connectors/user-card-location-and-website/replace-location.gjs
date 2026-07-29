@@ -1,3 +1,4 @@
+/* eslint-disable discourse/ui-kit-imports */
 import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";

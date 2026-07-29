@@ -1,3 +1,4 @@
+/* eslint-disable discourse/ui-kit-imports */
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { array } from "@ember/helper";

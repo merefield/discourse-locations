@@ -1,3 +1,4 @@
+/* eslint-disable discourse/ui-kit-imports */
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { Input } from "@ember/component";
@@ -34,11 +35,11 @@ export default class LocationForm extends Component {
   @tracked formNeighbourhood;
   @tracked formPostalcode;
   @tracked formCity;
-  @tracked formState;
   @tracked formCountrycode;
   @tracked formLatitude;
   @tracked formLongitude;
-  @tracked geoLocation = {};
+  formState;
+  geoLocation = {};
   context = null;
 
   showTitle = equal("appType", "discourse");

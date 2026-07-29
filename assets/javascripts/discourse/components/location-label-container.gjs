@@ -1,3 +1,4 @@
+/* eslint-disable discourse/ui-kit-imports */
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
@@ -16,9 +17,9 @@ export default class LocationLableContainerComponent extends Component {
   @service site;
   @service modal;
 
-  @tracked locationAttrs = [];
-  @tracked geoAttrs = [];
   @tracked showMap = false;
+  locationAttrs = [];
+  geoAttrs = [];
 
   outsideClick = (e) => {
     if (

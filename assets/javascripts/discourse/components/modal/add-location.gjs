@@ -1,3 +1,4 @@
+/* eslint-disable discourse/ui-kit-imports */
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { Input } from "@ember/component";
@@ -13,7 +14,6 @@ export default class AddLocationComponent extends Component {
   @service siteSettings;
 
   @tracked flash = this.args.model?.flash;
-  @tracked searchOnInit = false;
   @tracked name = null;
   @tracked street = null;
   @tracked postalcode = null;
@@ -21,6 +21,7 @@ export default class AddLocationComponent extends Component {
   @tracked countrycode = null;
   @tracked geoLocation = { lat: "", lon: "" };
   @tracked rawLocation = null;
+  searchOnInit = false;
   title = i18n("composer.location.title");
 
   constructor() {

@@ -1,3 +1,4 @@
+/* eslint-disable block-scoped-var, curly, ember/avoid-leaking-state-in-ember-objects, eqeqeq, guard-for-in, no-sequences, no-shadow, no-undef, no-useless-assignment, no-var */
 !(function (e, t) {
   "object" == typeof exports && "undefined" != typeof module
     ? t(exports)

@@ -1,3 +1,4 @@
+/* eslint-disable block-scoped-var, curly, ember/avoid-leaking-state-in-ember-objects, eqeqeq, guard-for-in, no-bitwise, no-console, no-redeclare, no-sequences, no-shadow, no-undef, no-unused-vars, no-useless-assignment, no-var */
 /* @preserve
  * Leaflet 1.9.4, a JS library for interactive maps. https://leafletjs.com
  * (c) 2010-2023 Vladimir Agafonkin, (c) 2010-2011 CloudMade

@@ -1,3 +1,4 @@
+/* eslint-disable discourse/discourse-common-imports, qunit/no-assert-equal, qunit/no-loose-assertions */
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import { acceptance, query } from "discourse/tests/helpers/qunit-helpers";
