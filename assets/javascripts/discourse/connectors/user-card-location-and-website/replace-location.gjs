@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
-import dIcon from "discourse/helpers/d-icon";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import UserLocation from "../../components/user-location";
 
 export default class UserCardReplaceLocation extends Component {

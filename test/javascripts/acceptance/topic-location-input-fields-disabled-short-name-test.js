@@ -1,7 +1,7 @@
 import { click, fillIn, visit } from "@ember/test-helpers";
 import { test } from "qunit";
-import { acceptance, visible } from "discourse/tests/helpers/qunit-helpers";
-import { cloneJSON } from "discourse-common/lib/object";
+import { cloneJSON } from "discourse/lib/object";
+import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 import locationFixtures from "../fixtures/location-fixtures";
 import siteFixtures from "../fixtures/site-fixtures";
 import topicFixtures from "../fixtures/topic-fixtures";
@@ -31,7 +31,9 @@ acceptance(
       await visit("/t/online-learning/51/1");
       await click("a.fancy-title");
       await click("button.add-location-btn");
-      assert.ok(visible(".add-location-modal"), "add location modal is shown");
+      assert
+        .dom(".add-location-modal")
+        .isVisible("add location modal is shown");
       await click(".location-selector .d-multi-select-trigger");
       await fillIn(".d-multi-select__search-input", "liver building");
       await click(".location-form-result:first-child label");

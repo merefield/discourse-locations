@@ -1,7 +1,7 @@
 import { visit } from "@ember/test-helpers";
 import { test } from "qunit";
+import { cloneJSON } from "discourse/lib/object";
 import { acceptance, query } from "discourse/tests/helpers/qunit-helpers";
-import { cloneJSON } from "discourse-common/lib/object";
 import siteFixtures from "../fixtures/site-fixtures";
 import topicListFixtures from "../fixtures/topic-list-with-location-category";
 
@@ -21,7 +21,7 @@ acceptance(
     test("topic on topic list location - shows correct format", async function (assert) {
       await visit("/latest");
 
-      assert.equal(
+      assert.strictEqual(
         query(
           'tr[data-topic-id="142"] span.location-after-title .location-text .label-text'
         ).innerText,

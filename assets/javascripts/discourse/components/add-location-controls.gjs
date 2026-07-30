@@ -2,7 +2,7 @@ import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import { service } from "@ember/service";
-import DButton from "discourse/components/d-button";
+import DButton from "discourse/ui-kit/d-button";
 import AddLocationComponent from "../components/modal/add-location";
 import { locationFormat } from "../lib/location-utilities";
 

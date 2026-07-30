@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 module ::Locations
   class GeocodeController < ::ApplicationController
+    requires_plugin Locations::PLUGIN_NAME
+
     def search
       params.require(:request)
 
@@ -11,8 +13,8 @@ module ::Locations
 
       begin
         result = Locations::Geocode.search(current_user, params[:request])
-      rescue => error
-        error = error
+      rescue StandardError => exception
+        error = exception
       end
 
       if error

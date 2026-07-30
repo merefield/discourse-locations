@@ -4,8 +4,8 @@ import { Input } from "@ember/component";
 import { array } from "@ember/helper";
 import { action, computed } from "@ember/object";
 import { service } from "@ember/service";
-import DButton from "discourse/components/d-button";
-import DModal from "discourse/components/d-modal";
+import DButton from "discourse/ui-kit/d-button";
+import DModal from "discourse/ui-kit/d-modal";
 import { i18n } from "discourse-i18n";
 import LocationForm from "./../location-form";
 
@@ -13,7 +13,6 @@ export default class AddLocationComponent extends Component {
   @service siteSettings;
 
   @tracked flash = this.args.model?.flash;
-  @tracked searchOnInit = false;
   @tracked name = null;
   @tracked street = null;
   @tracked postalcode = null;
@@ -21,6 +20,7 @@ export default class AddLocationComponent extends Component {
   @tracked countrycode = null;
   @tracked geoLocation = { lat: "", lon: "" };
   @tracked rawLocation = null;
+  searchOnInit = false;
   title = i18n("composer.location.title");
 
   constructor() {

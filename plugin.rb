@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 7.2.0
+# version: 7.3.0
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -39,15 +39,15 @@ end
 after_initialize do
   # /lib/locations is autoloaded
   %w[
-    ../app/models/location_country_default_site_setting.rb
-    ../app/models/location_geocoding_language_site_setting.rb
-    ../app/models/locations/user_location.rb
-    ../app/models/locations/topic_location.rb
-    ../app/serializers/locations/geo_location_serializer.rb
-    ../app/controllers/locations/geocode_controller.rb
-    ../app/controllers/locations/users_map_controller.rb
-    ../lib/users_map.rb
-  ].each { |path| load File.expand_path(path, __FILE__) }
+    app/models/location_country_default_site_setting.rb
+    app/models/location_geocoding_language_site_setting.rb
+    app/models/locations/user_location.rb
+    app/models/locations/topic_location.rb
+    app/serializers/locations/geo_location_serializer.rb
+    app/controllers/locations/geocode_controller.rb
+    app/controllers/locations/users_map_controller.rb
+    lib/users_map.rb
+  ].each { |path| require_relative path }
 
   def Locations.parse_geo_location(val)
     return nil if val.blank? || val == "{}"
@@ -202,7 +202,7 @@ after_initialize do
     end
   end
 
-  DiscourseEvent.on(:post_created) do |post, opts, user|
+  on(:post_created) do |post, opts, user|
     if post.is_first_post? && opts[:location].present? &&
          post.topic.category&.custom_fields&.[]("location_enabled") &&
          location = Locations::Helper.parse_location(opts[:location])
@@ -257,7 +257,7 @@ after_initialize do
     result
   end
 
-  DiscourseEvent.on(:user_updated) do |*params|
+  on(:user_updated) do |*params|
     user_id = params[0].id
 
     if SiteSetting.location_enabled
@@ -265,7 +265,7 @@ after_initialize do
     end
   end
 
-  DiscourseEvent.on(:user_destroyed) do |*params|
+  on(:user_destroyed) do |*params|
     user_id = params[0].id
 
     Locations::UserLocationProcess.delete(user_id)
@@ -312,22 +312,20 @@ after_initialize do
   end
 
   require_dependency "topic_query"
-  class ::TopicQuery
-    def list_map
-      @options[:per_page] = SiteSetting.location_map_max_topics
-      create_list(:map) do |topics|
-        topics =
-          topics.joins(
-            "INNER JOIN locations_topic
+  add_to_class(:topic_query, :list_map) do
+    @options[:per_page] = SiteSetting.location_map_max_topics
+    create_list(:map) do |topics|
+      topics =
+        topics.joins(
+          "INNER JOIN locations_topic
                                ON locations_topic.topic_id = topics.id"
-          )
+        )
 
-        Locations::Map.sorted_list_filters.each do |filter|
-          topics = filter[:block].call(topics, @options)
-        end
-
-        topics
+      Locations::Map.sorted_list_filters.each do |filter|
+        topics = filter[:block].call(topics, @options)
       end
+
+      topics
     end
   end
 

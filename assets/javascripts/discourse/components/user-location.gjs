@@ -4,8 +4,8 @@ import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import willDestroy from "@ember/render-modifiers/modifiers/will-destroy";
 import { service } from "@ember/service";
-import DButton from "discourse/components/d-button";
-import icon from "discourse/helpers/d-icon";
+import DButton from "discourse/ui-kit/d-button";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { geoLocationFormat } from "../lib/location-utilities";
 import LocationsMap from "./locations-map";
 import NationalFlag from "./national-flag";
@@ -114,7 +114,7 @@ export default class LocationMapComponent extends Component {
           class="widget-button btn btn-default btn-show-map btn-small btn-icon-text btn-transparent"
           @action={{this.toggleMap}}
         >
-          {{icon "location-dot"}}
+          {{dIcon "location-dot"}}
           <div class="location-label">
             {{this.userLocation}}
           </div>

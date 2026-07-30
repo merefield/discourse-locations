@@ -6,18 +6,18 @@ import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import { trustHTML } from "@ember/template";
-import DButton from "discourse/components/d-button";
-import DropdownMenu from "discourse/components/dropdown-menu";
-import TextField from "discourse/components/text-field";
 import DMenu from "discourse/float-kit/components/d-menu";
-import concatClass from "discourse/helpers/concat-class";
-import icon from "discourse/helpers/d-icon";
-import element from "discourse/helpers/element";
 import discourseDebounce from "discourse/lib/debounce";
 import { INPUT_DELAY } from "discourse/lib/environment";
 import { makeArray } from "discourse/lib/helpers";
-import scrollIntoView from "discourse/modifiers/scroll-into-view";
 import { eq } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
+import DDropdownMenu from "discourse/ui-kit/d-dropdown-menu";
+import DTextField from "discourse/ui-kit/d-text-field";
+import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
+import dElement from "discourse/ui-kit/helpers/d-element";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
+import dScrollIntoView from "discourse/ui-kit/modifiers/d-scroll-into-view";
 import { i18n } from "discourse-i18n";
 
 class Skeleton extends Component {
@@ -284,8 +284,8 @@ export default class GeoDMultiSelect extends Component {
   <template>
     <DMenu
       @identifier="d-multi-select"
-      @triggerComponent={{element "div"}}
-      @triggerClass={{concatClass (if this.hasSelection "--has-selection")}}
+      @triggerComponent={{dElement "div"}}
+      @triggerClass={{dConcatClass (if this.hasSelection "--has-selection")}}
       @visibilityOptimizer={{@visibilityOptimizer}}
       @placement={{@placement}}
       @allowedPlacements={{@allowedPlacements}}
@@ -309,7 +309,7 @@ export default class GeoDMultiSelect extends Component {
                     <span class="d-multi-select-trigger__selection-label">
                       {{yield item to="selection"}}
                     </span>
-                    {{icon
+                    {{dIcon
                       "xmark"
                       class="d-multi-select-trigger__remove-selection-icon"
                     }}
@@ -337,10 +337,10 @@ export default class GeoDMultiSelect extends Component {
       </:trigger>
 
       <:content>
-        <DropdownMenu class="d-multi-select__content" as |menu|>
+        <DDropdownMenu class="d-multi-select__content" as |menu|>
           <menu.item class="d-multi-select__search-container">
-            {{icon "magnifying-glass"}}
-            <TextField
+            {{dIcon "magnifying-glass"}}
+            <DTextField
               class="d-multi-select__search-input"
               autocomplete="off"
               @placeholder={{i18n "multi_select.search"}}
@@ -371,13 +371,13 @@ export default class GeoDMultiSelect extends Component {
               <div class="d-multi-select__search-results">
                 {{#each this.availableOptions as |result|}}
                   <menu.item
-                    class={{concatClass
+                    class={{dConcatClass
                       "d-multi-select__result"
                       (if (eq result this.preselectedItem) "--preselected" "")
                     }}
                     role="button"
                     title={{this.getDisplayText result}}
-                    {{scrollIntoView (eq result this.preselectedItem)}}
+                    {{dScrollIntoView (eq result this.preselectedItem)}}
                     {{on "mouseenter" (fn this.setPreselected result)}}
                     {{on "click" (fn this.toggle result)}}
                   >
@@ -393,7 +393,7 @@ export default class GeoDMultiSelect extends Component {
               </div>
             {{/if}}
           {{/if}}
-        </DropdownMenu>
+        </DDropdownMenu>
       </:content>
     </DMenu>
   </template>

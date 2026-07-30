@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Composer default location", type: :system do
+RSpec.describe "Composer default location" do
   fab!(:user) { Fabricate(:user, refresh_auto_groups: true) }
   fab!(:location_category) do
     Fabricate(:category_with_definition, custom_fields: { location_enabled: true })
