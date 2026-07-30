@@ -1,4 +1,3 @@
-/* eslint-disable discourse/ui-kit-imports */
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { Input } from "@ember/component";
@@ -9,9 +8,9 @@ import { equal } from "@ember/object/computed";
 import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
 import { hash } from "rsvp";
-import ConditionalLoadingSpinner from "discourse/components/conditional-loading-spinner";
 import { ajax } from "discourse/lib/ajax";
 import ComboBox from "discourse/select-kit/components/combo-box";
+import DConditionalLoadingSpinner from "discourse/ui-kit/d-conditional-loading-spinner";
 import { i18n } from "discourse-i18n";
 import { geoLocationSearch, providerDetails } from "../lib/location-utilities";
 import GeoLocationResult from "./geo-location-result";
@@ -387,7 +386,7 @@ export default class LocationForm extends Component {
                   <h4>{{i18n "location.geo.results"}}</h4>
                   <ul>
                     {{#if this.hasSearched}}
-                      <ConditionalLoadingSpinner
+                      <DConditionalLoadingSpinner
                         @condition={{this.loadingLocations}}
                       >
                         {{#each this.geoLocationOptions as |l|}}
@@ -401,7 +400,7 @@ export default class LocationForm extends Component {
                               "location.geo.no_results"
                             }}</li>
                         {{/each}}
-                      </ConditionalLoadingSpinner>
+                      </DConditionalLoadingSpinner>
                     {{/if}}
                   </ul>
                 </div>

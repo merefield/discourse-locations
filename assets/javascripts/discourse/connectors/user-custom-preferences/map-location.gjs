@@ -1,10 +1,9 @@
-/* eslint-disable discourse/ui-kit-imports */
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { array } from "@ember/helper";
 import { action, set } from "@ember/object";
 import { service } from "@ember/service";
-import icon from "discourse/helpers/d-icon";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import LocationSelector from "../../components/location-selector";
 
@@ -90,7 +89,7 @@ export default class UserCustomPrefsMapLocation extends Component {
             {{#if this.error}}
               {{this.error}}
             {{else}}
-              {{icon "circle-exclamation"}}
+              {{dIcon "circle-exclamation"}}
               {{i18n "user.map_location.warning"}}
             {{/if}}
           </div>

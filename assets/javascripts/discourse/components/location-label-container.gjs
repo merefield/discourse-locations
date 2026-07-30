@@ -1,12 +1,11 @@
-/* eslint-disable discourse/ui-kit-imports */
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import willDestroy from "@ember/render-modifiers/modifiers/will-destroy";
 import { service } from "@ember/service";
-import DButton from "discourse/components/d-button";
-import icon from "discourse/helpers/d-icon";
+import DButton from "discourse/ui-kit/d-button";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import locationFormat from "../helpers/location-format";
 import LocationsMap from "./locations-map";
@@ -95,7 +94,7 @@ export default class LocationLableContainerComponent extends Component {
       <div class="location-label" title={{i18n "location.label.title"}}>
         <span class="location-text">
           {{#if this.showMapToggle}}
-            {{icon "location-dot"}}{{locationFormat @topic.location this.opts}}
+            {{dIcon "location-dot"}}{{locationFormat @topic.location this.opts}}
           {{else}}
             <DButton
               @action={{this.showTopicMapModal}}

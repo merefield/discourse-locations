@@ -1,4 +1,3 @@
-/* eslint-disable ember/no-side-effects */
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { array } from "@ember/helper";
@@ -31,6 +30,76 @@ export default class LocationSelector extends Component {
   @tracked loading = false;
   @tracked currentProvider = null;
 
+  loadFn = async (term) => {
+    if (!term || term.length === 0) {
+      return [];
+    }
+
+    let request = { query: term };
+
+    const context = this.args.context;
+    if (context) {
+      request["context"] = context;
+    }
+
+    this.loading = true;
+
+    try {
+      const result = await geoLocationSearch(
+        request,
+        this.siteSettings.location_geocoding_debounce
+      );
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      const defaultProvider = this.siteSettings.location_geocoding_provider;
+      const geoAttrs = this.args.geoAttrs;
+      const showType = this.args.showType;
+      let locations = [];
+
+      // Store current provider for display
+      this.currentProvider =
+        providerDetails[result.provider || defaultProvider];
+
+      if (!result.locations || result.locations.length === 0) {
+        locations = [];
+      } else {
+        locations = result.locations.map((l) => {
+          if (geoAttrs) {
+            l["geoAttrs"] = geoAttrs;
+          }
+          if (showType !== undefined) {
+            l["showType"] = showType;
+          }
+          // Ensure each location has an ID for comparison
+          l.id = l.address || JSON.stringify(l);
+          return l;
+        });
+      }
+
+      // Add provider info as non-selectable display item
+      if (this.currentProvider) {
+        locations.push({
+          provider: this.currentProvider,
+          address: i18n("location.geo.desc", {
+            provider: this.currentProvider,
+          }),
+        });
+      }
+
+      return locations;
+    } catch (e) {
+      if (this.searchError) {
+        this.searchError(e);
+      }
+      return [];
+    } finally {
+      this.loading = false;
+    }
+  };
+
   constructor() {
     super(...arguments);
     this.initializeLocation();
@@ -45,78 +114,6 @@ export default class LocationSelector extends Component {
         id: locationAddress, // Use address as ID for comparison
       };
     }
-  }
-
-  get loadFn() {
-    return async (term) => {
-      if (!term || term.length === 0) {
-        return [];
-      }
-
-      let request = { query: term };
-
-      const context = this.args.context;
-      if (context) {
-        request["context"] = context;
-      }
-
-      this.loading = true;
-
-      try {
-        const result = await geoLocationSearch(
-          request,
-          this.siteSettings.location_geocoding_debounce
-        );
-
-        if (result.error) {
-          throw new Error(result.error);
-        }
-
-        const defaultProvider = this.siteSettings.location_geocoding_provider;
-        const geoAttrs = this.args.geoAttrs;
-        const showType = this.args.showType;
-        let locations = [];
-
-        // Store current provider for display
-        this.currentProvider =
-          providerDetails[result.provider || defaultProvider];
-
-        if (!result.locations || result.locations.length === 0) {
-          locations = [];
-        } else {
-          locations = result.locations.map((l) => {
-            if (geoAttrs) {
-              l["geoAttrs"] = geoAttrs;
-            }
-            if (showType !== undefined) {
-              l["showType"] = showType;
-            }
-            // Ensure each location has an ID for comparison
-            l.id = l.address || JSON.stringify(l);
-            return l;
-          });
-        }
-
-        // Add provider info as non-selectable display item
-        if (this.currentProvider) {
-          locations.push({
-            provider: this.currentProvider,
-            address: i18n("location.geo.desc", {
-              provider: this.currentProvider,
-            }),
-          });
-        }
-
-        return locations;
-      } catch (e) {
-        if (this.searchError) {
-          this.searchError(e);
-        }
-        return [];
-      } finally {
-        this.loading = false;
-      }
-    };
   }
 
   @action

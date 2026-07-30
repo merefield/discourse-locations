@@ -1,8 +1,7 @@
-/* eslint-disable discourse/ui-kit-imports, ember/template-link-rel-noopener, ember/template-no-template-lint-directives */
 import Component from "@glimmer/component";
 import { service } from "@ember/service";
 import bodyClass from "discourse/helpers/body-class";
-import icon from "discourse/helpers/d-icon";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import UserLocation from "./user-location";
 
 export default class ReplaceLocationComponent extends Component {
@@ -32,9 +31,9 @@ export default class ReplaceLocationComponent extends Component {
       {{/if}}
       {{#if @model.website_name}}
         <div class="user-profile-website">
-          {{icon "globe"}}
+          {{dIcon "globe"}}
           {{#if this.linkWebsite}}
-            {{! template-lint-disable link-rel-noopener }}
+            {{! eslint-disable ember/template-link-rel-noopener }}
             <a
               href={{@model.website}}
               rel={{if
@@ -46,6 +45,7 @@ export default class ReplaceLocationComponent extends Component {
             >
               {{@model.website_name}}
             </a>
+            {{! eslint-enable ember/template-link-rel-noopener }}
           {{else}}
             <span title={{@model.website}}>{{@model.website_name}}</span>
           {{/if}}

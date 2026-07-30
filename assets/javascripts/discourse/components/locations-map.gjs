@@ -1,4 +1,3 @@
-/* eslint-disable discourse/ui-kit-imports, no-useless-assignment */
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { on } from "@ember/modifier";
@@ -6,9 +5,9 @@ import { action, computed } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import didUpdate from "@ember/render-modifiers/modifiers/did-update";
 import { service } from "@ember/service";
-import icon from "discourse/helpers/d-icon";
 import { ajax } from "discourse/lib/ajax";
 import { findOrResetCachedTopicList } from "discourse/lib/cached-topic-list";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import {
   addCircleMarkersToMap,
@@ -98,14 +97,13 @@ export default class LocationMapComponent extends Component {
   }
 
   async getLocationData() {
-    let filter = "";
-    let category = this.args.category;
+    const category = this.args.category;
 
     if (this.args.mapType === "topicList") {
       if (this.args.topicList) {
         this.topicList = this.args.topicList;
       } else if (category) {
-        filter = `c/${category.slug}/${category.id}`;
+        let filter = `c/${category.slug}/${category.id}`;
         if (this.args.noSubcategories) {
           filter += "/none";
         }
@@ -606,19 +604,19 @@ export default class LocationMapComponent extends Component {
           class="widget-button btn btn-map map-expand"
           type="button"
           {{on "click" this.toggleExpand}}
-        >{{icon this.mapToggle}}</button>
+        >{{dIcon this.mapToggle}}</button>
       {{/if}}
       <button
         class="widget-button btn btn-map map-attribution"
         type="button"
         {{on "click" this.toggleAttribution}}
-      >{{icon "info"}}</button>
+      >{{dIcon "info"}}</button>
       {{#if this.showEditButton}}
         <button
           class="widget-button btn btn-map category-edit"
           type="button"
           {{on "click" this.editCategory}}
-        >{{icon "wrench"}}</button>
+        >{{dIcon "wrench"}}</button>
       {{/if}}
       <div class="map-search">
         {{#if this.isMultipleLocations}}
