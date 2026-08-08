@@ -1,4 +1,4 @@
-import { default as discourseComputed } from "discourse/lib/decorators";
+import { computed } from "@ember/object";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import { i18n } from "discourse-i18n";
 
@@ -39,8 +39,10 @@ export default {
           class extends Superclass {
             pluginId = PLUGIN_ID;
 
-            @discourseComputed("user")
-            hasLocaleOrWebsite(user) {
+            @computed("user")
+            get hasLocaleOrWebsite() {
+              const { user } = this;
+
               return (
                 user.geo_location ||
                 user.location ||

@@ -3,7 +3,6 @@ import { tracked } from "@glimmer/tracking";
 import { array } from "@ember/helper";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import { trustHTML } from "@ember/template";
 import { escapeExpression } from "discourse/lib/utilities";
 import { i18n } from "discourse-i18n";
 import {
@@ -31,28 +30,7 @@ export default class LocationSelector extends Component {
   @tracked loading = false;
   @tracked currentProvider = null;
 
-  constructor() {
-    super(...arguments);
-    this.initializeLocation();
-  }
-
-  initializeLocation() {
-    const locationAddress = this.args.location?.address;
-    if (locationAddress) {
-      // Create a location object from the existing address
-      this.selectedLocation = {
-        address: locationAddress,
-        id: locationAddress, // Use address as ID for comparison
-      };
-    }
-  }
-
-  get loadFn() {
-    return this.loadLocations;
-  }
-
-  @action
-  async loadLocations(term) {
+  loadFn = async (term) => {
     if (!term || term.length === 0) {
       return [];
     }
@@ -105,20 +83,36 @@ export default class LocationSelector extends Component {
       if (this.currentProvider) {
         locations.push({
           provider: this.currentProvider,
-          address: trustHTML(
-            i18n("location.geo.desc", {
-              provider: this.currentProvider,
-            })
-          ),
+          address: i18n("location.geo.desc", {
+            provider: this.currentProvider,
+          }),
         });
       }
 
       return locations;
     } catch (e) {
-      this.args.searchError?.(e);
+      if (this.searchError) {
+        this.searchError(e);
+      }
       return [];
     } finally {
       this.loading = false;
+    }
+  };
+
+  constructor() {
+    super(...arguments);
+    this.initializeLocation();
+  }
+
+  initializeLocation() {
+    const locationAddress = this.args.location?.address;
+    if (locationAddress) {
+      // Create a location object from the existing address
+      this.selectedLocation = {
+        address: locationAddress,
+        id: locationAddress, // Use address as ID for comparison
+      };
     }
   }
 

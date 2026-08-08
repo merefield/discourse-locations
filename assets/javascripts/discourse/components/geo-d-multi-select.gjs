@@ -6,21 +6,19 @@ import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import { trustHTML } from "@ember/template";
-import DButton from "discourse/components/d-button";
-import DropdownMenu from "discourse/components/dropdown-menu";
-import TextField from "discourse/components/text-field";
 import DMenu from "discourse/float-kit/components/d-menu";
-import concatClass from "discourse/helpers/concat-class";
-import icon from "discourse/helpers/d-icon";
-import element from "discourse/helpers/element";
-import uniqueId from "discourse/helpers/unique-id";
 import discourseDebounce from "discourse/lib/debounce";
+import { INPUT_DELAY } from "discourse/lib/environment";
 import { makeArray } from "discourse/lib/helpers";
-import scrollIntoView from "discourse/modifiers/scroll-into-view";
-import { and, eq, not } from "discourse/truth-helpers";
+import { eq } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
+import DDropdownMenu from "discourse/ui-kit/d-dropdown-menu";
+import DTextField from "discourse/ui-kit/d-text-field";
+import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
+import dElement from "discourse/ui-kit/helpers/d-element";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
+import dScrollIntoView from "discourse/ui-kit/modifiers/d-scroll-into-view";
 import { i18n } from "discourse-i18n";
-
-const INPUT_DELAY = 250;
 
 class Skeleton extends Component {
   get width() {
@@ -46,19 +44,11 @@ export default class GeoDMultiSelect extends Component {
   @tracked value = null;
   @tracked error = null;
 
-  // Float-kit: override portal outlet (so modals can trap focus correctly)
-  @tracked portalOutletElement = null;
-  @tracked inModal = false;
-
   // when true, the next resolved search will auto-pick first result
   @tracked autoPickNextResult = false;
 
   compareKey = "id";
   _requestId = 0;
-
-  get identifier() {
-    return `geo-d-multi-select-${uniqueId()}`;
-  }
 
   get hasSelection() {
     return (this.args.selection?.length ?? 0) > 0;
@@ -77,34 +67,6 @@ export default class GeoDMultiSelect extends Component {
       (item) =>
         !this.args.selection?.some((selected) => this.compare(item, selected))
     );
-  }
-
-  @action
-  setPortalOutlet(triggerEl) {
-    const modalRoot =
-      triggerEl.closest(
-        ".d-modal__container, .d-modal, .modal, .bootbox.modal, .fk-modal"
-      ) || null;
-
-    this.inModal = !!modalRoot;
-
-    if (!modalRoot) {
-      this.portalOutletElement = null;
-      return;
-    }
-
-    let outlet =
-      modalRoot.querySelector("#location-modal-menu-portals") ||
-      modalRoot.querySelector(".location-modal-menu-portals");
-
-    if (!outlet) {
-      outlet = document.createElement("div");
-      outlet.id = "location-modal-menu-portals";
-      outlet.className = "location-modal-menu-portals";
-      modalRoot.appendChild(outlet);
-    }
-
-    this.portalOutletElement = outlet;
   }
 
   #debouncedSearch() {
@@ -222,14 +184,19 @@ export default class GeoDMultiSelect extends Component {
   compare(a, b) {
     if (this.args.compareFn) {
       return this.args.compareFn(a, b);
+    } else {
+      return a?.[this.compareKey] === b?.[this.compareKey];
     }
-    return a?.[this.compareKey] === b?.[this.compareKey];
   }
 
   getDisplayText(item) {
     return item?.name;
   }
 
+  // Choose the first "real" location result:
+  // - skip provider/footer item (your code adds { provider: ... })
+  // - skip anything falsy
+  // - skip anything already selected (availableOptions already filters selection, but keep safe)
   #firstSelectableResult() {
     const opts = this.availableOptions || [];
     return opts.find((r) => r && !r.provider);
@@ -248,6 +215,7 @@ export default class GeoDMultiSelect extends Component {
       return;
     }
 
+    // mimic a click selection
     const currentSelection = makeArray(this.args.selection);
     this.args.onChange?.(currentSelection.concat(first));
   }
@@ -269,15 +237,16 @@ export default class GeoDMultiSelect extends Component {
         this.value = val;
         this.isResolved = true;
 
+        // if bullseye triggered the search, auto-select the first result
         this.#autoPickIfNeeded();
       })
       .catch((e) => {
         if (requestId !== this._requestId) {
           return;
         }
-
         this.error = e;
         this.isRejected = true;
+        // no auto-pick on error
         this.autoPickNextResult = false;
       })
       .finally(() => {
@@ -294,6 +263,7 @@ export default class GeoDMultiSelect extends Component {
       return;
     }
 
+    // next search (coords) should auto-pick
     this.autoPickNextResult = true;
 
     navigator.geolocation.getCurrentPosition(
@@ -302,7 +272,7 @@ export default class GeoDMultiSelect extends Component {
         this.preselectedItem = null;
         this.searchTerm = term;
 
-        // Run immediately so we can auto-pick right away
+        // run immediately (debounced is fine too, but immediate makes UX snappier)
         this.#performSearch(this.args.loadFn, term);
       },
       () => {
@@ -313,20 +283,9 @@ export default class GeoDMultiSelect extends Component {
 
   <template>
     <DMenu
-      @identifier={{this.identifier}}
-      @listeners={{false}}
-      @portalOutletElement={{this.portalOutletElement}}
-      @inline={{this.inModal}}
-      @triggerComponent={{element "div"}}
-      @triggerClass={{concatClass
-        "d-multi-select-trigger"
-        "geo-d-multi-select-trigger-root"
-        (if this.hasSelection "--has-selection")
-      }}
-      @contentClass={{concatClass
-        "d-multi-select-content"
-        "geo-d-multi-select-content-root"
-      }}
+      @identifier="d-multi-select"
+      @triggerComponent={{dElement "div"}}
+      @triggerClass={{dConcatClass (if this.hasSelection "--has-selection")}}
       @visibilityOptimizer={{@visibilityOptimizer}}
       @placement={{@placement}}
       @allowedPlacements={{@allowedPlacements}}
@@ -335,11 +294,8 @@ export default class GeoDMultiSelect extends Component {
       @matchTriggerWidth={{@matchTriggerWidth}}
       ...attributes
     >
-      <:trigger as |api|>
-        <div
-          class="geo-d-multi-select-trigger"
-          {{didInsert this.setPortalOutlet}}
-        >
+      <:trigger>
+        <div class="geo-d-multi-select-trigger">
           <div class="geo-d-multi-select-trigger__content">
             {{#if @selection}}
               <div class="d-multi-select-trigger__selection">
@@ -353,7 +309,7 @@ export default class GeoDMultiSelect extends Component {
                     <span class="d-multi-select-trigger__selection-label">
                       {{yield item to="selection"}}
                     </span>
-                    {{icon
+                    {{dIcon
                       "xmark"
                       class="d-multi-select-trigger__remove-selection-icon"
                     }}
@@ -374,18 +330,17 @@ export default class GeoDMultiSelect extends Component {
             <DButton
               @icon="angle-down"
               class="d-multi-select-trigger__expand-btn btn-transparent"
-              @disabled={{and this.inModal (not this.portalOutletElement)}}
-              @action={{api.show}}
+              @action={{@componentArgs.show}}
             />
           </div>
         </div>
       </:trigger>
 
       <:content>
-        <DropdownMenu class="d-multi-select__content" as |menu|>
+        <DDropdownMenu class="d-multi-select__content" as |menu|>
           <menu.item class="d-multi-select__search-container">
-            {{icon "magnifying-glass"}}
-            <TextField
+            {{dIcon "magnifying-glass"}}
+            <DTextField
               class="d-multi-select__search-input"
               autocomplete="off"
               @placeholder={{i18n "multi_select.search"}}
@@ -416,13 +371,13 @@ export default class GeoDMultiSelect extends Component {
               <div class="d-multi-select__search-results">
                 {{#each this.availableOptions as |result|}}
                   <menu.item
-                    class={{concatClass
+                    class={{dConcatClass
                       "d-multi-select__result"
                       (if (eq result this.preselectedItem) "--preselected" "")
                     }}
                     role="button"
                     title={{this.getDisplayText result}}
-                    {{scrollIntoView (eq result this.preselectedItem)}}
+                    {{dScrollIntoView (eq result this.preselectedItem)}}
                     {{on "mouseenter" (fn this.setPreselected result)}}
                     {{on "click" (fn this.toggle result)}}
                   >
@@ -438,7 +393,7 @@ export default class GeoDMultiSelect extends Component {
               </div>
             {{/if}}
           {{/if}}
-        </DropdownMenu>
+        </DDropdownMenu>
       </:content>
     </DMenu>
   </template>

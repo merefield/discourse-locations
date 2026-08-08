@@ -64,6 +64,9 @@ en:
     location_ip_granularity: "Granularity for IP-based location (country, province, county, or city)."
     location_ip_auto_lookup_mode: "Automatically enqueue IP-based location lookup when users post or when they log in."
 
+  rss_description:
+    map: "Map"
+
   location:
     errors:
       invalid: "Invalid map location"

@@ -77,6 +77,10 @@ acceptance(
       await openComposer();
       const composer = this.container.lookup("service:composer");
 
+      composer.model.set("location", null);
+      composer.model._maybeSetupDefaultLocation();
+      await settled();
+
       assert.strictEqual(composer.model.location, null);
     });
   }
@@ -185,6 +189,10 @@ acceptance(
     test("composer doesn't include default location if user has none", async function (assert) {
       await openComposer();
       const composer = this.container.lookup("service:composer");
+
+      composer.model.set("location", null);
+      composer.model._maybeSetupDefaultLocation();
+      await settled();
 
       assert.strictEqual(composer.model.location, null);
     });

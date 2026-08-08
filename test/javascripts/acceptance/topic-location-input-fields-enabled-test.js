@@ -1,12 +1,7 @@
 import { click, fillIn, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import { cloneJSON } from "discourse/lib/object";
-import {
-  acceptance,
-  exists,
-  query,
-  visible,
-} from "discourse/tests/helpers/qunit-helpers";
+import { acceptance, query } from "discourse/tests/helpers/qunit-helpers";
 import selectKit from "discourse/tests/helpers/select-kit-helper";
 import locationFixtures from "../fixtures/location-fixtures";
 import siteFixtures from "../fixtures/site-fixtures";
@@ -37,15 +32,14 @@ acceptance(
       await visit("/t/online-learning/51/1");
       await click("a.fancy-title");
       await click("button.add-location-btn");
-      assert.true(
-        visible(".add-location-modal"),
-        "add location modal is shown"
-      );
+      assert
+        .dom(".add-location-modal")
+        .isVisible("add location modal is shown");
       await selectKit(".input-location.country-code").expand();
-      assert.true(
-        exists(".input-location.country-code .select-kit-collection")
-      );
-      assert.true(exists(".select-kit-row.is-highlighted.is-selected"));
+      assert
+        .dom(".input-location.country-code .select-kit-collection")
+        .exists();
+      assert.dom(".select-kit-row.is-highlighted.is-selected").exists();
       assert.strictEqual(
         query(".select-kit-row.is-highlighted.is-selected").innerText,
         "France",
@@ -78,10 +72,9 @@ acceptance(
       await visit("/t/online-learning/51/1");
       await click("a.fancy-title");
       await click("button.add-location-btn");
-      assert.true(
-        visible(".add-location-modal"),
-        "add location modal is shown"
-      );
+      assert
+        .dom(".add-location-modal")
+        .isVisible("add location modal is shown");
       await fillIn(
         ".add-location div.location-form div.coordinates .input-location.lat",
         "22"

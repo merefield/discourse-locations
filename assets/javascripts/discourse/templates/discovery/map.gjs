@@ -1,6 +1,6 @@
 import Layout from "discourse/components/discovery/layout";
 import Navigation from "discourse/components/discovery/navigation";
-import LocationsMap from "discourse/plugins/discourse-locations/discourse/components/locations-map";
+import LocationsMap from "../../components/locations-map";
 
 export default <template>
   <Layout
@@ -30,6 +30,7 @@ export default <template>
           @mapType="topicList"
           @category={{@controller.model.category}}
           @noSubcategories={{@controller.model.noSubcategories}}
+          @topicList={{@controller.model.list}}
         />
       </div>
     </:list>

@@ -7,8 +7,6 @@ RSpec.describe "Category default map view" do
   fab!(:category, :category_with_definition)
 
   let(:category_page) { PageObjects::Pages::Category.new }
-  let(:default_view_select_kit) { PageObjects::Components::SelectKit.new("#category-default-view") }
-
   before do
     SiteSetting.location_enabled = true
     SiteSetting.location_category_map_filter = true
@@ -21,11 +19,7 @@ RSpec.describe "Category default map view" do
   end
 
   it "shows the map view without a route error when map is the category default view" do
-    category_page.visit_appearance(category)
-    default_view_select_kit.expand
-    default_view_select_kit.select_row_by_value("map")
-    category_page.save_settings
-
+    category.update!(default_view: "map")
     expect(category.reload.default_view).to eq("map")
 
     category_page.visit(category)

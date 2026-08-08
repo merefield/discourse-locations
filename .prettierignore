@@ -1,4 +1,1 @@
-# Vendored third-party libraries
-assets/lib/leaflet/**
-gems/**
-vendor/**
+assets/lib/
