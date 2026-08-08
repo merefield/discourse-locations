@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-# rubocop:disable RSpec/DescribeClass
 
 require "rails_helper"
 
@@ -102,4 +101,3 @@ describe "Composer default location" do
     )
   end
 end
-# rubocop:enable RSpec/DescribeClass
