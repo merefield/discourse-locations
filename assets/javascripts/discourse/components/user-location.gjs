@@ -4,7 +4,7 @@ import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import willDestroy from "@ember/render-modifiers/modifiers/will-destroy";
 import { service } from "@ember/service";
-import { not } from "discourse/truth-helpers";
+import { and, not } from "discourse/truth-helpers";
 import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { geoLocationFormat } from "../lib/location-utilities";
@@ -114,7 +114,7 @@ export default class LocationMapComponent extends Component {
         <DButton
           class="widget-button btn btn-default btn-show-map btn-small btn-icon-text btn-transparent"
           @action={{this.toggleMap}}
-          @disabled={{not this.canShowMap}}
+          @disabled={{and (not this.showMap) (not this.canShowMap)}}
         >
           {{dIcon "location-dot"}}
           <div class="location-label">

@@ -122,8 +122,9 @@ acceptance("Topic - Skip Empty Location Searches", function (needs) {
     topicResponse.location = null;
     server.get("/t/51/1.json", () => helper.response(topicResponse));
 
-    const locationResponse = cloneJSON(locationFixtures["location.json"]);
-    server.get("/locations/search", () => helper.response(locationResponse));
+    server.get("/locations/search", () => {
+      throw new Error("Empty location search reached the server");
+    });
   });
 
   test("does not search without location details", async function (assert) {
