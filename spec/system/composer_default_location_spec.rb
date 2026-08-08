@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Composer default location" do
+describe "Composer default location" do
   fab!(:user) { Fabricate(:user, refresh_auto_groups: true) }
   fab!(:location_category) do
     Fabricate(:category_with_definition, custom_fields: { location_enabled: true })
@@ -68,5 +68,36 @@ RSpec.describe "Composer default location" do
     select_kit = PageObjects::Components::SelectKit.new("#reply-control.open .category-chooser")
     expect(select_kit).to have_selected_value(category_without_locations.id)
     expect(page).to have_no_css("#reply-control.open .location-label")
+  end
+
+  it "updates the composer location when switching categories" do
+    category_page.visit(location_category)
+    category_page.new_topic_button.click
+
+    expect(page).to have_css(
+      "#reply-control.open .location-label .d-button-label",
+      text: geo_location[:address],
+      wait: 10
+    )
+
+    select_kit =
+      PageObjects::Components::SelectKit.new(
+        "#reply-control.open .category-chooser"
+      )
+    select_kit.expand
+    select_kit.select_row_by_value(category_without_locations.id)
+
+    expect(select_kit).to have_selected_value(category_without_locations.id)
+    expect(page).to have_no_css("#reply-control.open .location-label")
+
+    select_kit.expand
+    select_kit.select_row_by_value(location_category.id)
+
+    expect(select_kit).to have_selected_value(location_category.id)
+    expect(page).to have_css(
+      "#reply-control.open .location-label .d-button-label",
+      text: geo_location[:address],
+      wait: 10
+    )
   end
 end
