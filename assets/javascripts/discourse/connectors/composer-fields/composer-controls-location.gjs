@@ -1,5 +1,5 @@
 import Component from "@glimmer/component";
-import { action, set } from "@ember/object";
+import { action } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import didUpdate from "@ember/render-modifiers/modifiers/did-update";
 import { service } from "@ember/service";
@@ -8,34 +8,40 @@ import AddLocationControls from "../../components/add-location-controls";
 export default class ComposerControlsLocation extends Component {
   @service site;
 
-  @action
-  updateLocation(location) {
-    set(this.args.outletArgs.model, "location", location);
+  get model() {
+    return this.args.outletArgs.model;
   }
 
   @action
-  syncDefaultLocation() {
-    this.args.outletArgs.model.maybeSetupDefaultLocation?.();
+  updateLocation(location) {
+    this.model.location = location;
+  }
+
+  // Runs on open and whenever the draft or category changes, replacing the
+  // composer model's former `init` + `@observes("draftKey", "categoryId")`.
+  @action
+  setupDefaultLocation() {
+    this.model.maybeSetupDefaultLocation();
   }
 
   <template>
-    <span
-      {{didInsert this.syncDefaultLocation}}
+    <div
+      {{didInsert this.setupDefaultLocation}}
       {{didUpdate
-        this.syncDefaultLocation
-        @outletArgs.model.categoryId
-        @outletArgs.model.draftKey
-        @outletArgs.model.showLocationControls
+        this.setupDefaultLocation
+        this.model.draftKey
+        this.model.categoryId
+        this.model.showLocationControls
       }}
     >
-      {{#if @outletArgs.model.showLocationControls}}
+      {{#if this.model.showLocationControls}}
         <AddLocationControls
-          @location={{@outletArgs.model.location}}
-          @category={{@outletArgs.model.category}}
+          @location={{this.model.location}}
+          @category={{this.model.category}}
           @noText={{this.site.mobileView}}
           @updateLocation={{this.updateLocation}}
         />
       {{/if}}
-    </span>
+    </div>
   </template>
 }
