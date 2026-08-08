@@ -103,3 +103,38 @@ acceptance(
     });
   }
 );
+
+acceptance("Topic - Skip Empty Location Searches", function (needs) {
+  needs.user({
+    username: "demetria_gutmann",
+    id: 134,
+  });
+  needs.settings({
+    location_enabled: true,
+    location_geocoding: "optional",
+    location_input_fields_enabled: true,
+    location_input_fields: "street",
+    location_auto_infer_street_from_address_data: true,
+  });
+  needs.site(cloneJSON(siteFixtures["site.json"]));
+  needs.pretender((server, helper) => {
+    const topicResponse = cloneJSON(topicFixtures["/t/51/1.json"]);
+    topicResponse.location = null;
+    server.get("/t/51/1.json", () => helper.response(topicResponse));
+
+    server.get("/locations/search", () => {
+      throw new Error("Empty location search reached the server");
+    });
+  });
+
+  test("does not search without location details", async function (assert) {
+    await visit("/t/online-learning/51/1");
+    await click("a.fancy-title");
+    await click("button.add-location-btn");
+    await click("button.location-search");
+
+    assert
+      .dom(".location-results")
+      .doesNotExist("no location results are shown for an empty search");
+  });
+});
