@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe DirectoryItemsController do
   fab!(:user)
 
-  context "browsing the users map" do
+  context "when browsing the users map" do
     before(:each) do
       SiteSetting.location_enabled = true
       sign_in(user)
