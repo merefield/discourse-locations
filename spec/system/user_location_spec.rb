@@ -38,7 +38,7 @@ RSpec.describe "User can manage their location" do
     }
   end
 
-  context "browsing the users preferences" do
+  context "when browsing the users preferences" do
     before(:each) do
       SiteSetting.location_enabled = true
       SiteSetting.location_users_map = true

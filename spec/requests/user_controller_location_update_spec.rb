@@ -19,7 +19,7 @@ RSpec.describe UsersController do
     raw.is_a?(String) ? JSON.parse(raw) : raw
   end
 
-  context "locations plugin checks for valid geolocation parameters which at minimum need to include both latitude and longitude" do
+  context "when validating geolocation parameters" do
     it "allows user to upload valid geolocation to their profile" do
       put "/u/#{user.username}.json",
           params: {
