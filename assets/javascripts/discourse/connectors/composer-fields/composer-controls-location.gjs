@@ -25,7 +25,7 @@ export default class ComposerControlsLocation extends Component {
   }
 
   <template>
-    <span
+    <div
       {{didInsert this.setupDefaultLocation}}
       {{didUpdate
         this.setupDefaultLocation
@@ -42,6 +42,6 @@ export default class ComposerControlsLocation extends Component {
           @updateLocation={{this.updateLocation}}
         />
       {{/if}}
-    </span>
+    </div>
   </template>
 }
