@@ -1,7 +1,8 @@
-import { click, settled, visit, waitFor } from "@ember/test-helpers";
+import { click, fillIn, visit, waitFor } from "@ember/test-helpers";
 import { test } from "qunit";
 import { cloneJSON } from "discourse/lib/object";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
+import selectKit from "discourse/tests/helpers/select-kit-helper";
 import siteFixtures from "../fixtures/site-fixtures";
 import topicFixtures from "../fixtures/topic-fixtures";
 
@@ -30,7 +31,10 @@ function buildCategory({ id, name, locationEnabled }) {
   return category;
 }
 
-function buildSiteFixture({ defaultCategoryLocationEnabled = true } = {}) {
+function buildSiteFixture({
+  defaultCategoryLocationEnabled = true,
+  additionalCategories = [],
+} = {}) {
   const site = cloneJSON(siteFixtures["site.json"]);
   site.can_create_topic = true;
   site.categories = [
@@ -39,6 +43,7 @@ function buildSiteFixture({ defaultCategoryLocationEnabled = true } = {}) {
       name: "Suggestions",
       locationEnabled: defaultCategoryLocationEnabled,
     }),
+    ...additionalCategories,
   ];
 
   return site;
@@ -77,10 +82,6 @@ acceptance(
       await openComposer();
       const composer = this.container.lookup("service:composer");
 
-      composer.model.set("location", null);
-      composer.model._maybeSetupDefaultLocation();
-      await settled();
-
       assert.strictEqual(composer.model.location, null);
     });
   }
@@ -105,11 +106,12 @@ acceptance(
 
       assert.strictEqual(
         composer.model.location.geo_location.address,
-        USER_GEO_LOCATION.address
+        USER_GEO_LOCATION.address,
+        "the composer uses the current user's default location"
       );
     });
 
-    test("doesn't override an existing composer location", async function (assert) {
+    test("doesn't replace a manually chosen location during unrelated composer changes", async function (assert) {
       await openComposer();
       const composer = this.container.lookup("service:composer");
 
@@ -119,12 +121,12 @@ acceptance(
           address: "Custom Draft Address",
         },
       });
-      composer.model._maybeSetupDefaultLocation();
-      await settled();
+      await fillIn("#reply-title", "A custom topic title");
 
       assert.strictEqual(
         composer.model.location.geo_location.address,
-        "Custom Draft Address"
+        "Custom Draft Address",
+        "typing in the composer keeps the chosen location"
       );
     });
   }
@@ -147,24 +149,11 @@ acceptance(
       await openComposer();
       const composer = this.container.lookup("service:composer");
 
-      assert.strictEqual(composer.model.location, null);
-    });
-
-    test("composer clears stale location state in disabled categories", async function (assert) {
-      await openComposer();
-      const composer = this.container.lookup("service:composer");
-
-      composer.model.set("location", {
-        geo_location: {
-          ...USER_GEO_LOCATION,
-          address: "Stale Draft Address",
-        },
-      });
-
-      composer.model._maybeSetupDefaultLocation();
-      await settled();
-
-      assert.strictEqual(composer.model.location, null);
+      assert.strictEqual(
+        composer.model.location,
+        null,
+        "disabled categories do not seed a default location"
+      );
     });
   }
 );
@@ -190,11 +179,11 @@ acceptance(
       await openComposer();
       const composer = this.container.lookup("service:composer");
 
-      composer.model.set("location", null);
-      composer.model._maybeSetupDefaultLocation();
-      await settled();
-
-      assert.strictEqual(composer.model.location, null);
+      assert.strictEqual(
+        composer.model.location,
+        null,
+        "the composer stays empty when the user has no geo location"
+      );
     });
   }
 );
@@ -226,7 +215,65 @@ acceptance(
         composer.model.location?.geo_location !== null;
 
       assert.false(composer.model.creatingTopic);
-      assert.false(hasDefaultLocation);
+      assert.false(
+        hasDefaultLocation,
+        "reply composers do not get the default"
+      );
+    });
+  }
+);
+
+acceptance(
+  "Composer (locations) | updates defaults when the category changes",
+  function (needs) {
+    needs.user(userWithGeoLocation());
+    needs.site(
+      buildSiteFixture({
+        additionalCategories: [
+          buildCategory({
+            id: 12,
+            name: "Off topic",
+            locationEnabled: false,
+          }),
+        ],
+      })
+    );
+    needs.settings({
+      location_enabled: true,
+      location_users_map: true,
+      hide_user_profiles_from_public: false,
+      location_topic_default: "user",
+      default_composer_category: 11,
+    });
+
+    test("switching categories clears and reapplies the default location", async function (assert) {
+      await openComposer();
+      const composer = this.container.lookup("service:composer");
+      const categoryChooser = selectKit(".category-chooser");
+
+      assert.strictEqual(
+        composer.model.location.geo_location.address,
+        USER_GEO_LOCATION.address,
+        "the enabled default category seeds the user's location"
+      );
+
+      await categoryChooser.expand();
+      await categoryChooser.selectRowByValue(12);
+
+      assert.strictEqual(
+        composer.model.location,
+        null,
+        "switching to a disabled category clears the location"
+      );
+
+      await categoryChooser.expand();
+      await categoryChooser.selectRowByValue(11);
+
+      assert.strictEqual(
+        composer.model.location.geo_location.address,
+        USER_GEO_LOCATION.address,
+        "switching back to an enabled category reapplies the default"
+      );
     });
   }
 );
