@@ -37,7 +37,6 @@ export default class LocationForm extends Component {
   @tracked formCountrycode;
   @tracked formLatitude;
   @tracked formLongitude;
-  formState;
   geoLocation = {};
   context = null;
 
@@ -194,7 +193,14 @@ export default class LocationForm extends Component {
       }
     });
 
-    if (Object.keys(request).length === 0) {
+    if (
+      !Object.values(request).some(
+        (value) =>
+          value !== undefined &&
+          value !== null &&
+          String(value).trim().length > 0
+      )
+    ) {
       return;
     }
 

@@ -91,9 +91,7 @@ export default class LocationSelector extends Component {
 
       return locations;
     } catch (e) {
-      if (this.searchError) {
-        this.searchError(e);
-      }
+      this.args.searchError?.(e);
       return [];
     } finally {
       this.loading = false;

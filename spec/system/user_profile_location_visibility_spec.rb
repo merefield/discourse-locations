@@ -40,6 +40,7 @@ RSpec.describe "User profile and user card location visibility" do
       expect(page).to have_css(".replace-location .user-profile-location", visible: true, wait: 5)
       expect(page).to have_css(
         ".replace-location .user-profile-location .location-label",
+        text: "London, United Kingdom",
         visible: true,
         wait: 5,
       )
@@ -93,6 +94,7 @@ RSpec.describe "User profile and user card location visibility" do
       )
       expect(page).to have_css(
         "#user-card .location-and-website .replace-location .location .location-label",
+        text: "London, United Kingdom",
         visible: true,
       )
     end

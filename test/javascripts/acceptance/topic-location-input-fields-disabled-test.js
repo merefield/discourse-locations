@@ -1,7 +1,8 @@
-import { click, fillIn, visit } from "@ember/test-helpers";
+import { click, fillIn, visit, waitFor } from "@ember/test-helpers";
 import { test } from "qunit";
 import { cloneJSON } from "discourse/lib/object";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
+import { i18n } from "discourse-i18n";
 import locationFixtures from "../fixtures/location-fixtures";
 import siteFixtures from "../fixtures/site-fixtures";
 import topicFixtures from "../fixtures/topic-fixtures";
@@ -9,6 +10,12 @@ import topicFixtures from "../fixtures/topic-fixtures";
 acceptance(
   "Topic - Show Correct Location after entering location with Input Fields Disabled",
   function (needs) {
+    let searchShouldFail;
+
+    needs.hooks.beforeEach(() => {
+      searchShouldFail = false;
+    });
+
     needs.user({
       username: "demetria_gutmann",
       id: 134,
@@ -24,7 +31,13 @@ acceptance(
       const topicResponse = cloneJSON(topicFixtures["/t/51/1.json"]);
       server.get("/t/51/1.json", () => helper.response(topicResponse));
       const locationResponse = cloneJSON(locationFixtures["location.json"]);
-      server.get("/locations/search", () => helper.response(locationResponse));
+      server.get("/locations/search", () => {
+        if (searchShouldFail) {
+          return helper.response(500, { errors: ["Search failed"] });
+        }
+
+        return helper.response(locationResponse);
+      });
     });
 
     test("enter Topic location via dialogue without address fields", async function (assert) {
@@ -50,6 +63,24 @@ acceptance(
       assert
         .dom("button.add-location-btn span.d-button-label")
         .hasText("Home Sweet Home, L3 1EG, Liverpool, United Kingdom");
+    });
+
+    test("show location search errors", async function (assert) {
+      searchShouldFail = true;
+
+      await visit("/t/online-learning/51/1");
+      await click("a.fancy-title");
+      await click("button.add-location-btn");
+      await click(".location-selector .d-multi-select-trigger");
+      await fillIn(".d-multi-select__search-input", "invalid location");
+      await waitFor(".add-location-modal .alert");
+
+      assert
+        .dom(".add-location-modal .alert")
+        .hasText(
+          i18n("location.errors.search"),
+          "the search error is shown in the modal"
+        );
     });
   }
 );
