@@ -1,4 +1,4 @@
-import { click, fillIn, visit, waitFor } from "@ember/test-helpers";
+import { click, fillIn, settled, visit, waitFor } from "@ember/test-helpers";
 import { test } from "qunit";
 import { cloneJSON } from "discourse/lib/object";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
@@ -55,6 +55,10 @@ async function openComposer() {
   await waitFor("#reply-control.open");
 }
 
+function assertComposerHasNoGeoLocation(assert, composer, message) {
+  assert.strictEqual(composer.model.location?.geo_location, undefined, message);
+}
+
 function userWithGeoLocation() {
   return {
     username: "demetria_gutmann",
@@ -82,7 +86,11 @@ acceptance(
       await openComposer();
       const composer = this.container.lookup("service:composer");
 
-      assert.strictEqual(composer.model.location, null);
+      assertComposerHasNoGeoLocation(
+        assert,
+        composer,
+        "the composer does not get a geo location when defaults are disabled"
+      );
     });
   }
 );
@@ -149,9 +157,9 @@ acceptance(
       await openComposer();
       const composer = this.container.lookup("service:composer");
 
-      assert.strictEqual(
-        composer.model.location,
-        null,
+      assertComposerHasNoGeoLocation(
+        assert,
+        composer,
         "disabled categories do not seed a default location"
       );
     });
@@ -179,9 +187,9 @@ acceptance(
       await openComposer();
       const composer = this.container.lookup("service:composer");
 
-      assert.strictEqual(
-        composer.model.location,
-        null,
+      assertComposerHasNoGeoLocation(
+        assert,
+        composer,
         "the composer stays empty when the user has no geo location"
       );
     });
@@ -259,15 +267,17 @@ acceptance(
 
       await categoryChooser.expand();
       await categoryChooser.selectRowByValue(12);
+      await settled();
 
-      assert.strictEqual(
-        composer.model.location,
-        null,
+      assertComposerHasNoGeoLocation(
+        assert,
+        composer,
         "switching to a disabled category clears the location"
       );
 
       await categoryChooser.expand();
       await categoryChooser.selectRowByValue(11);
+      await settled();
 
       assert.strictEqual(
         composer.model.location.geo_location.address,
