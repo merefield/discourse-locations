@@ -19,8 +19,14 @@ module DirectoryItemsControllerExtension
           .joins(
             "INNER JOIN locations_user ON directory_items.user_id = locations_user.user_id"
           )
+          .joins("INNER JOIN users ON users.id = directory_items.user_id")
           .where("period_type = 5")
           .includes(:user)
+          .order(
+            Arel.sql(
+              "users.last_seen_at DESC NULLS LAST, directory_items.id ASC"
+            )
+          )
           .limit(limit)
 
       serializer_opts = {}

@@ -48,6 +48,32 @@ RSpec.describe DirectoryItemsController do
         )
       end
 
+      it "orders users by most recent activity" do
+        older_user = Fabricate(:user)
+        older_user.update_columns(last_seen_at: 2.days.ago)
+        newer_user = Fabricate(:user)
+        newer_user.update_columns(last_seen_at: 1.hour.ago)
+
+        [older_user, newer_user].each do |map_user|
+          UserCustomField.create!(
+            user: map_user,
+            name: "geo_location",
+            value: { lat: "51.5074", lon: "-0.1278" }.to_json
+          )
+          Locations::UserLocationProcess.upsert(map_user.id)
+        end
+        DirectoryItem.refresh_period!(:daily, force: true)
+
+        SiteSetting.location_users_map = true
+        SiteSetting.enable_user_directory = true
+        get "/directory_items.json?period=location"
+
+        expect(response.status).to eq(200)
+        expect(
+          response.parsed_body["directory_items"].map { |item| item["id"] }
+        ).to eq([newer_user.id, older_user.id])
+      end
+
       it "returns forbidden when the user directory is disabled" do
         SiteSetting.location_users_map = true
         SiteSetting.enable_user_directory = false
