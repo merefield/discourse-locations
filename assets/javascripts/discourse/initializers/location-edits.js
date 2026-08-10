@@ -263,6 +263,28 @@ export default {
             }
         );
       });
+
+      // The location selector discovers its modal context after DMenu's initial options snapshot.
+      api.modifyClass(
+        "component:d-menu",
+        (Superclass) =>
+          class extends Superclass {
+            pluginId = "locations-plugin";
+
+            get options() {
+              const base = this.menuInstance?.options ?? {};
+
+              if (
+                this.args?.inline !== undefined &&
+                base.inline !== this.args.inline
+              ) {
+                return { ...base, inline: this.args.inline };
+              }
+
+              return base;
+            }
+          }
+      );
     });
 
     Composer.serializeOnCreate("location");
