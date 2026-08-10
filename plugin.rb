@@ -49,6 +49,8 @@ after_initialize do
     lib/users_map.rb
   ].each { |path| require_relative path }
 
+  reloadable_patch { TopicQuery.prepend(Locations::TopicQueryExtension) }
+
   def Locations.parse_geo_location(val)
     return nil if val.blank? || val == "{}"
     return val if val.is_a?(Hash)
@@ -184,7 +186,8 @@ after_initialize do
   SiteSetting.public_user_custom_fields = public_user_custom_fields.join("|")
 
   PostRevisor.track_topic_field(:location) do |tc, location|
-    category_supports_locations = tc.topic.category&.custom_fields&.[]("location_enabled")
+    category_supports_locations =
+      tc.topic.category&.custom_fields&.[]("location_enabled")
 
     if location.present? && category_supports_locations &&
          location = Locations::Helper.parse_location(location.to_unsafe_hash)
@@ -309,24 +312,6 @@ after_initialize do
 
   add_to_serializer(:site, :country_codes, respect_plugin_enabled: false) do
     object.country_codes
-  end
-
-  require_dependency "topic_query"
-  add_to_class(:topic_query, :list_map) do
-    @options[:per_page] = SiteSetting.location_map_max_topics
-    create_list(:map) do |topics|
-      topics =
-        topics.joins(
-          "INNER JOIN locations_topic
-                               ON locations_topic.topic_id = topics.id"
-        )
-
-      Locations::Map.sorted_list_filters.each do |filter|
-        topics = filter[:block].call(topics, @options)
-      end
-
-      topics
-    end
   end
 
   Locations::Map.add_list_filter do |topics, options|
