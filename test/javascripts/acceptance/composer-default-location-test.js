@@ -69,6 +69,15 @@ function userWithGeoLocation() {
   };
 }
 
+function userWithSerializedGeoLocation() {
+  return {
+    username: "demetria_gutmann",
+    id: 134,
+    geo_location: USER_GEO_LOCATION,
+    custom_fields: {},
+  };
+}
+
 acceptance(
   "Composer (locations) | don't show default location as user location when behaviour set",
   function (needs) {
@@ -135,6 +144,32 @@ acceptance(
         composer.model.location.geo_location.address,
         "Custom Draft Address",
         "typing in the composer keeps the chosen location"
+      );
+    });
+  }
+);
+
+acceptance(
+  "Composer (locations) | uses serialized user location",
+  function (needs) {
+    needs.user(userWithSerializedGeoLocation());
+    needs.site(buildSiteFixture());
+    needs.settings({
+      location_enabled: true,
+      location_users_map: true,
+      hide_user_profiles_from_public: false,
+      location_topic_default: "user",
+      default_composer_category: 11,
+    });
+
+    test("composer includes the serialized user location", async function (assert) {
+      await openComposer();
+      const composer = this.container.lookup("service:composer");
+
+      assert.strictEqual(
+        composer.model.location.geo_location.address,
+        USER_GEO_LOCATION.address,
+        "the composer uses the serializer-provided user location"
       );
     });
   }
