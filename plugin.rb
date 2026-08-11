@@ -162,7 +162,7 @@ after_initialize do
     attributes :geo_location
 
     def geo_location
-      object.custom_fields["geo_location"]
+      Locations.parse_geo_location(object.custom_fields["geo_location"])
     end
 
     def include_geo_location?

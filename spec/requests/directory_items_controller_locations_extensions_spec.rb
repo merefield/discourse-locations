@@ -5,6 +5,35 @@ RSpec.describe DirectoryItemsController do
   fab!(:user)
 
   describe "#index" do
+    context "when browsing the regular directory" do
+      before do
+        SiteSetting.location_enabled = true
+        SiteSetting.location_users_map = true
+        SiteSetting.enable_user_directory = true
+        sign_in(user)
+      end
+
+      it "serializes user locations as objects" do
+        UserCustomField.create!(
+          user: user,
+          name: "geo_location",
+          value: { lat: "51.5074", lon: "-0.1278" }.to_json
+        )
+        DirectoryItem.refresh!
+
+        get "/directory_items.json", params: { period: "all" }
+
+        expect(response.status).to eq(200)
+        directory_user =
+          response.parsed_body["directory_items"].find do |item|
+            item.dig("user", "id") == user.id
+          end
+        expect(directory_user.dig("user", "geo_location")).to eq(
+          { "lat" => "51.5074", "lon" => "-0.1278" }
+        )
+      end
+    end
+
     context "when browsing the users map" do
       before do
         SiteSetting.location_enabled = true
