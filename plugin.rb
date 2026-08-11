@@ -102,6 +102,7 @@ after_initialize do
   Topic.register_custom_field_type("location", :json)
   Topic.register_custom_field_type("has_geo_location", :boolean)
   add_to_class(:topic, :location) { self.custom_fields["location"] }
+  add_preloaded_topic_list_custom_field("location")
 
   add_to_serializer(
     :topic_view,
@@ -109,9 +110,6 @@ after_initialize do
     include_condition: -> { object.topic.location.present? }
   ) { object.topic.location }
 
-  if TopicList.respond_to? :preloaded_custom_fields
-    TopicList.preloaded_custom_fields << "location"
-  end
   add_to_serializer(
     :topic_list_item,
     :location,
