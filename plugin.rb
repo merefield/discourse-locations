@@ -37,17 +37,8 @@ if respond_to?(:register_svg_icon)
 end
 
 after_initialize do
-  # /lib/locations is autoloaded
-  %w[
-    app/models/location_country_default_site_setting.rb
-    app/models/location_geocoding_language_site_setting.rb
-    app/models/locations/user_location.rb
-    app/models/locations/topic_location.rb
-    app/serializers/locations/geo_location_serializer.rb
-    app/controllers/locations/geocode_controller.rb
-    app/controllers/locations/users_map_controller.rb
-    lib/users_map.rb
-  ].each { |path| require_relative path }
+  # This legacy patch is outside the namespaced paths Zeitwerk autoloads.
+  require_relative "lib/users_map"
 
   reloadable_patch { TopicQuery.prepend(Locations::TopicQueryExtension) }
 
