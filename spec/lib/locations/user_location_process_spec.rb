@@ -25,6 +25,25 @@ RSpec.describe Locations::UserLocationProcess do
       )
     end
 
+    it "persists an already-parsed location" do
+      user.custom_fields["geo_location"] = {
+        "lat" => "40.7128",
+        "lon" => "-74.0060",
+        "city" => "New York",
+        "countrycode" => "us"
+      }
+      User.stubs(:find_by).with(id: user.id).returns(user)
+
+      described_class.upsert(user.id)
+
+      expect(Locations::UserLocation.find_by(user: user)).to have_attributes(
+        latitude: 40.7128,
+        longitude: -74.006,
+        city: "New York",
+        countrycode: "us"
+      )
+    end
+
     it "does not persist malformed location data" do
       user.custom_fields["geo_location"] = "not-json"
       user.save_custom_fields
