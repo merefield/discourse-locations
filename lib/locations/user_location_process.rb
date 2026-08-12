@@ -95,7 +95,7 @@ module ::Locations
     end
 
     def self.search_users_from_topic_location(topic_id, distance)
-      topic_location = TopicLocation.find_by(user_id: topic_id)
+      topic_location = TopicLocation.find_by(topic_id: topic_id)
 
       return [] if !topic_location || !topic_location.geocoded?
 
