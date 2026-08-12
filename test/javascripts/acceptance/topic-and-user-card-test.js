@@ -10,6 +10,12 @@ import userFixtures from "../fixtures/user-fixtures";
 acceptance(
   "Topic & User Card - Show Correct User Location Format",
   function (needs) {
+    let useLongLocation;
+
+    needs.hooks.beforeEach(() => {
+      useLongLocation = false;
+    });
+
     needs.user({
       username: "demetria_gutmann",
       id: 134,
@@ -26,8 +32,15 @@ acceptance(
     });
     needs.site(cloneJSON(siteFixtures["site.json"]));
     needs.pretender((server, helper) => {
-      const cardResponse = cloneJSON(userFixtures["/u/merefield/card.json"]);
-      server.get("/u/merefield/card.json", () => helper.response(cardResponse));
+      server.get("/u/merefield/card.json", () => {
+        const cardResponse = cloneJSON(userFixtures["/u/merefield/card.json"]);
+
+        if (useLongLocation) {
+          cardResponse.user.geo_location.city = "A".repeat(160);
+        }
+
+        return helper.response(cardResponse);
+      });
       const topicResponse = cloneJSON(topicFixtures["/t/51/1.json"]);
       server.get("/t/51/1.json", () => helper.response(topicResponse));
       const locationResponse = cloneJSON(locationFixtures["location.json"]);
@@ -56,6 +69,38 @@ acceptance(
       assert.strictEqual(
         query(".user-card .location-label").innerText,
         "London, United Kingdom"
+      );
+    });
+
+    test("long user locations stay within the user card", async function (assert) {
+      useLongLocation = true;
+
+      await visit("/t/online-learning/51/1");
+      await click('a[data-user-card="merefield"]');
+
+      const card = query(".user-card");
+      const location = query(".user-card .location-label");
+      const locationButton = location.closest("button");
+      const cardRect = card.getBoundingClientRect();
+      const buttonRect = locationButton.getBoundingClientRect();
+
+      assert.dom(location).includesText("A".repeat(160));
+      assert.strictEqual(
+        getComputedStyle(location).overflowWrap,
+        "anywhere",
+        "unbroken location text can wrap"
+      );
+      assert.true(
+        buttonRect.left >= cardRect.left,
+        "the location button starts inside the card"
+      );
+      assert.true(
+        buttonRect.right <= cardRect.right,
+        "the location button ends inside the card"
+      );
+      assert.true(
+        location.scrollWidth <= location.clientWidth,
+        "the location text does not overflow horizontally"
       );
     });
   }
