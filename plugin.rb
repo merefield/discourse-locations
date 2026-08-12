@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 7.3.5
+# version: 7.3.6
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -37,17 +37,10 @@ if respond_to?(:register_svg_icon)
 end
 
 after_initialize do
-  # /lib/locations is autoloaded
-  %w[
-    app/models/location_country_default_site_setting.rb
-    app/models/location_geocoding_language_site_setting.rb
-    app/models/locations/user_location.rb
-    app/models/locations/topic_location.rb
-    app/serializers/locations/geo_location_serializer.rb
-    app/controllers/locations/geocode_controller.rb
-    app/controllers/locations/users_map_controller.rb
-    lib/users_map.rb
-  ].each { |path| require_relative path }
+  # This legacy patch is outside the namespaced paths Zeitwerk autoloads.
+  require_relative "lib/users_map"
+
+  reloadable_patch { TopicQuery.prepend(Locations::TopicQueryExtension) }
 
   def Locations.parse_geo_location(val)
     return nil if val.blank? || val == "{}"
@@ -109,6 +102,7 @@ after_initialize do
   Topic.register_custom_field_type("location", :json)
   Topic.register_custom_field_type("has_geo_location", :boolean)
   add_to_class(:topic, :location) { self.custom_fields["location"] }
+  add_preloaded_topic_list_custom_field("location")
 
   add_to_serializer(
     :topic_view,
@@ -116,9 +110,6 @@ after_initialize do
     include_condition: -> { object.topic.location.present? }
   ) { object.topic.location }
 
-  if TopicList.respond_to? :preloaded_custom_fields
-    TopicList.preloaded_custom_fields << "location"
-  end
   add_to_serializer(
     :topic_list_item,
     :location,
@@ -169,7 +160,7 @@ after_initialize do
     attributes :geo_location
 
     def geo_location
-      object.custom_fields["geo_location"]
+      Locations.parse_geo_location(object.custom_fields["geo_location"])
     end
 
     def include_geo_location?
@@ -184,7 +175,8 @@ after_initialize do
   SiteSetting.public_user_custom_fields = public_user_custom_fields.join("|")
 
   PostRevisor.track_topic_field(:location) do |tc, location|
-    category_supports_locations = tc.topic.category&.custom_fields&.[]("location_enabled")
+    category_supports_locations =
+      tc.topic.category&.custom_fields&.[]("location_enabled")
 
     if location.present? && category_supports_locations &&
          location = Locations::Helper.parse_location(location.to_unsafe_hash)
@@ -309,24 +301,6 @@ after_initialize do
 
   add_to_serializer(:site, :country_codes, respect_plugin_enabled: false) do
     object.country_codes
-  end
-
-  require_dependency "topic_query"
-  add_to_class(:topic_query, :list_map) do
-    @options[:per_page] = SiteSetting.location_map_max_topics
-    create_list(:map) do |topics|
-      topics =
-        topics.joins(
-          "INNER JOIN locations_topic
-                               ON locations_topic.topic_id = topics.id"
-        )
-
-      Locations::Map.sorted_list_filters.each do |filter|
-        topics = filter[:block].call(topics, @options)
-      end
-
-      topics
-    end
   end
 
   Locations::Map.add_list_filter do |topics, options|

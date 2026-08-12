@@ -111,9 +111,9 @@ export default {
           return;
         }
 
-        const userGeoLocation = parseGeoLocation(
-          this.user?.custom_fields?.geo_location
-        );
+        const userGeoLocation =
+          parseGeoLocation(this.user?.geo_location) ||
+          parseGeoLocation(this.user?.custom_fields?.geo_location);
 
         if (
           this.siteSettings.location_topic_default === "user" &&

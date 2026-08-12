@@ -1,4 +1,4 @@
-import { click, fillIn, visit, waitFor } from "@ember/test-helpers";
+import { click, fillIn, typeIn, visit, waitFor } from "@ember/test-helpers";
 import { test } from "qunit";
 import { cloneJSON } from "discourse/lib/object";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
@@ -11,9 +11,24 @@ acceptance(
   "Topic - Show Correct Location after entering location with Input Fields Disabled",
   function (needs) {
     let searchShouldFail;
+    let searchQueries;
+    let originalGeolocation;
 
     needs.hooks.beforeEach(() => {
       searchShouldFail = false;
+      searchQueries = [];
+      originalGeolocation = Object.getOwnPropertyDescriptor(
+        navigator,
+        "geolocation"
+      );
+    });
+
+    needs.hooks.afterEach(() => {
+      if (originalGeolocation) {
+        Object.defineProperty(navigator, "geolocation", originalGeolocation);
+      } else {
+        delete navigator.geolocation;
+      }
     });
 
     needs.user({
@@ -31,7 +46,9 @@ acceptance(
       const topicResponse = cloneJSON(topicFixtures["/t/51/1.json"]);
       server.get("/t/51/1.json", () => helper.response(topicResponse));
       const locationResponse = cloneJSON(locationFixtures["location.json"]);
-      server.get("/locations/search", () => {
+      server.get("/locations/search", (request) => {
+        searchQueries.push(request.queryParams["request[query]"]);
+
         if (searchShouldFail) {
           return helper.response(500, { errors: ["Search failed"] });
         }
@@ -48,7 +65,14 @@ acceptance(
         .dom(".add-location-modal")
         .isVisible("add location modal is shown");
       await click(".location-selector .d-multi-select-trigger");
-      await fillIn(".d-multi-select__search-input", "liver building");
+      await typeIn(".d-multi-select__search-input", "liver building");
+
+      assert
+        .dom(".d-multi-select__search-input")
+        .hasValue(
+          "liver building",
+          "keyboard input remains in the modal location search"
+        );
       await click(".location-form-result:first-child label");
 
       assert
@@ -63,6 +87,38 @@ acceptance(
       assert
         .dom("button.add-location-btn span.d-button-label")
         .hasText("Home Sweet Home, L3 1EG, Liverpool, United Kingdom");
+    });
+
+    test("uses the browser location from inside the modal", async function (assert) {
+      Object.defineProperty(navigator, "geolocation", {
+        configurable: true,
+        value: {
+          getCurrentPosition(success) {
+            success({
+              coords: { latitude: 53.4058473, longitude: -2.995843140624263 },
+            });
+          },
+        },
+      });
+
+      await visit("/t/online-learning/51/1");
+      await click("a.fancy-title");
+      await click("button.add-location-btn");
+      await click(".location-current-btn");
+      await waitFor(
+        ".location-selector .d-multi-select-trigger__selection-label"
+      );
+
+      assert.true(
+        searchQueries.includes("53.4058473, -2.995843140624263"),
+        "the browser coordinates are reverse-geocoded"
+      );
+      assert
+        .dom(".location-selector .d-multi-select-trigger__selection-label")
+        .hasText(
+          "Royal Liver Building, Water Street, Ropewalks, Liverpool, Liverpool City Region, England, L3 1EG, United Kingdom",
+          "the first reverse-geocoded result is selected"
+        );
     });
 
     test("show location search errors", async function (assert) {

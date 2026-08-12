@@ -24,21 +24,12 @@ jobs:
         run: |
           sed -n -e 's/^.*version: /base_version=/p' plugin.rb >> $GITHUB_ENV
 
-      - name: Setup node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
-
-      - name: Install semver
-        run: npm install --include=dev
-
       - name: Check version
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const semver = require('semver');
-            const { head_version, base_version } = process.env;
+        shell: ruby {0}
+        run: |
+          require "rubygems/version"
 
-            if (semver.lte(head_version, base_version)) {
-              core.setFailed("Head version is equal to or lower than base version.");
-            }
+          head_version = Gem::Version.new(ENV.fetch("head_version"))
+          base_version = Gem::Version.new(ENV.fetch("base_version"))
+
+          abort "Head version is equal to or lower than base version." if head_version <= base_version

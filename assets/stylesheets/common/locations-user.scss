@@ -9,6 +9,23 @@
   .replace-location .website-name {
     display: block;
   }
+
+  .user-location-widget {
+    min-width: 0;
+  }
+
+  .btn-show-map {
+    align-items: flex-start;
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal;
+  }
+
+  .location-label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
 }
 
 .user-profile-location,
