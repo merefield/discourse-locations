@@ -77,13 +77,56 @@ RSpec.describe DirectoryItemsController do
         )
       end
 
-      it "orders users by most recent activity" do
-        older_user = Fabricate(:user)
-        older_user.update_columns(last_seen_at: 2.days.ago)
-        newer_user = Fabricate(:user)
-        newer_user.update_columns(last_seen_at: 1.hour.ago)
+      it "omits names when names are disabled" do
+        SiteSetting.enable_names = false
+        map_user = Fabricate(:user, name: "Private Name")
+        UserCustomField.create!(
+          user: map_user,
+          name: "geo_location",
+          value: { lat: "51.5074", lon: "-0.1278" }.to_json
+        )
+        Locations::UserLocationProcess.upsert(map_user.id)
+        DirectoryItem.refresh_period!(:daily, force: true)
 
-        [older_user, newer_user].each do |map_user|
+        SiteSetting.location_users_map = true
+        SiteSetting.enable_user_directory = true
+        get "/directory_items.json?period=location"
+
+        expect(response.status).to eq(200)
+        expect(response.parsed_body["directory_items"]).to contain_exactly(
+          {
+            "id" => map_user.id,
+            "user" => {
+              "id" => map_user.id,
+              "username" => map_user.username,
+              "avatar_template" => map_user.avatar_template,
+              "geo_location" => {
+                "lat" => "51.5074",
+                "lon" => "-0.1278"
+              }
+            }
+          }
+        )
+      end
+
+      it "orders and limits users deterministically" do
+        newest_user = Fabricate(:user)
+        newest_user.update_columns(last_seen_at: 1.hour.ago)
+        first_tied_user = Fabricate(:user)
+        second_tied_user = Fabricate(:user)
+        tied_last_seen_at = 1.day.ago
+        [first_tied_user, second_tied_user].each do |map_user|
+          map_user.update_columns(last_seen_at: tied_last_seen_at)
+        end
+        unseen_user = Fabricate(:user)
+        unseen_user.update_columns(last_seen_at: nil)
+
+        [
+          newest_user,
+          first_tied_user,
+          second_tied_user,
+          unseen_user
+        ].each do |map_user|
           UserCustomField.create!(
             user: map_user,
             name: "geo_location",
@@ -94,13 +137,18 @@ RSpec.describe DirectoryItemsController do
         DirectoryItem.refresh_period!(:daily, force: true)
 
         SiteSetting.location_users_map = true
+        SiteSetting.location_users_map_limit = 3
         SiteSetting.enable_user_directory = true
         get "/directory_items.json?period=location"
 
         expect(response.status).to eq(200)
+        tied_user_ids = [first_tied_user.id, second_tied_user.id]
+        tied_user_ids.sort_by! do |user_id|
+          DirectoryItem.find_by!(user_id: user_id, period_type: 5).id
+        end
         expect(
           response.parsed_body["directory_items"].map { |item| item["id"] }
-        ).to eq([newer_user.id, older_user.id])
+        ).to eq([newest_user.id, *tied_user_ids])
       end
 
       it "returns forbidden when the user directory is disabled" do
