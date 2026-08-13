@@ -229,6 +229,31 @@ RSpec.describe DirectoryItemsController do
         end
       end
 
+      it "returns a bad request when an extension supplies an invalid limit" do
+        SiteSetting.location_users_map = true
+        SiteSetting.enable_user_directory = true
+
+        plugin_instance = Plugin::Instance.new
+        modifier_block = proc { |options| options.merge(limit: "all") }
+        plugin_instance.register_modifier(
+          :locations_users_map_query_options,
+          &modifier_block
+        )
+
+        get "/directory_items.json", params: { period: "location" }
+
+        expect(response.status).to eq(400)
+        expect(response.parsed_body["error_type"]).to eq("invalid_parameters")
+      ensure
+        if plugin_instance && modifier_block
+          DiscoursePluginRegistry.unregister_modifier(
+            plugin_instance,
+            :locations_users_map_query_options,
+            &modifier_block
+          )
+        end
+      end
+
       it "returns forbidden when the user directory is disabled" do
         SiteSetting.location_users_map = true
         SiteSetting.enable_user_directory = false

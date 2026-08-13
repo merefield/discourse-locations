@@ -43,7 +43,7 @@ module DirectoryItemsControllerExtension
       result = query_options.fetch(:query)
       limit = query_options.fetch(:limit)
       if !limit.nil? && (!limit.is_a?(Integer) || limit.negative?)
-        raise ArgumentError,
+        raise Discourse::InvalidParameters.new,
               "locations_users_map_query_options limit must be a non-negative integer or nil"
       end
       result = result.limit(limit) if limit

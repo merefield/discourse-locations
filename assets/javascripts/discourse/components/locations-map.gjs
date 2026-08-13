@@ -17,7 +17,10 @@ import {
   generateMap,
   setupMap,
 } from "../lib/map-utilities";
-import { buildUsersMapRequestParams } from "../lib/users-map-extension";
+import {
+  buildUsersMapRequestParams,
+  normalizeUsersMapRequestParams,
+} from "../lib/users-map-extension";
 
 export default class LocationMapComponent extends Component {
   @service siteSettings;
@@ -102,7 +105,7 @@ export default class LocationMapComponent extends Component {
 
   @action
   setUsersMapRequestParams(requestParams = {}) {
-    this.usersMapRequestParams = { ...requestParams };
+    this.usersMapRequestParams = normalizeUsersMapRequestParams(requestParams);
   }
 
   async getLocationData() {
