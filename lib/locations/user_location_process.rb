@@ -62,21 +62,5 @@ module ::Locations
         .joins(:topic)
         .pluck(:topic_id)
     end
-
-    def self.search_users_from_topic_location(topic_id, distance)
-      topic_location = TopicLocation.find_by(user_id: topic_id)
-      return [] if !topic_location&.geocoded?
-
-      UserLocation
-        .near(
-          [topic_location.latitude, topic_location.longitude],
-          distance,
-          units: :km,
-          select_distance: false,
-          select_bearing: false
-        )
-        .joins(:user)
-        .pluck(:user_id)
-    end
   end
 end
