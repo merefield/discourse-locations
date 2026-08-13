@@ -14,8 +14,10 @@ The Locations Plugin allows you to associate geocoded locations with topics, and
 
 ### Extension API
 
-Version 7.3.7 introduces extension API version 1. Extensions can verify compatibility with `Locations::EXTENSION_API_VERSION` after the base plugin initializes.
+Version 7.3.8 introduces extension API version 2. Extensions can verify compatibility with `Locations::EXTENSION_API_VERSION` after the base plugin initializes.
 
 Client-side extensions can read the normalized current-user location from `currentUser.geo_location`. The value is a location object when the current user has a valid saved location, otherwise it is `null`. Storage format and parsing remain internal to the base plugin.
 
 Server-side extensions should use `Locations::UserLocationStore` and `Locations::TopicLocationStore` rather than reading location custom fields directly. See [Location data ownership](docs/location-data-ownership.md) for the API and projection invariants.
+
+Extension API version 2 adds the `locations-users-map-controls` frontend outlet and `locations_users_map_query_options` server modifier. Together they let an add-on supply users-map controls and validated query options without replacing the base map component or controller.

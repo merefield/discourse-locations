@@ -5,6 +5,8 @@ import { action, computed } from "@ember/object";
 import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import didUpdate from "@ember/render-modifiers/modifiers/did-update";
 import { service } from "@ember/service";
+import PluginOutlet from "discourse/components/plugin-outlet";
+import lazyHash from "discourse/helpers/lazy-hash";
 import { ajax } from "discourse/lib/ajax";
 import { findOrResetCachedTopicList } from "discourse/lib/cached-topic-list";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
@@ -15,6 +17,7 @@ import {
   generateMap,
   setupMap,
 } from "../lib/map-utilities";
+import { buildUsersMapRequestParams } from "../lib/users-map-extension";
 
 export default class LocationMapComponent extends Component {
   @service siteSettings;
@@ -31,6 +34,7 @@ export default class LocationMapComponent extends Component {
   @tracked topicList = {};
   @tracked user = {};
   @tracked userList = {};
+  @tracked usersMapRequestParams = {};
   @tracked mapObjs = {};
   @tracked markers = null;
   @tracked searchFilter = "";
@@ -96,6 +100,11 @@ export default class LocationMapComponent extends Component {
     // triggered in sidebar-container component in layouts plugin
   }
 
+  @action
+  setUsersMapRequestParams(requestParams = {}) {
+    this.usersMapRequestParams = { ...requestParams };
+  }
+
   async getLocationData() {
     const category = this.args.category;
 
@@ -123,7 +132,7 @@ export default class LocationMapComponent extends Component {
     }
 
     if (this.args.mapType === "userList") {
-      let params = { period: "location" };
+      const params = buildUsersMapRequestParams(this.usersMapRequestParams);
       this.userList = await this.store.find("directoryItem", params);
     }
   }
@@ -596,6 +605,7 @@ export default class LocationMapComponent extends Component {
     <div
       {{didInsert this.setup}}
       {{didUpdate this.setup @category}}
+      {{didUpdate this.setup this.usersMapRequestParams}}
       id="locations-map"
       class="locations-map {{if this.expanded 'expanded'}}"
     >
@@ -620,6 +630,15 @@ export default class LocationMapComponent extends Component {
       {{/if}}
       <div class="map-search">
         {{#if this.isMultipleLocations}}
+          {{#if this.isUserListType}}
+            <PluginOutlet
+              @name="locations-users-map-controls"
+              @outletArgs={{lazyHash
+                requestParams=this.usersMapRequestParams
+                setRequestParams=this.setUsersMapRequestParams
+              }}
+            />
+          {{/if}}
           <input
             type="text"
             value={{this.searchFilter}}

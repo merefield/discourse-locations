@@ -21,6 +21,20 @@ Use `Locations::UserLocationStore.fetch(user)` and `Locations::TopicLocationStor
 
 Client-side extensions receive the normalized current-user payload as `currentUser.geo_location` and do not need to know how it is stored.
 
+### Users-map extensions
+
+The `locations-users-map-controls` plugin outlet is rendered before the base users-map search control. Its `outletArgs` contain the current `requestParams` and a `setRequestParams` action. The action replaces the extension-owned parameters and reloads the existing map; the base plugin always supplies `period=location`, so extensions cannot redirect this fetch to another directory period.
+
+Server-side extensions can refine the matching relation and its limit with the `locations_users_map_query_options` modifier:
+
+```ruby
+register_modifier(:locations_users_map_query_options) do |options, guardian, params|
+  options.merge(query: options[:query].where(...), limit: 100)
+end
+```
+
+The modifier receives `{ query:, limit: }`, the request guardian, and a plain request-parameter hash. It must return the options hash. Extensions own validation and authorization for parameters they introduce. A limit must be a non-negative integer, or `nil` to leave the relation unlimited.
+
 ## Reconciliation
 
 Normal writes synchronize projections immediately. Administrators can repair historical or out-of-band drift across all sites with:
