@@ -3,6 +3,33 @@ import { Promise } from "rsvp";
 import { ajax } from "discourse/lib/ajax";
 import { i18n } from "discourse-i18n";
 
+function parseGeoLocation(rawGeoLocation) {
+  if (!rawGeoLocation || rawGeoLocation === "{}") {
+    return null;
+  }
+
+  if (typeof rawGeoLocation === "string") {
+    if (rawGeoLocation.replaceAll(" ", "") === "{}") {
+      return null;
+    }
+
+    try {
+      rawGeoLocation = JSON.parse(rawGeoLocation);
+    } catch {
+      return null;
+    }
+  }
+
+  if (
+    typeof rawGeoLocation === "object" &&
+    Object.keys(rawGeoLocation).length
+  ) {
+    return rawGeoLocation;
+  }
+
+  return null;
+}
+
 function locationSearch(request, resultsFn) {
   ajax({
     url: "/locations/search",
@@ -162,6 +189,7 @@ let providerDetails = {
 };
 
 export {
+  parseGeoLocation,
   geoLocationSearch,
   geoLocationFormat,
   locationFormat,

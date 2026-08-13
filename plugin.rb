@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 7.3.6
+# version: 7.3.7
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -10,6 +10,7 @@ enabled_site_setting :location_enabled
 
 module ::Locations
   PLUGIN_NAME = "discourse-locations"
+  EXTENSION_API_VERSION = 1
 end
 
 require_relative "lib/locations/engine"

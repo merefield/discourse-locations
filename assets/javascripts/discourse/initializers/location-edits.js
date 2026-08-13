@@ -5,35 +5,9 @@ import { withPluginApi } from "discourse/lib/plugin-api";
 import Composer from "discourse/models/composer";
 import NavItem from "discourse/models/nav-item";
 import { i18n } from "discourse-i18n";
+import { parseGeoLocation } from "../lib/location-utilities";
 
 const NEW_TOPIC_KEY = "new_topic";
-
-function parseGeoLocation(rawGeoLocation) {
-  if (!rawGeoLocation || rawGeoLocation === "{}") {
-    return null;
-  }
-
-  if (typeof rawGeoLocation === "string") {
-    if (rawGeoLocation.replaceAll(" ", "") === "{}") {
-      return null;
-    }
-
-    try {
-      rawGeoLocation = JSON.parse(rawGeoLocation);
-    } catch {
-      return null;
-    }
-  }
-
-  if (
-    typeof rawGeoLocation === "object" &&
-    Object.keys(rawGeoLocation).length
-  ) {
-    return rawGeoLocation;
-  }
-
-  return null;
-}
 
 function customFieldEnabled(value) {
   return value === true || value === "true" || value === "t" || value === 1;
