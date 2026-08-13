@@ -11,3 +11,13 @@ The Locations Plugin allows you to associate geocoded locations with topics, and
 - [Administration Settings](https://coop.pavilion.tech/docs?topic=1620)
 - [Locations in Topics](https://coop.pavilion.tech/docs?topic=1763)
 - [Locations in Categories](https://coop.pavilion.tech/docs?topic=1550)
+
+### Extension API
+
+Version 7.3.7 introduces extension API version 1. Extensions can verify compatibility with `Locations::EXTENSION_API_VERSION` after the base plugin initializes.
+
+Client-side extensions can normalize the serialized user location with the shared parser instead of duplicating its rules:
+
+```js
+import { parseGeoLocation } from "discourse/plugins/discourse-locations/discourse/lib/location-utilities";
+```
