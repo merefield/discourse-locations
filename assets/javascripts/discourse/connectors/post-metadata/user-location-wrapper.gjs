@@ -8,9 +8,9 @@ export default class LocationMapComponent extends Component {
   @service site;
 
   get locationText() {
-    let model = this.args.post;
+    const geoLocation = this.args.post.user_geo_location;
 
-    if (model.user_custom_fields && model.user_custom_fields["geo_location"]) {
+    if (geoLocation) {
       let format = this.siteSettings.location_user_post_format.split("|");
       let opts = {};
 
@@ -18,22 +18,13 @@ export default class LocationMapComponent extends Component {
         opts["geoAttrs"] = format;
       }
 
-      return geoLocationFormat(
-        model.user_custom_fields["geo_location"],
-        this.site.country_codes,
-        opts
-      );
+      return geoLocationFormat(geoLocation, this.site.country_codes, opts);
     }
     return "";
   }
 
   get countryCode() {
-    let model = this.args.post;
-
-    if (model.user_custom_fields && model.user_custom_fields["geo_location"]) {
-      return model.user_custom_fields["geo_location"].countrycode;
-    }
-    return null;
+    return this.args.post.user_geo_location?.countrycode;
   }
 
   get showFlag() {

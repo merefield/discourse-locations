@@ -44,12 +44,7 @@ after_initialize do
   reloadable_patch { TopicQuery.prepend(Locations::TopicQueryExtension) }
 
   def Locations.parse_geo_location(val)
-    return nil if val.blank? || val == "{}"
-    return val if val.is_a?(Hash)
-
-    val.is_a?(String) ? JSON.parse(val) : nil
-  rescue JSON::ParserError
-    nil
+    Locations::Payload.parse(val)
   end
 
   Category.register_custom_field_type("location", :json)
@@ -102,7 +97,7 @@ after_initialize do
 
   Topic.register_custom_field_type("location", :json)
   Topic.register_custom_field_type("has_geo_location", :boolean)
-  add_to_class(:topic, :location) { self.custom_fields["location"] }
+  add_to_class(:topic, :location) { Locations::TopicLocationStore.fetch(self) }
   add_preloaded_topic_list_custom_field("location")
 
   add_to_serializer(
@@ -125,91 +120,58 @@ after_initialize do
     User.preloaded_custom_fields << "geo_location"
   end
 
-  add_to_serializer(:user, :geo_location, respect_plugin_enabled: false) do
-    Locations.parse_geo_location(object.custom_fields["geo_location"])
+  add_to_serializer(:user, :geo_location) do
+    Locations::UserLocationStore.fetch(object)
   end
 
   add_to_serializer(:current_user, :geo_location) do
-    Locations.parse_geo_location(object.custom_fields["geo_location"])
+    Locations::UserLocationStore.fetch(object)
   end
 
   add_to_serializer(
     :user_card,
     :geo_location,
     include_condition: -> do
-      Locations.parse_geo_location(
-        object.custom_fields["geo_location"]
-      ).present?
+      Locations::UserLocationStore.fetch(object).present?
     end
-  ) { Locations.parse_geo_location(object.custom_fields["geo_location"]) }
+  ) { Locations::UserLocationStore.fetch(object) }
 
   add_to_serializer(
     :post,
-    :user_custom_fields,
-    respect_plugin_enabled: false
-  ) do
-    public_keys = SiteSetting.public_user_custom_fields.split("|")
-    user_fields = object.user&.custom_fields || {}
-
-    out = {}
-    public_keys.each do |k|
-      v = user_fields[k]
-      out[k] = (k == "geo_location" ? Locations.parse_geo_location(v) : v)
+    :user_geo_location,
+    include_condition: -> do
+      SiteSetting.location_user_post &&
+        Locations::UserLocationStore.fetch(object.user).present?
     end
-
-    out
-  end
-
-  require_dependency "directory_item_serializer"
-  class ::DirectoryItemSerializer::UserSerializer
-    attributes :geo_location
-
-    def geo_location
-      Locations.parse_geo_location(object.custom_fields["geo_location"])
-    end
-
-    def include_geo_location?
-      SiteSetting.location_users_map
-    end
-  end
-
-  public_user_custom_fields = SiteSetting.public_user_custom_fields.split("|")
-  if public_user_custom_fields.exclude?("geo_location")
-    public_user_custom_fields.push("geo_location")
-  end
-  SiteSetting.public_user_custom_fields = public_user_custom_fields.join("|")
+  ) { Locations::UserLocationStore.fetch(object.user) }
 
   PostRevisor.track_topic_field(:location) do |tc, location|
     category_supports_locations =
       tc.topic.category&.custom_fields&.[]("location_enabled")
 
-    if location.present? && category_supports_locations &&
-         location = Locations::Helper.parse_location(location.to_unsafe_hash)
-      tc.record_change("location", tc.topic.custom_fields["location"], location)
-      tc.topic.custom_fields["location"] = location
-      tc.topic.custom_fields["has_geo_location"] = location[
-        "geo_location"
-      ].present?
+    raw_location =
+      location.respond_to?(:to_unsafe_hash) ? location.to_unsafe_hash : location
 
-      Locations::TopicLocationProcess.upsert(tc.topic)
+    if location.present? && category_supports_locations &&
+         location = Locations::Payload.parse(raw_location)
+      tc.record_change(
+        "location",
+        Locations::TopicLocationStore.fetch(tc.topic),
+        location
+      )
+      Locations::TopicLocationStore.assign(topic: tc.topic, location:)
     elsif location.blank?
-      tc.topic.custom_fields["location"] = {}
-      tc.topic.custom_fields["has_geo_location"] = false
-      Locations::TopicLocationProcess.delete(tc.topic.id)
+      Locations::TopicLocationStore.assign(topic: tc.topic, location: nil)
     end
   end
 
   on(:post_created) do |post, opts, user|
     if post.is_first_post? && opts[:location].present? &&
          post.topic.category&.custom_fields&.[]("location_enabled") &&
-         location = Locations::Helper.parse_location(opts[:location])
+         location = Locations::Payload.parse(opts[:location])
       topic = post.topic
-      topic.custom_fields["location"] = location
-      topic.custom_fields["has_geo_location"] = location[
-        "geo_location"
-      ].present?
+      Locations::TopicLocationStore.assign(topic:, location:)
       topic.save!
-      Locations::TopicLocationProcess.upsert(topic)
     end
   end
 
@@ -254,25 +216,21 @@ after_initialize do
     result
   end
 
-  on(:user_updated) do |*params|
-    user_id = params[0].id
-
-    if SiteSetting.location_enabled
-      Locations::UserLocationProcess.upsert(user_id)
-    end
-  end
+  on(:user_updated) { |*params| Locations::UserLocationStore.sync(params[0]) }
 
   on(:user_destroyed) do |*params|
-    user_id = params[0].id
-
-    Locations::UserLocationProcess.delete(user_id)
+    Locations::UserLocationStore.delete(params[0])
   end
+
+  on(:topic_created) { |topic| Locations::TopicLocationStore.sync(topic) }
+
+  on(:topic_destroyed) { |topic| Locations::TopicLocationStore.delete(topic) }
 
   class ::Jobs::AnonymizeUser
     module LocationsEdits
       def make_anonymous
         super
-        ::Locations::UserLocationProcess.delete(@user_id)
+        ::Locations::UserLocationStore.delete(@user_id)
       end
     end
     prepend LocationsEdits

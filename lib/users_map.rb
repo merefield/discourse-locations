@@ -20,6 +20,11 @@ module DirectoryItemsControllerExtension
             "INNER JOIN locations_user ON directory_items.user_id = locations_user.user_id"
           )
           .joins("INNER JOIN users ON users.id = directory_items.user_id")
+          .select(
+            "directory_items.*",
+            "locations_user.latitude AS location_latitude",
+            "locations_user.longitude AS location_longitude"
+          )
           .where("period_type = 5")
           .includes(:user)
           .order(

@@ -11,28 +11,20 @@ RSpec.describe UsersController do
     SiteSetting.location_users_map = true
   end
 
-  def parsed_geo_location_for(user)
-    user.reload
-    raw = user.custom_fields["geo_location"]
-    return nil if raw.blank? || raw == "{}"
-
-    raw.is_a?(String) ? JSON.parse(raw) : raw
-  end
-
   context "when validating geolocation parameters" do
     it "allows user to upload valid geolocation to their profile" do
       put "/u/#{user.username}.json",
           params: {
             custom_fields: {
-              geo_location: { lat: 10, lon: 12 }.to_json,
-            },
+              geo_location: { lat: 10, lon: 12 }.to_json
+            }
           }
 
       expect(response.status).to eq(200)
       result = response.parsed_body
       expect(result["success"]).to eq("OK")
 
-      geo = parsed_geo_location_for(user)
+      geo = Locations::UserLocationStore.fetch(user.reload)
       expect(geo["lat"].to_s).to eq("10")
       expect(geo["lon"].to_s).to eq("12")
     end
@@ -41,8 +33,8 @@ RSpec.describe UsersController do
       put "/u/#{user.username}.json",
           params: {
             custom_fields: {
-              geo_location: { lat: 10 }.to_json,
-            },
+              geo_location: { lat: 10 }.to_json
+            }
           }
 
       expect(response.status).to eq(400)
@@ -54,8 +46,8 @@ RSpec.describe UsersController do
       put "/u/#{user.username}.json",
           params: {
             user_fields: {
-              user_field.id.to_s => "happy",
-            },
+              user_field.id.to_s => "happy"
+            }
           }
 
       expect(response.status).to eq(200)
@@ -71,14 +63,15 @@ RSpec.describe UsersController do
       UserCustomField.create!(
         user_id: user.id,
         name: "geo_location",
-        value: { lat: 1, lon: 2, address: "Somewhere" }.to_json,
+        value: { lat: 1, lon: 2, address: "Somewhere" }.to_json
       )
+      Locations::UserLocationStore.sync(user)
 
       put "/u/#{user.username}.json",
           params: {
             custom_fields: {
-              geo_location: "",
-            },
+              geo_location: ""
+            }
           }
 
       expect(response.status).to eq(200)
@@ -88,6 +81,7 @@ RSpec.describe UsersController do
       user.reload
       # cleared means blank string or missing key depending on upstream behavior
       expect(user.custom_fields["geo_location"]).to be_blank
+      expect(Locations::UserLocation.exists?(user:)).to eq(false)
     end
   end
 end

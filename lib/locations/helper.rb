@@ -3,7 +3,7 @@
 module ::Locations
   class Helper
     def self.parse_location(location)
-      location.is_a?(String) ? ::JSON.parse(location) : location
+      Payload.parse(location)
     end
   end
 end
