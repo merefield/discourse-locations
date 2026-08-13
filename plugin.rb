@@ -129,6 +129,10 @@ after_initialize do
     Locations.parse_geo_location(object.custom_fields["geo_location"])
   end
 
+  add_to_serializer(:current_user, :geo_location) do
+    Locations.parse_geo_location(object.custom_fields["geo_location"])
+  end
+
   add_to_serializer(
     :user_card,
     :geo_location,

@@ -16,8 +16,4 @@ The Locations Plugin allows you to associate geocoded locations with topics, and
 
 Version 7.3.7 introduces extension API version 1. Extensions can verify compatibility with `Locations::EXTENSION_API_VERSION` after the base plugin initializes.
 
-Client-side extensions can normalize the serialized user location with the shared parser instead of duplicating its rules:
-
-```js
-import { parseGeoLocation } from "discourse/plugins/discourse-locations/discourse/lib/location-utilities";
-```
+Client-side extensions can read the normalized current-user location from `currentUser.geo_location`. The value is a location object when the current user has a valid saved location, otherwise it is `null`. Storage format and parsing remain internal to the base plugin.
