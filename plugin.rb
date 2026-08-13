@@ -10,7 +10,7 @@ enabled_site_setting :location_enabled
 
 module ::Locations
   PLUGIN_NAME = "discourse-locations"
-  EXTENSION_API_VERSION = 2
+  EXTENSION_API_VERSION = 1
 end
 
 require_relative "lib/locations/engine"
