@@ -13,7 +13,7 @@ RSpec.describe DirectoryItemsController do
         sign_in(user)
       end
 
-      it "serializes user locations as objects" do
+      it "does not expose location custom fields in the regular directory" do
         UserCustomField.create!(
           user: user,
           name: "geo_location",
@@ -28,9 +28,7 @@ RSpec.describe DirectoryItemsController do
           response.parsed_body["directory_items"].find do |item|
             item.dig("user", "id") == user.id
           end
-        expect(directory_user.dig("user", "geo_location")).to eq(
-          { "lat" => "51.5074", "lon" => "-0.1278" }
-        )
+        expect(directory_user["user"]).not_to have_key("geo_location")
       end
     end
 
@@ -43,16 +41,24 @@ RSpec.describe DirectoryItemsController do
       it "returns the minimal map payload" do
         SiteSetting.enable_names = true
         map_user = Fabricate(:user, name: "Map User")
-        UserCustomField.create!(
-          user: map_user,
-          name: "geo_location",
+        location_field =
+          UserCustomField.create!(
+            user: map_user,
+            name: "geo_location",
+            value: {
+              lat: "51.5074",
+              lon: "-0.1278",
+              address: "London, United Kingdom"
+            }.to_json
+          )
+        Locations::UserLocationProcess.upsert(map_user.id)
+        location_field.update!(
           value: {
-            lat: "51.5074",
-            lon: "-0.1278",
-            address: "London, United Kingdom"
+            lat: "40.7128",
+            lon: "-74.0060",
+            address: "New York, United States"
           }.to_json
         )
-        Locations::UserLocationProcess.upsert(map_user.id)
         DirectoryItem.refresh_period!(:daily, force: true)
 
         SiteSetting.location_users_map = true
@@ -69,8 +75,8 @@ RSpec.describe DirectoryItemsController do
               "name" => map_user.name,
               "avatar_template" => map_user.avatar_template,
               "geo_location" => {
-                "lat" => "51.5074",
-                "lon" => "-0.1278"
+                "lat" => 51.5074,
+                "lon" => -0.1278
               }
             }
           }
@@ -101,8 +107,8 @@ RSpec.describe DirectoryItemsController do
               "username" => map_user.username,
               "avatar_template" => map_user.avatar_template,
               "geo_location" => {
-                "lat" => "51.5074",
-                "lon" => "-0.1278"
+                "lat" => 51.5074,
+                "lon" => -0.1278
               }
             }
           }

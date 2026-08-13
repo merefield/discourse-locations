@@ -56,7 +56,6 @@ RSpec.describe "Topic map" do
     topic = Fabricate(:topic, user: admin, category: category, title: title)
 
     topic.custom_fields["location"] = { "geo_location" => { "lat" => lat.to_s, "lon" => lon.to_s } }
-    topic.custom_fields["has_geo_location"] = true
     topic.save_custom_fields(true)
 
     Locations::TopicLocation.create!(topic: topic, latitude: lat, longitude: lon)
