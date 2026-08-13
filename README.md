@@ -21,3 +21,5 @@ Client-side extensions can read the normalized current-user location from `curre
 Server-side extensions should use `Locations::UserLocationStore` and `Locations::TopicLocationStore` rather than reading location custom fields directly. See [Location data ownership](docs/location-data-ownership.md) for the API and projection invariants.
 
 Version 7.3.8 extends the in-development version 1 contract with the `locations-users-map-controls` frontend outlet and `locations_users_map_query_options` server modifier. Together they let an add-on supply users-map controls and validated query options without replacing the base map component or controller.
+
+Version 7.3.10 adds the `locations-users-map-surface` outlet and shared active-surface state. An extension can render an alternative user-map surface from the base plugin's filtered marker data while leaving the default Leaflet surface unchanged when no alternative is active.
