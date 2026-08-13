@@ -104,6 +104,11 @@
   position: relative;
   border: 1px solid var(--primary-low);
 
+  &.has-alternative-surface > .leaflet-container,
+  &.has-alternative-surface > .btn-map {
+    display: none;
+  }
+
   .avatar-wrapper {
     position: absolute;
     top: 3px;
