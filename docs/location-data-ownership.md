@@ -25,6 +25,10 @@ Client-side extensions receive the normalized current-user payload as `currentUs
 
 The `locations-users-map-controls` plugin outlet is rendered before the base users-map search control. Its `outletArgs` contain the current `requestParams` and a `setRequestParams` action. The action replaces the extension-owned parameters and reloads the existing map; the base plugin always supplies `period=location`, so extensions cannot redirect this fetch to another directory period.
 
+The controls outlet also receives `activeSurface` and `setActiveSurface`. The default value is `null`, which keeps the base Leaflet surface and its controls visible. Passing a non-empty string selects an extension-owned surface; passing `null`, a blank string, or no value restores Leaflet.
+
+The `locations-users-map-surface` outlet is rendered only on the users map. It receives the same `activeSurface` and `setActiveSurface` values, plus `locations`, `searchFilter`, and `clearSearchFilter`. `locations` contains the base plugin's already-loaded and locally filtered marker payloads, not canonical custom-field data. Alternative surfaces should render only when their identifier matches `activeSurface`, and should restore the default surface if they cannot initialize.
+
 Server-side extensions can refine the matching relation and its limit with the `locations_users_map_query_options` modifier:
 
 ```ruby

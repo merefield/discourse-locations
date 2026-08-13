@@ -38,6 +38,7 @@ export default class LocationMapComponent extends Component {
   @tracked user = {};
   @tracked userList = {};
   @tracked usersMapRequestParams = {};
+  @tracked usersMapActiveSurface = null;
   @tracked mapObjs = {};
   @tracked markers = null;
   @tracked searchFilter = "";
@@ -81,6 +82,10 @@ export default class LocationMapComponent extends Component {
     );
   }
 
+  get hasAlternativeUsersMapSurface() {
+    return this.isUserListType && this.usersMapActiveSurface !== null;
+  }
+
   @action
   changeFilterType(event) {
     this.searchFilterType = event.target.value;
@@ -90,6 +95,21 @@ export default class LocationMapComponent extends Component {
   filterLocations(event) {
     this.searchFilter = event.target.value;
 
+    this.refreshFilteredLocations();
+  }
+
+  @action
+  clearSearchFilter() {
+    if (!this.searchFilter) {
+      return;
+    }
+
+    this.searchFilter = "";
+
+    this.refreshFilteredLocations();
+  }
+
+  refreshFilteredLocations() {
     if (this.markers) {
       this.markers.clearLayers();
       this.markers = null;
@@ -106,6 +126,22 @@ export default class LocationMapComponent extends Component {
   @action
   setUsersMapRequestParams(requestParams = {}) {
     this.usersMapRequestParams = normalizeUsersMapRequestParams(requestParams);
+  }
+
+  @action
+  setUsersMapActiveSurface(surface = null) {
+    const nextSurface =
+      typeof surface === "string" && surface.trim() ? surface.trim() : null;
+
+    if (this.usersMapActiveSurface === nextSurface) {
+      return;
+    }
+
+    this.usersMapActiveSurface = nextSurface;
+
+    if (nextSurface === null && Object.keys(this.mapObjs).length) {
+      requestAnimationFrame(() => this.setupLocationMap());
+    }
   }
 
   async getLocationData() {
@@ -610,7 +646,9 @@ export default class LocationMapComponent extends Component {
       {{didUpdate this.setup @category}}
       {{didUpdate this.setup this.usersMapRequestParams}}
       id="locations-map"
-      class="locations-map {{if this.expanded 'expanded'}}"
+      class="locations-map
+        {{if this.expanded 'expanded'}}
+        {{if this.hasAlternativeUsersMapSurface 'has-alternative-surface'}}"
     >
       {{#if this.showExpand}}
         <button
@@ -637,7 +675,9 @@ export default class LocationMapComponent extends Component {
             <PluginOutlet
               @name="locations-users-map-controls"
               @outletArgs={{lazyHash
+                activeSurface=this.usersMapActiveSurface
                 requestParams=this.usersMapRequestParams
+                setActiveSurface=this.setUsersMapActiveSurface
                 setRequestParams=this.setUsersMapRequestParams
               }}
             />
@@ -716,6 +756,18 @@ export default class LocationMapComponent extends Component {
           </span>
         {{/if}}
       </div>
+      {{#if this.isUserListType}}
+        <PluginOutlet
+          @name="locations-users-map-surface"
+          @outletArgs={{lazyHash
+            activeSurface=this.usersMapActiveSurface
+            clearSearchFilter=this.clearSearchFilter
+            locations=this.filteredLocations
+            searchFilter=this.searchFilter
+            setActiveSurface=this.setUsersMapActiveSurface
+          }}
+        />
+      {{/if}}
     </div>
   </template>
 }
