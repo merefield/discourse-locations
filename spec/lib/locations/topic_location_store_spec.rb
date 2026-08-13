@@ -52,4 +52,12 @@ RSpec.describe Locations::TopicLocationStore do
       expect(Locations::TopicLocation.exists?(topic:)).to eq(false)
     end
   end
+
+  describe ".sync" do
+    it "does not write a projection when the canonical field is absent" do
+      queries = track_sql_queries { described_class.sync(topic) }
+
+      expect(queries.grep(/DELETE FROM .*locations_topic/)).to be_empty
+    end
+  end
 end

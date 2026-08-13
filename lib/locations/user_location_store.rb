@@ -31,6 +31,7 @@ module ::Locations
     def self.sync(user_or_id, payload: nil)
       user = user_or_id.is_a?(User) ? user_or_id : User.find_by(id: user_or_id)
       return delete(user_or_id) if user.blank?
+      return :unchanged if payload.nil? && !user.custom_fields.key?(FIELD_NAME)
 
       payload ||= fetch(user)
       return delete(user.id) if !Payload.geocoded?(payload)

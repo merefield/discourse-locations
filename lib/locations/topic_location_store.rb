@@ -24,6 +24,7 @@ module ::Locations
       topic =
         topic_or_id.is_a?(Topic) ? topic_or_id : Topic.find_by(id: topic_or_id)
       return delete(topic_or_id) if topic.blank?
+      return :unchanged if payload.nil? && !topic.custom_fields.key?(FIELD_NAME)
 
       payload ||= fetch(topic)
       return delete(topic.id) if !geocoded?(payload)

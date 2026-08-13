@@ -39,6 +39,12 @@ RSpec.describe Locations::UserLocationStore do
   end
 
   describe ".sync" do
+    it "does not write a projection when the canonical field is absent" do
+      queries = track_sql_queries { described_class.sync(user) }
+
+      expect(queries.grep(/DELETE FROM .*locations_user/)).to be_empty
+    end
+
     it "removes a stale projection when the canonical location is cleared" do
       Locations::UserLocation.upsert(
         { user_id: user.id, latitude: 51.5074, longitude: -0.1278 },
