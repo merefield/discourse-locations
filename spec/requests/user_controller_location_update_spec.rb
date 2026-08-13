@@ -27,6 +27,7 @@ RSpec.describe UsersController do
       geo = Locations::UserLocationStore.fetch(user.reload)
       expect(geo["lat"].to_s).to eq("10")
       expect(geo["lon"].to_s).to eq("12")
+      expect(JSON.parse(user.custom_fields["geo_location"])).to eq(geo)
     end
 
     it "doesn't allow user to upload invalid geolocation to their profile" do

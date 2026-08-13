@@ -3,6 +3,12 @@
 RSpec.describe Locations::TopicLocationStore do
   fab!(:topic)
 
+  it "registers the canonical topic location as JSON metadata" do
+    expect(
+      Topic.get_custom_field_descriptor(described_class::FIELD_NAME).type
+    ).to eq(:json)
+  end
+
   describe ".assign" do
     it "persists a rich canonical payload and normalized spatial projection" do
       location = {
@@ -32,6 +38,7 @@ RSpec.describe Locations::TopicLocationStore do
     end
 
     it "retains a textual location while removing its stale spatial projection" do
+      topic.custom_fields["has_geo_location"] = true
       Locations::TopicLocation.upsert(
         { topic_id: topic.id, latitude: 51.5074, longitude: -0.1278 },
         unique_by: :topic_id
@@ -41,6 +48,7 @@ RSpec.describe Locations::TopicLocationStore do
       topic.save_custom_fields
 
       expect(described_class.fetch(topic.reload)).to eq("raw" => "Somewhere")
+      expect(topic.custom_fields).not_to have_key("has_geo_location")
       expect(Locations::TopicLocation.exists?(topic:)).to eq(false)
     end
   end

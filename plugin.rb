@@ -96,7 +96,6 @@ after_initialize do
   end
 
   Topic.register_custom_field_type("location", :json)
-  Topic.register_custom_field_type("has_geo_location", :boolean)
   add_to_class(:topic, :location) { Locations::TopicLocationStore.fetch(self) }
   add_preloaded_topic_list_custom_field("location")
 
@@ -189,29 +188,13 @@ after_initialize do
       next result
     end
 
-    json_string =
-      case raw
-      when String
-        raw
-      when Hash, ActionController::Parameters
-        raw.to_h.to_json
-      else
-        raw.to_s
-      end
-
-    value_hash =
-      begin
-        JSON.parse(json_string)
-      rescue StandardError
-        nil
-      end
-    unless value_hash.is_a?(Hash) && value_hash["lat"].present? &&
-             value_hash["lon"].present?
+    location = Locations::Payload.parse(raw)
+    if !Locations::Payload.geocoded?(location)
       raise Discourse::InvalidParameters.new, I18n.t("location.errors.invalid")
     end
 
     result[:custom_fields] ||= {}
-    result[:custom_fields][:geo_location] = json_string
+    result[:custom_fields][:geo_location] = location.to_json
 
     result
   end
@@ -300,15 +283,9 @@ on(:custom_wizard_ready) do
         if location.present?
           location = Locations::Helper.parse_location(location)
 
-          location_params = {}
-          location_params["location"] = location
-          location_params["has_geo_location"] = location[
-            "geo_location"
-          ].present?
-
           params[:topic_opts] ||= {}
           params[:topic_opts][:custom_fields] ||= {}
-          params[:topic_opts][:custom_fields].merge!(location_params)
+          params[:topic_opts][:custom_fields]["location"] = location
         end
       end
 

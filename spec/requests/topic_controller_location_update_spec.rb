@@ -33,15 +33,7 @@ RSpec.describe TopicsController do
       topic = Topic.find(result["topic_id"])
 
       expect(topic.custom_fields).to eq(
-        {
-          "has_geo_location" => true,
-          "location" => {
-            "geo_location" => {
-              "lat" => "10",
-              "lon" => "12"
-            }
-          }
-        }
+        { "location" => { "geo_location" => { "lat" => "10", "lon" => "12" } } }
       )
       expect(::Locations::TopicLocation.find_by(topic: topic)).to be_present
     end
@@ -66,7 +58,6 @@ RSpec.describe TopicsController do
       topic = Topic.find(result["topic_id"])
 
       expect(topic.custom_fields["location"]).to be_blank
-      expect(topic.custom_fields["has_geo_location"]).to be_blank
       expect(::Locations::TopicLocation.find_by(topic: topic)).to be_blank
     end
   end
@@ -96,15 +87,7 @@ RSpec.describe TopicsController do
 
       topic.reload
       expect(topic.custom_fields).to eq(
-        {
-          "has_geo_location" => true,
-          "location" => {
-            "geo_location" => {
-              "lat" => "10",
-              "lon" => "12"
-            }
-          }
-        }
+        { "location" => { "geo_location" => { "lat" => "10", "lon" => "12" } } }
       )
       expect(::Locations::TopicLocation.find_by(topic: topic)).to be_present
     end
@@ -128,7 +111,7 @@ RSpec.describe TopicsController do
 
       topic.reload
       expect(topic.custom_fields["location"]).to eq({})
-      expect(topic.custom_fields["has_geo_location"]).to eq(false)
+      expect(topic.custom_fields).not_to have_key("has_geo_location")
       expect(::Locations::TopicLocation.find_by(topic: topic)).to be_blank
     end
 
@@ -166,9 +149,6 @@ RSpec.describe TopicsController do
 
       topic_without_locations.reload
       expect(topic_without_locations.custom_fields["location"]).to be_blank
-      expect(
-        topic_without_locations.custom_fields["has_geo_location"]
-      ).to be_blank
       expect(
         ::Locations::TopicLocation.find_by(topic: topic_without_locations)
       ).to be_blank

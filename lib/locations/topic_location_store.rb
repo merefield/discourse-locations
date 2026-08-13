@@ -3,7 +3,6 @@
 module ::Locations
   class TopicLocationStore
     FIELD_NAME = "location"
-    GEO_FIELD_NAME = "has_geo_location"
 
     def self.fetch(topic)
       Payload.parse(topic&.custom_fields&.[](FIELD_NAME))
@@ -12,7 +11,7 @@ module ::Locations
     def self.assign(topic:, location:)
       payload = Payload.parse(location)
       topic.custom_fields[FIELD_NAME] = payload || {}
-      topic.custom_fields[GEO_FIELD_NAME] = geocoded?(payload)
+      topic.custom_fields.delete("has_geo_location")
       sync(topic, payload:)
       payload
     end
