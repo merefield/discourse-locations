@@ -157,6 +157,103 @@ RSpec.describe DirectoryItemsController do
         ).to eq([newest_user.id, *tied_user_ids])
       end
 
+      it "allows extensions to refine the users-map query and limit" do
+        newest_user = Fabricate(:user, last_seen_at: 1.hour.ago)
+        older_user = Fabricate(:user, last_seen_at: 1.day.ago)
+        excluded_user = Fabricate(:user, last_seen_at: 2.days.ago)
+
+        [newest_user, older_user, excluded_user].each do |map_user|
+          UserCustomField.create!(
+            user: map_user,
+            name: "geo_location",
+            value: { lat: "51.5074", lon: "-0.1278" }.to_json
+          )
+          Locations::UserLocationProcess.upsert(map_user.id)
+        end
+        DirectoryItem.refresh_period!(:daily, force: true)
+
+        SiteSetting.location_users_map = true
+        SiteSetting.location_users_map_limit = 3
+        SiteSetting.enable_user_directory = true
+
+        plugin_instance = Plugin::Instance.new
+        modifier_block =
+          proc do |options, guardian, request_params|
+            next options if guardian.user != user
+            next options if request_params["audience"] != "featured"
+
+            options.merge(
+              query:
+                options[:query].where(
+                  users: {
+                    id: [newest_user.id, older_user.id]
+                  }
+                ),
+              limit: request_params["user_limit"] == "all" ? nil : 1
+            )
+          end
+        plugin_instance.register_modifier(
+          :locations_users_map_query_options,
+          &modifier_block
+        )
+
+        get "/directory_items.json",
+            params: {
+              period: "location",
+              audience: "featured"
+            }
+
+        expect(response.status).to eq(200)
+        expect(
+          response.parsed_body["directory_items"].map { |item| item["id"] }
+        ).to eq([newest_user.id])
+
+        get "/directory_items.json",
+            params: {
+              period: "location",
+              audience: "featured",
+              user_limit: "all"
+            }
+
+        expect(response.status).to eq(200)
+        expect(
+          response.parsed_body["directory_items"].map { |item| item["id"] }
+        ).to eq([newest_user.id, older_user.id])
+      ensure
+        if plugin_instance && modifier_block
+          DiscoursePluginRegistry.unregister_modifier(
+            plugin_instance,
+            :locations_users_map_query_options,
+            &modifier_block
+          )
+        end
+      end
+
+      it "returns a bad request when an extension supplies an invalid limit" do
+        SiteSetting.location_users_map = true
+        SiteSetting.enable_user_directory = true
+
+        plugin_instance = Plugin::Instance.new
+        modifier_block = proc { |options| options.merge(limit: "all") }
+        plugin_instance.register_modifier(
+          :locations_users_map_query_options,
+          &modifier_block
+        )
+
+        get "/directory_items.json", params: { period: "location" }
+
+        expect(response.status).to eq(400)
+        expect(response.parsed_body["error_type"]).to eq("invalid_parameters")
+      ensure
+        if plugin_instance && modifier_block
+          DiscoursePluginRegistry.unregister_modifier(
+            plugin_instance,
+            :locations_users_map_query_options,
+            &modifier_block
+          )
+        end
+      end
+
       it "returns forbidden when the user directory is disabled" do
         SiteSetting.location_users_map = true
         SiteSetting.enable_user_directory = false

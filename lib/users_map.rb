@@ -32,7 +32,21 @@ module DirectoryItemsControllerExtension
               "users.last_seen_at DESC NULLS LAST, directory_items.id ASC"
             )
           )
-          .limit(limit)
+
+      query_options =
+        DiscoursePluginRegistry.apply_modifier(
+          :locations_users_map_query_options,
+          { query: result, limit: limit },
+          guardian,
+          params.to_unsafe_h
+        )
+      result = query_options.fetch(:query)
+      limit = query_options.fetch(:limit)
+      if !limit.nil? && (!limit.is_a?(Integer) || limit.negative?)
+        raise Discourse::InvalidParameters.new,
+              "locations_users_map_query_options limit must be a non-negative integer or nil"
+      end
+      result = result.limit(limit) if limit
 
       serializer_opts = {}
       serializer_opts[:attributes] = []
