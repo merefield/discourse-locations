@@ -13,7 +13,10 @@ export default class UserCustomPrefsMapLocation extends Component {
   @tracked error = null;
 
   get parsedGeoLocation() {
-    const raw = this.args.model?.custom_fields?.geo_location;
+    const customFields = this.args.model?.custom_fields;
+    const raw = Object.hasOwn(customFields || {}, "geo_location")
+      ? customFields.geo_location
+      : this.args.model?.geo_location;
 
     if (!raw || raw === "{}") {
       return null;
