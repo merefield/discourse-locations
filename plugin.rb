@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: discourse-locations
 # about: Tools for handling locations in Discourse
-# version: 7.3.10
+# version: 7.3.11
 # authors: Robert Barrow, Angus McLeod
 # contact_emails: merefield@gmail.com
 # url: https://github.com/merefield/discourse-locations
@@ -42,6 +42,9 @@ after_initialize do
   require_relative "lib/users_map"
 
   reloadable_patch { TopicQuery.prepend(Locations::TopicQueryExtension) }
+  reloadable_patch do
+    User.singleton_class.prepend(Locations::UserCustomFieldPreloader)
+  end
 
   def Locations.parse_geo_location(val)
     Locations::Payload.parse(val)
@@ -113,10 +116,6 @@ after_initialize do
 
   if defined?(register_editable_user_custom_field)
     register_editable_user_custom_field("geo_location")
-  end
-
-  if User.respond_to? :preloaded_custom_fields
-    User.preloaded_custom_fields << "geo_location"
   end
 
   add_to_serializer(:user, :geo_location) do
