@@ -47,7 +47,7 @@ Raw location custom fields are not made globally public. Topic, profile, card, p
 
 ### Pro extension
 
-[Discourse Locations Pro](https://github.com/merefield/discourse-locations-early-access) is an optional extension available to GitHub Sponsors as a thank-you for supporting ongoing development. Individual and independent-community sponsors receive access from the **$7/month Bronze tier**; businesses and institutions must sponsor at the **$40/month Silver tier** or above. Eligible sponsors receive private-repository installation instructions.
+[Discourse Locations Pro](https://github.com/merefield/discourse-locations-pro-ext) is an optional extension available to GitHub Sponsors as a thank-you for supporting ongoing development. Individual and independent-community sponsors receive access from the **$7/month Bronze tier**; businesses and institutions must sponsor at the **$40/month Silver tier** or above. Eligible sponsors receive private-repository installation instructions.
 
 The Pro extension adds automated IP lookup, Nearby topics, Chatbot tools, enhanced users-map filters, the interactive globe, and the globe screen saver. Each optional automation or integration remains disabled until configured, and the Pro master setting can disable all Pro behaviour without disabling the base plugin.
 

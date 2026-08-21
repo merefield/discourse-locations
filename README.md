@@ -14,7 +14,7 @@ Discourse Locations adds structured and geocoded locations to topics and users, 
 
 ## Pro extension
 
-[Discourse Locations Pro Extension](https://github.com/merefield/discourse-locations-early-access) is an optional private extension available to GitHub Sponsors as a thank-you for supporting ongoing development. Individual and independent-community sponsors receive access from the **$7/month Bronze tier**; businesses and institutions must sponsor at the **$40/month Silver tier** or above.
+[Discourse Locations Pro Extension](https://github.com/merefield/discourse-locations-pro-ext) is an optional private extension available to GitHub Sponsors as a thank-you for supporting ongoing development. Individual and independent-community sponsors receive access from the **$7/month Bronze tier**; businesses and institutions must sponsor at the **$40/month Silver tier** or above.
 
 **[Sponsor on GitHub to get Locations Pro](https://github.com/sponsors/merefield)**
 
