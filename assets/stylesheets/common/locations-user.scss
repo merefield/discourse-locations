@@ -162,6 +162,16 @@
   }
 }
 
+@media (width < 40rem) {
+  .archetype-private_message
+    #topic
+    .topic-meta-data:has(.user-title)
+    + .location-summary {
+    // Match the metadata inset beyond the PM avatar's shortened float area.
+    margin-left: 50px;
+  }
+}
+
 // mobile adjustments
 @media (width <= 40rem) {
   #topic {
