@@ -32,13 +32,15 @@ export default class LocationMapComponent extends Component {
   }
 
   <template>
-    {{yield}}
-    <div class="location-summary">
-      <div class="user-location">{{this.locationText}}</div>
-      <div class="location-flag">
-        {{#if this.showFlag}}
-          <NationalFlag @countryCode={{this.countryCode}} />
-        {{/if}}
+    <div class="post-location-metadata">
+      {{yield}}
+      <div class="location-summary">
+        <div class="user-location">{{this.locationText}}</div>
+        <div class="location-flag">
+          {{#if this.showFlag}}
+            <NationalFlag @countryCode={{this.countryCode}} />
+          {{/if}}
+        </div>
       </div>
     </div>
   </template>

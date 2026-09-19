@@ -162,13 +162,19 @@
   }
 }
 
+.post-location-metadata {
+  display: contents;
+}
+
 @media (width < 40rem) {
-  .archetype-private_message
-    #topic
-    .topic-meta-data:has(.user-title)
-    + .location-summary {
-    // Match the metadata inset beyond the PM avatar's shortened float area.
+  .archetype-private_message #topic .post-location-metadata:has(.user-title) {
+    // Keep all metadata beside the avatar, including its float margin.
+    display: flow-root;
     margin-left: 50px;
+
+    .topic-meta-data {
+      margin-left: 0;
+    }
   }
 }
 
