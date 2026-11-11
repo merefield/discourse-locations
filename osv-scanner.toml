@@ -1,0 +1,4 @@
+[[IgnoredVulns]]
+id = "GHSA-g3hv-75wg-m249"
+effectiveUntil = 2026-12-11
+reason = "Discourse's lint toolchain still requires minimatch 10; remove when core moves to minimatch 11."
