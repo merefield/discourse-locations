@@ -1,0 +1,26 @@
+name: Dependency Security
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "23 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  dependency-vulnerabilities:
+    name: Dependency vulnerability scan
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.7.1
+    with:
+      scan-args: |-
+        --config=osv-scanner.toml
+        --lockfile=Gemfile.lock
+        --lockfile=pnpm-lock.yaml
+      upload-sarif: false
